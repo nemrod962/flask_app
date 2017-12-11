@@ -1,0 +1,9 @@
+show databases;         #enseña las bases de datos disponibles
+use <DB_name>;          #selecciona base de datos a utilizar
+show tables;            #enseña las tablas en la base de datos seleccionada
+describe <table_name>;  #enseña las columnas de la tabla seleccionada
+
+#cambiar tipo de dato de una columna
+alter table <table_name> modify column <columna_name> <tipo_dato_nuevo>
+
+
