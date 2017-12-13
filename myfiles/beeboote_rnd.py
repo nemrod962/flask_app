@@ -21,9 +21,13 @@ class Bee:
     #lista temporal con todas las entradas de beebotte (numeros)
     listaGlobalNumero = list()
 
+    """
+    #No necesito ya que no puedo declarar las listas
+    #sin inicializarlas.
     def __init__(self):
         self.listaGlobalFecha = list()
         self.listaGlobalNumero = list()
+    """
 
     #Iniciamos la conexion con Beebotte
     def initConn(self):
@@ -118,20 +122,21 @@ class Bee:
                 print "Error adding resource "+varName
                 return 1
 
-
+#-------------------------------------------------------------------------
     #WRITE DATA
-    def writeData(self, bclient, channel, varName, value):
-        #try:
-        #Create a Resource object
-        res = Resource(bclient, channel, varName)
-        #write to the resource
-        res.write(value)
-        return 0
-        """    
+    def writeData(self, bclient, channel, varName, value, debug = False):
+        try:
+            #Create a Resource object
+            res = Resource(bclient, channel, varName)
+            #write to the resource
+            res.write(value)
+            return 0
+            
         except:
-            print "Could not write value "+value+" into variable "+varName
+            if debug:
+                print "Could not write value "+value+" into variable "+varName
             return 1
-        """
+        
 
     #READ DATA
     def readData(self, bclient, channel, varName, myLimit = 5, debug = False):
@@ -165,7 +170,7 @@ class Bee:
     """
     def writeRandom(self, debug=False):
         #iniciamos conexion con la base ded datos online
-        bclient = initConn()
+        bclient = self.initConn()
         #obtenemos numero aleatorio de internet
         rndClass = web_fetcher.rnd_fetcher.Rnd_fetcher()
         rndNumber = rndClass.get_web_rnd()
@@ -173,7 +178,7 @@ class Bee:
             print "El numero aleatorio es: "+str(rndNumber)
         #escribimos el numero random en la BBDD online
         #es necseraio convertirlo a string para pasarlo como parametro
-        success=writeData(bclient, "NumberList", "numero", rndNumber)
+        success=self.writeData(bclient,"NumberList","numero",rndNumber,debug)
         if success == 0:
             if debug:
                 print "Numero "+str(rndNumber)+" escrito satisfactoriamente en NumberList"
@@ -188,7 +193,7 @@ class Bee:
     def readRandom(self, debug = False):
         bclient = self.initConn()
         #tengo una lista en resultado
-        resultado = self.readData(bclient, "NumberList", "numero", 1024, True)
+        resultado = self.readData(bclient, "NumberList", "numero", 1024, debug)
         #en l tengo la longitud de la lista de los resultados
         l = len(resultado)
         #lista temporal con todas las entradas de beebotte (fecha)
@@ -217,8 +222,14 @@ class Bee:
     def user_op(self):
         repetir = True
         bclient = self.initConn()
+        debug_str = raw_input("Activar Modo Debug?[Y\N]: ")
+        if debug_str == "Y" or debug_str == "y":
+            debug = True
+        else:
+            debug = False
+        #Bucle principal
         while repetir:
-            opcion = raw_input("Selecciona operacion:\n1.Añadir canal.\n2.Añadir variable a canal ya existente.\n3.Borrar canal.\n4.Escribir numero aleatorio.\n5.Ver numeros aleatorios.\n")
+            opcion = raw_input("Selecciona operacion:\n1.Añadir canal.\n2.Añadir variable a canal ya existente.\n3.Borrar canal.\n4.Escribir numero aleatorio.\n5.Ver numeros aleatorios.\n6.Mostrar lista numeros y tiempo.\n")
             #Añadir canal
             if opcion == "1":
                 nombre = raw_input("Nombre canal: ")
@@ -229,7 +240,7 @@ class Bee:
                 res = createChannel(bclient, nombre, varName, varType, label, descr)
                 print res
             #Añadir variable
-            if opcion == "2":
+            elif opcion == "2":
                 canal = raw_input("Canal: ")
                 nombre= raw_input("nombre variable: ")
                 tipo= raw_input("tipo (string o number): ")
@@ -237,22 +248,27 @@ class Bee:
                 descr= raw_input("descripcion: ")
                 res = createResource(bclient, canal, nombre,tipo,label, descr)
                 print res
-            if opcion == "3":
+            elif opcion == "3":
                 nombre = raw_input("Nombre canal: ")
                 try:
                     bclient.deleteChannel(nombre)
                 except:
                     print "No se pudo borrar canal "+nombre
-            if opcion == "4":
-                writeRandom(True)
-            if opcion == "5":
-                self.readRandom(True)
+            elif opcion == "4":
+                self.writeRandom(debug)
+            elif opcion == "5":
+                self.readRandom(debug)
+            elif opcion == "6":
+                print "Lista fechas: "
+                print self.listaGlobalFecha
+                print "Lista numeros: "
+                print self.listaGlobalNumero
             #opcion no valida
             else:
                 print "opcion no valida"
             
             #continuamos con el bucle
-            opcion2 = raw_input("Quiere realizar otra operacion? Y/N:\n")
+            opcion2 = raw_input("Quiere realizar otra operacion? Y/N: ")
             if(opcion2 != "Y" and opcion2 != "y"):
                 repetir = False
 

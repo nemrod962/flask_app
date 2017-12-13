@@ -58,7 +58,7 @@ def initDBConn():
 
 #escribe el numero aleatorio en la base de datos
 #junto con la fecha y hora de obtencion
-def writeDataDB(debug = True):
+def writeDataDB(debug = False):
     #obtenemos los datos a escribir
     #numero aleatorio. Lo convertimos a String
     #ya que es necesario para meterlo en la orden SQL
@@ -92,9 +92,48 @@ def writeDataDB(debug = True):
     cursor.close()
     conn.close()
 
+#Lee los datos existentes en la Base de datos
+def readDataDB(debug = False):
+    #inciamos conexion con BD
+    conn = initDBConn()
+    #escribimos datos en la BD
+    cursor = conn.cursor()
+    cursor.execute("select * from NumberList")
+    res = cursor.fetchall()
+    if debug:
+        print "La tabla de la BD: "
+        print res
+    cursor.close()
+    conn.close()
 
-writeDataDB()
+#permite al usuario añadir canales y variables a los mismos
+def user_op():
+    repetir = True
+    debug_str = raw_input("Activar Modo Debug?[Y\N]: ")
+    if debug_str == "Y" or debug_str == "y":
+        debug = True
+    else:
+        debug = False
+    #Bucle principal
+    while repetir:
+        opcion = raw_input("Operacion:\n1.Leer BD.\n2.Escribir BD.\n")
+        #Añadir canal
+        if opcion == "1":
+            readDataDB(debug)
+        #Añadir variable
+        elif opcion == "2":
+            writeDataDB(debug)
+        #opcion no valida
+        else:
+            print "opcion no valida"
+
+        #continuamos con el bucle
+        opcion2 = raw_input("Quiere realizar otra operacion? Y/N: ")
+        if(opcion2 != "Y" and opcion2 != "y"):
+            repetir = False
+
 
 #LANZAMOS FLASK
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    user_op()
+    #app.run(host='0.0.0.0')
