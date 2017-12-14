@@ -14,20 +14,23 @@ import re
 #importamos la clase para obtener los numeros aleatorios
 import web_fetcher.rnd_fetcher
 
-class Bee:
+class BeeHandler:
+    
+    """
     #VARIABLES GLOBALES (de clase)
     #lista temporal con todas las entradas de beebotte (fecha)
     listaGlobalFecha = list()
     #lista temporal con todas las entradas de beebotte (numeros)
     listaGlobalNumero = list()
-
     """
-    #No necesito ya que no puedo declarar las listas
-    #sin inicializarlas.
+    
+    #Inicializo las variables globales en el contructor
     def __init__(self):
+        #lista temporal con todas las entradas de beebotte (fecha)
         self.listaGlobalFecha = list()
+        #lista temporal con todas las entradas de beebotte (numeros)
         self.listaGlobalNumero = list()
-    """
+    
 
     #Iniciamos la conexion con Beebotte
     def initConn(self):
@@ -38,6 +41,13 @@ class Bee:
         bclient = BBT(_accesskey, _secretkey, hostname = _hostname)
         return bclient
 
+
+#-------------------------------------------------------------------------
+    """
+    OPTIONAL FUNCTIONS. Funciones extra que no son relevantes para el programa.
+    Permiten añadir canales y recursos a la base de datos online, pero tambien
+    puede hacerse desde el navegador sin la necesidad de hacerlo desde aqui
+    """
     #create channel. Es necesario crear una variable tambien
     def createChannel(self, bclient, channelName, 
                     #parametros de la varable
@@ -123,6 +133,9 @@ class Bee:
                 return 1
 
 #-------------------------------------------------------------------------
+    """
+    Funciones para escribir y leer datos de la base de datos online
+    """
     #WRITE DATA
     def writeData(self, bclient, channel, varName, value, debug = False):
         try:
@@ -141,12 +154,12 @@ class Bee:
     #READ DATA
     def readData(self, bclient, channel, varName, myLimit = 5, debug = False):
         #read resources
-        records1 = bclient.read(channel, varName, myLimit)
+        records = bclient.read(channel, varName, myLimit)
         if debug:
             print "Estoy leyendo."
-            for x in records1:
+            for x in records:
                 print x
-        return records1
+        return records
 
     #sacar la fecha del tiempo obtenido de toda la string obtenida
     #utilizar expresiones regulares.
@@ -163,17 +176,21 @@ class Bee:
         #print numero[0]
         return numero[0]
 
-    #----------------------------------------
+#-------------------------------------------------------------------------
     """
-    Ahora escribimos el numero aleatorio en la base de datos.
-    Debuelve 0 si se ha realizado satisfactoriamente, 1 si no.
+    Funciones para leer y escribir especificamente los numeros aleatorios
+    a la base de datos online.
     """
-    def writeRandom(self, debug=False):
+    #Ahora escribimos el numero aleatorio en la base de datos.
+    #Devuelve 0 si se ha realizado satisfactoriamente, 1 si no.
+    #BeeBotte almacena la fecha automaticamente, no hace falta
+    #que tengamos otro recurso almacenandola.
+    def writeRandom(self, rndNumber, debug=False):
         #iniciamos conexion con la base ded datos online
         bclient = self.initConn()
         #obtenemos numero aleatorio de internet
-        rndClass = web_fetcher.rnd_fetcher.Rnd_fetcher()
-        rndNumber = rndClass.get_web_rnd()
+        #rndClass = web_fetcher.rnd_fetcher.Rnd_fetcher()
+        #rndNumber = rndClass.get_web_rnd()
         if debug:
             print "El numero aleatorio es: "+str(rndNumber)
         #escribimos el numero random en la BBDD online
@@ -187,13 +204,17 @@ class Bee:
             if debug:
                 print "ERROR: no se pudo escribir el numero "+str(rndNumber)
             return 1
-    """
-    Lee los numeros aleatorios ya esxitentes en la Base de datos online
-    """
+    
+    #Lee los numeros aleatorios ya esxitentes en la Base de datos online
     def readRandom(self, debug = False):
         bclient = self.initConn()
-        #tengo una lista en resultado
+        #tengo una lista con los numeros aleatorios y su fecha en resultado
         resultado = self.readData(bclient, "NumberList", "numero", 1024, debug)
+        
+        #Una vez obtenido el resultado, parsearemos y volcaremos los
+        #numeros y sus fechas en dos listas de esta clase con la
+        #que trabajaremos mas adelante.
+
         #en l tengo la longitud de la lista de los resultados
         l = len(resultado)
         #lista temporal con todas las entradas de beebotte (fecha)
@@ -206,9 +227,15 @@ class Bee:
             #parseo fecha
             fechaMs=self.parseDate(str(resultado[index]))
             numero =self.parseNumber(str(resultado[index]))
-            #Añado a las listas globales
-            self.listaGlobalFecha[index] = fechaMs
-            self.listaGlobalNumero[index] = numero
+            #Añado a las listas globales.
+            #Como mas adelante tendre que trabajar con estos
+            #datos comparandolos unos con otros, los almacenaré como dato
+            #numerico.
+
+            #Fecha es un entero, pues esta en ms y no tiene decimales
+            self.listaGlobalFecha[index] = int(fechaMs)
+            #Numero sera un float pues tiene decimales
+            self.listaGlobalNumero[index] = float(numero)
             if debug:
                 print "Entada ["+str(index)+"] num: "+numero+" fecha: "+fechaMs
         if debug:        
@@ -216,8 +243,8 @@ class Bee:
             print self.listaGlobalFecha
             print self.listaGlobalNumero
 
-    #----------------------------------------
-
+#-------------------------------------------------------------------------
+    #INTERFAZ DE USUARIO
     #permite al usuario añadir canales y variables a los mismos
     def user_op(self):
         repetir = True
@@ -255,7 +282,10 @@ class Bee:
                 except:
                     print "No se pudo borrar canal "+nombre
             elif opcion == "4":
-                self.writeRandom(debug)
+                #rndClass = web_fetcher.rnd_fetcher.Rnd_fetcher()
+                #rndNumber = rndClass.get_web_rnd()
+                numero = web_fetcher.rnd_fetcher.Rnd_fetcher().get_web_rnd()
+                self.writeRandom(numero, debug)
             elif opcion == "5":
                 self.readRandom(debug)
             elif opcion == "6":
@@ -273,5 +303,5 @@ class Bee:
                 repetir = False
 
 if __name__ == "__main__":
-    clase = Bee()
+    clase = BeeHandler()
     clase.user_op()
