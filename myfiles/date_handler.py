@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 """
 FICHERO SIMPLE PARA OBTENER FECHA Y HORA
 """

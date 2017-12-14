@@ -77,12 +77,16 @@ class SQLHandler:
     #Normalmente se especificara el numero a
     #insertar junto con su fecha.
     #Si no es asi, se generará uno.
-    def writeDataDB(self, rnd, fecha, debug = False):
+    def writeDataDB(self, numRnd, fecha, debug = False):
         #obtenemos los datos a escribir
         #numero aleatorio. Lo convertimos a String
         #ya que es necesario para meterlo en la orden SQL
         # de cursor.execute()
-        #rnd = str(self.getData())
+        #PASO DE INT A STRING
+        #es necesario tenerlo en string pues la orden SQL
+        #es una cadena, y como vamos a poner el numero 
+        #en esa cadena deberá ser del tipo string
+        rnd = str(numRnd)
         #fecha en ms
         #fecha = str(date_handler.getDatetimeMs())
         #FECHA Y RND LOS TOMO COMO PARAMETROS
