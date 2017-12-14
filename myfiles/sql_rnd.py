@@ -167,6 +167,15 @@ class SQLHandler:
         num = searchObj.group(1)
         return num
 
+    #Limpia todos los valores de la tabla de MySQL
+    def cleanData(self):
+        #inciiamos conexion con BD
+        conn = self.initDBConn()
+        #obtenenmos cursor para ejecutar queries
+        cursor = conn.cursor()
+        cursor.execute("delete from NumberList where true")
+        cursor.close()
+        conn.close()
 
     #permite al usuario añadir canales y variables a los mismos
     def user_op(self):
