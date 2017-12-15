@@ -44,6 +44,14 @@ class RndUploader:
         #inicio proceso para subir los datos a las BBDD
         self.lanzar()
     
+    #Devuelve el manejador de MySQL
+    def getSQLHandler(self):
+        return self.__SQLHand
+
+    #Devuelve el manejador de Beebotte
+    def getBeeHandler(self):
+        return self.__BeeHand
+    
     #Subira un número aleatorio cada 2 min
     def upload(self):
         while self.__enable.value:
@@ -53,21 +61,35 @@ class RndUploader:
 
             if self.__debug:
                 print "num aleatorio a escribir: " + str(rnd)
-            
+
+
+            #BORRA ESTO!-----------------------------
+            print "PELIGRO: BORRA ESTO!!! rnd-uploader.upload() line-65"
+            self.__enable.value = False
+            self.__SQLHand.readDataDB()
+            self.__BeeHand.readRandom()
+            #BORRA ESTO!-----------------------------
+
+
             #Escribir
             if(self.__enable.value):
+                #escribo en Beebotte
                 self.__BeeHand.writeRandom(rnd, self.__debug)
                 #solo necesario para la BD local, ya que Beebotte
                 #almacena automaticamente la fecha
                 fecha = str(date_handler.getDatetimeMs())
+                #escribo en MySQL
                 self.__SQLHand.writeDataDB(rnd, fecha, self.__debug)
-
+                
+                #ACTUALIZO LOS DATOS EN LAS LISTAS LOCALES 
+                #DE LOS MANEJADORES
+                self.__SQLHand.readDataDB()
+                self.__BeeHand.readRandom()
+                
                 if self.__debug:
-                    self.__SQLHand.readDataDB()
                     print "Tablas MySQL:"
                     print self.__SQLHand.listaGlobalFecha
                     print self.__SQLHand.listaGlobalNumero
-                    self.__BeeHand.readRandom()
                     print "Tablas Bee:"
                     print self.__BeeHand.listaGlobalFecha
                     print self.__BeeHand.listaGlobalNumero
