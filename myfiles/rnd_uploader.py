@@ -7,8 +7,9 @@ tanto a la base de datos MySQL local
 como a Beebotte cada dos minutos
 """
 
-#para crear procesos
-import multiprocessing
+#Process para crear procesos. la variable enable deberá ser
+#del tipo Value para que su valor se comparta entre procesos
+from multiprocessing import Process, Value
 #para esperar los dos minutos
 import time
 #librerias propias para trabajar con las bases de datos
@@ -25,9 +26,11 @@ class RndUploader:
     #se inicializa como True. Miestras tenga este valor
     #se seguiran subiendo datos cada 2 minutos.
     #cuando se cambie su valor a Flase parara.
-    def __init__(self, tiempoSleep = 120, debug = False):
+    def __init__(self, flaskApp, tiempoSleep = 120, debug = False):
         #self.__enable -> __enable es privado gracias a '__'
-        self.enable=True
+        #para acceder al valor de enable utilizaremos
+        #self.__enable.value
+        self.__enable=Value('b', True)
         #modo debug
         self.__debug=debug
         #tiempo a esperar entre inserciones
@@ -36,30 +39,30 @@ class RndUploader:
         #para obtener los  numeros aleatorios
         self.__RndGen = web_fetcher.rnd_fetcher.Rnd_fetcher()
         #manejar BD local
-        self.__SQLHand = sql_rnd.SQLHandler()
+        self.__SQLHand = sql_rnd.SQLHandler(flaskApp)
         self.__BeeHand = beebotte_rnd.BeeHandler()
         #inicio proceso para subir los datos a las BBDD
-        self.upload(self.__debug)
+        self.lanzar()
     
     #Subira un número aleatorio cada 2 min
-    def upload(self, debug=False):
-        while self.enable:
+    def upload(self):
+        while self.__enable.value:
 
             #obtenemos numero aleatorio a insertar
             rnd = self.__RndGen.get_web_rnd()
 
-            if debug:
+            if self.__debug:
                 print "num aleatorio a escribir: " + str(rnd)
             
             #Escribir
-            if(self.enable):
-                self.__BeeHand.writeRandom(rnd, debug)
+            if(self.__enable.value):
+                self.__BeeHand.writeRandom(rnd, self.__debug)
                 #solo necesario para la BD local, ya que Beebotte
-                #alamcena automaticamente la fecha
+                #almacena automaticamente la fecha
                 fecha = str(date_handler.getDatetimeMs())
-                self.__SQLHand.writeDataDB(rnd, fecha, debug)
+                self.__SQLHand.writeDataDB(rnd, fecha, self.__debug)
 
-                if debug:
+                if self.__debug:
                     self.__SQLHand.readDataDB()
                     print "Tablas MySQL:"
                     print self.__SQLHand.listaGlobalFecha
@@ -69,9 +72,51 @@ class RndUploader:
                     print self.__BeeHand.listaGlobalFecha
                     print self.__BeeHand.listaGlobalNumero
 
-            time.sleep(self.__tiempo)
+                #esperar entre escrituras
+                try:
+                    time.sleep(self.__tiempo)
+                except:
+                    if self.__debug:
+                        print "Uploader.upload(): sleep interrumpido!"
 
-        print "UPLOADER: saliendo..."
+        print "Uploader.upload(): saliendo..."
+    
+    #funcion utilizada para testing
+    def hola(self, nombre):
+        while self.__enable.value:
+            print "hola " + nombre + " "+ str(self.__enable.value)
+            try:
+                time.sleep(5)
+            except:
+                print "Uploader.hola(): sleep fue interrumpido!"
+                #self.__enable.value = False
+        print "Uploader.hola(): PROCESO ACABADO"
+
+    #funcion de prueba para probar el multiprocesamiento
+    #genera el proceso
+    def lanzar(self):
+        #proceso que será el uploader.
+        #si solo pasamos un parametro como argumento (args),
+        #tendremos que poner una coma detras de el, que es la
+        #forma de decir que es una tupla de un solo elemento.
+        #Sin esta coma (',') la creación del proceso falla
+        #self.proceso = Process(target=self.upload, args=(self.__debug,) )
+        self.proceso = Process(target=self.upload)
+        #inicio proceso
+        self.proceso.start()
+        #proceso.join()
+
+    def finalizar(self):
+        self.__enable.value=False
+        if self.__debug:
+            print "Bandera activada para finalizar: " + str(self.__enable.value)
+            print "Esperando para acabar"
+        self.proceso.join()
+        if self.__debug:
+            print "el proceso ya ha acabado"
 
 if __name__ == '__main__':
-    clase = RndUploader(10, True)
+    print "Has ejecutado rnd_uploader.py"
+    #clase = RndUploader(10, True)
+    #clase.__enable.value=False
+    #clase.finalizar()
