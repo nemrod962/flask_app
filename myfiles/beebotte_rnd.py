@@ -204,7 +204,9 @@ class BeeHandler:
             if debug:
                 print "ERROR: no se pudo escribir el numero "+str(rndNumber)
             return 1
-    
+
+
+    #ACTUALIZO LAS LISTAS LOCALES CON LOS DATOS DE LA BD
     #Lee los numeros aleatorios ya esxitentes en la Base de datos online
     def readRandom(self, debug = False):
         bclient = self.initConn()

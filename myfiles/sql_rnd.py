@@ -120,6 +120,7 @@ class SQLHandler:
         cursor.close()
         conn.close()
 
+    #ACTUALIZO LAS LISTAS LOCALES CON LOS DATOS DE LA BD
     #Lee los datos existentes en la Base de datos
     #Almaceno los datos obtenidos en las listas globales
     def readDataDB(self, debug = False):
