@@ -37,6 +37,8 @@ class SQLHandler:
     #app = Flask(__name__)
 
     def __init__(self, flaskApp = Flask(__name__)):
+        
+        #Instancia de Flask a utilizar para configurar la conexion
         self.app = flaskApp
         #lista temporal con todas las entradas de mysql (fecha)
         self.listaGlobalFecha = list()
