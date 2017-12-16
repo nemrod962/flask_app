@@ -5,7 +5,7 @@ EJEMPLO INICIAL DE FLASK
 #proceso para subir los datos a las BBDD
 import rnd_uploader
 #funcionalidad de la web con los datos
-import data_functions
+import web_functions
 
 from flask import Flask 
 app = Flask(__name__) 
