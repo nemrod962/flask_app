@@ -67,7 +67,7 @@ def umbral(DBHandler, umbral, debug = False):
             if listaNum[index] > umbral:
                 #Nos quedaremos con el ULTIMO 
                 #numero que haya superado e umbral
-                if listaDate[index] > resDateSup
+                if listaDate[index] > resDateSup:
                     resNumSup = listaNum[index]
                     resDateSup = listaDate[index]
 
@@ -82,7 +82,7 @@ def umbral(DBHandler, umbral, debug = False):
                 #Nos quedaremos con el ULTIMO 
                 #numero que haya superado el umbral
                 #por debajo
-                if listaDate[index] > resDateInf
+                if listaDate[index] > resDateInf:
                     resNumInf = listaNum[index]
                     resDateInf = listaDate[index]
         
