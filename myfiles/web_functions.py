@@ -90,7 +90,7 @@ def umbral(DBHandler, umbral, debug = False):
             else:
                 print "Inferior: " + str(resNumInf) + " - " + str(resDateInf)
 
-        return (resNumSup, resDateSup, resNumInf, resNumInf)
+        return (resNumSup, resDateSup, resNumInf, resDateInf)
 
     #Base de datos desconocida
     else:

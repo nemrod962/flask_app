@@ -2,25 +2,89 @@
 """
 EJEMPLO INICIAL DE FLASK
 """
+#FLASK
+from flask import Flask, render_template, url_for, redirect, request
 #proceso para subir los datos a las BBDD
 import rnd_uploader
 #funcionalidad de la web con los datos
 import web_functions
+import web_presentation
+#Manejo Bases de Datos
+import sql_rnd
+import beebotte_rnd
 
-from flask import Flask 
+#Creo instancia de Flask
 app = Flask(__name__) 
 
-@app.route("/") 
+#VAR GLOBAL
+#Manejo de BBDD
+SQLHandler = sql_rnd.SQLHandler(app)
+BeeHandler = beebotte_rnd.BeeHandler()
 
-def hello():
-   return "Hello World!"
+#PAGINA INICIAL
+#Mostramos la pagina inicial
+@app.route("/") 
+def webMain():
+    return render_template("index.html")
+
+#Procesamos la opción elegida en la pagina inicial
+@app.route("/", methods=['POST'])
+def webMain_post():
+    opcion = request.form['option']
+    
+    #Dependiendo de la direccion seleccionada en
+    #la pantalla inicial redirigiremos a una dirección 
+    #o a otra.
+
+    if opcion == "tablas":
+        #return redirect(url_for('show_type', sensor="s1"))
+        return redirect(url_for('webTabla'))
+
+    if opcion == "umbral":
+        return redirect(url_for('webUmbral'))
+
+    if opcion == "media":
+        return redirect(url_for('webMedia'))
+
+    if opcion == "grafo":
+        return redirect(url_for('webGrafo'))
+
+    else:
+        return "ERROR: Opción Desconocida"
+
+#TABLAS
+@app.route("/tablas")
+def webTabla():
+    #return "Tablas: PLACEHOLDER"
+    return render_template("tablas.html",\
+    tablaHTML = web_presentation.getTableHTML(SQLHandler, True))
+
+@app.route("/tablas", methods=['POST'])
+def webTabla_post():
+    #opcion = request.form['pls']
+    #print opcion
+    return redirect(url_for('webMain'))
+
+#UMBRAL
+@app.route("/umbral")
+def webUmbral():
+    return "Umbral: PLACEHOLDER"
+
+#MEDIA
+@app.route("/media")
+def webMedia():
+    return "Media: PLACEHOLDER"
+
+#GRAFOS
+@app.route("/grafo")
+def webGrafo():
+    return "Grafo: PLACEHOLDER"
 
 if __name__ == "__main__":
 
    #Iniciar y lanzar proceso de carga de datos en las BBDD
    #LOS MANEJADORES DE LAS DBs SE INICIALIZAN EN SU CONSTRUCTOR
-   uploader = rnd_uploader.RndUploader(app, 120, True)    
-
+   uploader = rnd_uploader.RndUploader(app, SQLHandler, BeeHandler, 120, True) 
    #prueba
    r1 = web_functions.umbral(uploader.getSQLHandler(), 50, True) 
    r2 = web_functions.umbral(uploader.getBeeHandler(), 50, True) 
@@ -39,7 +103,7 @@ if __name__ == "__main__":
    print "media Bee: "
    print media2
     
-   #app.run(host='0.0.0.0')
+   app.run(host='0.0.0.0')
     
    #señal de finalizar al proceso
    #uploader.enable = False

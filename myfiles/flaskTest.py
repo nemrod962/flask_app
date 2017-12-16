@@ -1,7 +1,7 @@
 """
 DIFERENTES PRUEBAS CON FLASK
 """
-from flask import Flask, url_for, request, render_template 
+from flask import Flask, url_for, request, render_template, redirect
 app = Flask(__name__) 
 
 #Functions for different routes in the server
@@ -57,13 +57,17 @@ def led():
 
 @app.route("/") 
 def my_form():
-    return render_template("my-form.html")
+    #return render_template("my-form.html")
+    return render_template("index.html")
 
 @app.route("/", methods=['POST'])
 def my_form_post():
-    text = request.form['text']
+    #text = request.form['text']
+    text = request.form['option']
     processed_text = text.upper()
-    return processed_text
+    #return processed_text
+    sensor = "s1"
+    return redirect(url_for('show_type', sensor="s1"))
 
 @app.route("/submit",  methods=['GET'])
 def submit():        

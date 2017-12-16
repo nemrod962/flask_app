@@ -26,7 +26,8 @@ class RndUploader:
     #se inicializa como True. Miestras tenga este valor
     #se seguiran subiendo datos cada 2 minutos.
     #cuando se cambie su valor a Flase parara.
-    def __init__(self, flaskApp, tiempoSleep = 120, debug = False):
+    def __init__(self, flaskApp, handSQL, handBee,\
+    tiempoSleep = 120, debug = False):
         #self.__enable -> __enable es privado gracias a '__'
         #para acceder al valor de enable utilizaremos
         #self.__enable.value
@@ -38,9 +39,11 @@ class RndUploader:
         #Creo instancias PRIVADAS de las clases a utilizar
         #para obtener los  numeros aleatorios
         self.__RndGen = web_fetcher.rnd_fetcher.Rnd_fetcher()
-        #manejar BD local
-        self.__SQLHand = sql_rnd.SQLHandler(flaskApp)
-        self.__BeeHand = beebotte_rnd.BeeHandler()
+        #manejar BBDD
+        #self.__SQLHand = sql_rnd.SQLHandler(flaskApp)
+        #self.__BeeHand = beebotte_rnd.BeeHandler()
+        self.__SQLHand = handSQL
+        self.__BeeHand = handBee
         #inicio proceso para subir los datos a las BBDD
         self.lanzar()
     
@@ -62,14 +65,14 @@ class RndUploader:
             if self.__debug:
                 print "num aleatorio a escribir: " + str(rnd)
 
-
+            
             #BORRA ESTO!-----------------------------
-            print "PELIGRO: BORRA ESTO!!! rnd-uploader.upload() line-65"
+            print "PELIGRO: BORRA ESTO!!! rnd-uploader.upload() line-70"
             self.__enable.value = False
             self.__SQLHand.readDataDB()
             self.__BeeHand.readRandom()
             #BORRA ESTO!-----------------------------
-
+            
 
             #Escribir
             if(self.__enable.value):
