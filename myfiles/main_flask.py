@@ -22,11 +22,11 @@ if __name__ == "__main__":
    uploader = rnd_uploader.RndUploader(app, 120, True)    
 
    #prueba
-   r1 = data_functions.umbral(uploader.getSQLHandler(), 50, True) 
-   r2 = data_functions.umbral(uploader.getBeeHandler(), 50, True) 
-   r3 = data_functions.umbral(None, 50) 
-   media1 = data_functions.media(uploader.getSQLHandler(), True)
-   media2 = data_functions.media(uploader.getBeeHandler(), True)
+   r1 = web_functions.umbral(uploader.getSQLHandler(), 50, True) 
+   r2 = web_functions.umbral(uploader.getBeeHandler(), 50, True) 
+   r3 = web_functions.umbral(None, 50) 
+   media1 = web_functions.media(uploader.getSQLHandler(), True)
+   media2 = web_functions.media(uploader.getBeeHandler(), True)
    print "---"
    print "r1: "
    print r1
