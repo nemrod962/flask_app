@@ -12,6 +12,7 @@ import date_handler
 #obtiene la tabla de MySQL y la
 #inserta en HTML
 def getTableHTML(DBHandler, debug = False):
+#--------------------------------------------------
     #Usamos MySQL o Beebotte
     if DBHandler.__class__.__name__ == "SQLHandler"\
         or DBHandler.__class__.__name__ == "BeeHandler" :
@@ -34,7 +35,7 @@ def getTableHTML(DBHandler, debug = False):
         #obtengo listas 
         listaNum = DBHandler.listaGlobalNumero
         listaDate = DBHandler.listaGlobalFecha
-        
+#--------------------------------------------------
    
         l1 = len(listaNum)
         l2 = len(listaDate)
@@ -43,7 +44,7 @@ def getTableHTML(DBHandler, debug = False):
         if debug:
             print "Longitud de la(s) lista(s): " + str(l1)
 
-   
+        #CREACION DE LA TABLA HTML  
         #Inicio de la tabla
         tablaHTML = "<style> table, th, td {border: 1px solid black;} </style>"
         #Anchura de la tabla
@@ -70,3 +71,65 @@ def getTableHTML(DBHandler, debug = False):
         tablaHTML += "</table>"
 
     return tablaHTML
+
+
+
+def getUmbralHTML(DBHandler, umbral, debug=False):
+    #Usamos MySQL o Beebotte
+    if DBHandler.__class__.__name__ == "SQLHandler"\
+    or DBHandler.__class__.__name__ == "BeeHandler" :
+        #Obtenemos el resultado con el siguiente formato:
+        #tuple(numSup, fechaNumSup, numInf, fechaNumInf)
+        tuplaResUmbral = web_functions.umbral(DBHandler, umbral, debug)
+        
+        #HTML
+        #Inicio de la tabla
+        tablaHTML = "<style> table, th, td {border: 1px solid black;} </style>"
+        #Anchura de la tabla
+        tablaHTML += "<table style=\"width:50%\">"
+        #PRIMERA FILA
+        tablaHTML += "<tr>"
+        tablaHTML += "<th>Ultimo Numero Superior</th>"+\
+        "<th>Fecha Ultimo Numero Superior</th>" +\
+        "<th>Ultimo Numero Inferior</th>"+\
+        "<th>Fecha Ultimo Numero Inferior</th>"
+        tablaHTML += "</tr>"
+        #DATOS
+        tablaHTML += "<tr>"
+        tablaHTML += "<th>"+ str(tuplaResUmbral[0]) +"</th>"+\
+        "<th>"+str(date_handler.msToDatetime(tuplaResUmbral[1])) +"</th>" +\
+        "<th>"+str(tuplaResUmbral[2]) +"</th>"+\
+        "<th>"+str(date_handler.msToDatetime(tuplaResUmbral[3])) +"</th>"
+        tablaHTML += "</tr>"
+        #Fin Tabla
+        tablaHTML += "</table>"
+        
+        return tablaHTML
+
+
+
+def getMediaHTML(DBHandler, debug=False):
+    #Usamos MySQL o Beebotte
+    if DBHandler.__class__.__name__ == "SQLHandler"\
+    or DBHandler.__class__.__name__ == "BeeHandler" :
+        #Obtenemos la media de los datos
+        media = web_functions.media(DBHandler, debug)
+
+        #Insertamos los datos en HTML
+        #Inicio de la tabla
+        tablaHTML = "<style> table, th, td {border: 1px solid black;} </style>"
+        #Anchura de la tabla
+        tablaHTML += "<table style=\"width:50%\">"
+        #PRIMERA FILA
+        tablaHTML += "<tr>"
+        tablaHTML += "<th>Media</th>"
+        tablaHTML += "</tr>"
+        #DATOS
+        tablaHTML += "<tr>"
+        tablaHTML += "<th>"+str(media)+"</th>"
+        tablaHTML += "</tr>"
+        #Fin Tabla
+        tablaHTML += "</table>"
+        
+        return tablaHTML
+
