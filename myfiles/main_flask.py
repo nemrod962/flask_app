@@ -61,24 +61,39 @@ def webTabla():
 
 @app.route("/tablas", methods=['POST'])
 def webTabla_post():
-    #opcion = request.form['pls']
-    #print opcion
     return redirect(url_for('webMain'))
 
 #UMBRAL
 @app.route("/umbral")
 def webUmbral():
-    return "Umbral: PLACEHOLDER"
+    #return "Umbral: PLACEHOLDER"
+    return render_template("umbral.html",\
+    resUmbral = web_presentation.getUmbralHTML(BeeHandler, 50, True))
+    #resUmbral = "<div>HOLA</div>")
+
+@app.route("/umbral", methods=['POST'])
+def webUmbral_post():
+    return redirect(url_for('webMain'))
 
 #MEDIA
 @app.route("/media")
 def webMedia():
-    return "Media: PLACEHOLDER"
+    #return "Media: PLACEHOLDER"
+    return render_template("media.html",\
+    resMedia = web_presentation.getMediaHTML(BeeHandler, True))
+
+@app.route("/media", methods=['POST'])
+def webMedia_post():
+    return redirect(url_for('webMain'))
 
 #GRAFOS
 @app.route("/grafo")
 def webGrafo():
     return "Grafo: PLACEHOLDER"
+
+@app.route("/grafo", methods=['POST'])
+def webGrafo_post():
+    return redirect(url_for('webMain'))
 
 if __name__ == "__main__":
 
