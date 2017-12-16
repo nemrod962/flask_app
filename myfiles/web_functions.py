@@ -62,22 +62,29 @@ def umbral(DBHandler, umbral, debug = False):
         resNumSup = umbral
         resDateSup = 0
         #recorro lista entera buscando valor superior
-        #al ya exitente en resNumSup
+        #al especificado por el umbral
         for index in xrange(l1):
-            if listaNum[index] > resNumSup:
-                resNumSup = listaNum[index]
-                resDateSup = listaDate[index]
+            if listaNum[index] > umbral:
+                #Nos quedaremos con el ULTIMO 
+                #numero que haya superado e umbral
+                if listaDate[index] > resDateSup
+                    resNumSup = listaNum[index]
+                    resDateSup = listaDate[index]
 
 
         #umbral inferior
         resNumInf = umbral
         resDateInf = 0
-        #recorro lista entera buscando valor superior
-        #al ya exitente en resNumSup
+        #recorro lista entera buscando valor inferior
+        #al especificado por el umbral
         for index in xrange(l1):
-            if listaNum[index] < resNumInf:
-                resNumInf = listaNum[index]
-                resDateInf = listaDate[index]
+            if listaNum[index] < umbral:
+                #Nos quedaremos con el ULTIMO 
+                #numero que haya superado el umbral
+                #por debajo
+                if listaDate[index] > resDateInf
+                    resNumInf = listaNum[index]
+                    resDateInf = listaDate[index]
         
         if debug:
             print "Resultado:"
