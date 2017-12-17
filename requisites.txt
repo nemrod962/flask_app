@@ -1,0 +1,3 @@
+#Not sure about structure, gotta look it up
+pip install requests
+pip install beautifulsoup4
