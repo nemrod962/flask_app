@@ -3,14 +3,19 @@
 <body>
 <title>Bienvenido!</title>
 <h1>Aplicación Flask</h1>
+<div>Base de datos actual: {{DBName}}</div>
     <fieldset>
         <h2>Selecciona una opción</h2>
         <form action="." method="POST">
             <!--<input type="text" name="text"><br>-->
+            <input type="radio" name="option" value="elegir" checked>
+            Elegir base de datos <br>
             <input type="radio" name="option" value="tablas" checked>
             Mostrar tablas <br>
             <input type="radio" name="option" value="umbral">
-            Umbral <br>
+            Umbral 
+            <input type="text" name="umbralTxt">
+            <br>
             <input type="radio" name="option" value="media">
             Media Valores <br>
             <input type="radio" name="option" value="grafo">
