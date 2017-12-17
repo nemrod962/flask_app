@@ -156,5 +156,16 @@ def media(DBHandler, debug = True):
         return media
 
 
-#3---------------------------------------------------------------
-#Mostrar gráficas de beeboote.
+#Anexo---------------------------------------------------------------
+#Dado como argumento un manejador de BD nos dice si 
+#es de MySQL o Beebotte. Se empleará para obtener el 
+#tipo de base de datos que se esta utilizando dado
+#su manejador
+def getDBName(DBHandler):
+    #Usamos MySQL o Beebotte
+    if DBHandler.__class__.__name__ == "SQLHandler":
+        return "MySQL (local)"
+    elif DBHandler.__class__.__name__ == "BeeHandler" :
+        return "Beebotte (online)"
+    else:
+        return "Descon."

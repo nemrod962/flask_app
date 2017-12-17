@@ -73,7 +73,9 @@ def getTableHTML(DBHandler, debug = False):
     return tablaHTML
 
 
-
+#Dado un umbral, obtiene los resultados tras consultar
+#la base de datos especificada y devuelve una tabla
+#HTML con los mismos.
 def getUmbralHTML(DBHandler, umbral, debug=False):
     #Usamos MySQL o Beebotte
     if DBHandler.__class__.__name__ == "SQLHandler"\
@@ -82,6 +84,30 @@ def getUmbralHTML(DBHandler, umbral, debug=False):
         #tuple(numSup, fechaNumSup, numInf, fechaNumInf)
         tuplaResUmbral = web_functions.umbral(DBHandler, umbral, debug)
         
+        #Paso el formato de fecha de ms a datetime
+        tuplaResUmbral=(tuplaResUmbral[0],\
+        str(date_handler.msToDatetime(tuplaResUmbral[1])),\
+        tuplaResUmbral[2],\
+        str(date_handler.msToDatetime(tuplaResUmbral[3]))) 
+
+        #COMPROBACION DE RESULTADOS
+        """
+        Si el resultado superior es igual al umbral,
+        significa que no se ha hallado resultado considerando 
+        el umbral como un umbral superior (No hay numero que supere
+        al umbral). Lo mismo pasa con el resultado inferior.
+        """
+        #Superior
+        #Si no hay un numero superior al umbral,
+        #no muestro ni numero ni fecha
+        if tuplaResUmbral[0] == umbral:
+            tuplaResUmbral=(" - ", " - " ,tuplaResUmbral[2],tuplaResUmbral[3]) 
+        #Inferior
+        #Si no hay un numero inferior al umbral,
+        #no muestro ni numero ni fecha
+        if tuplaResUmbral[2] == umbral:
+            tuplaResUmbral=(tuplaResUmbral[0],tuplaResUmbral[1]," - ", " - ") 
+
         #HTML
         #Inicio de la tabla
         tablaHTML = "<style> table, th, td {border: 1px solid black;} </style>"
@@ -97,17 +123,21 @@ def getUmbralHTML(DBHandler, umbral, debug=False):
         #DATOS
         tablaHTML += "<tr>"
         tablaHTML += "<th>"+ str(tuplaResUmbral[0]) +"</th>"+\
-        "<th>"+str(date_handler.msToDatetime(tuplaResUmbral[1])) +"</th>" +\
+        "<th>"+str(tuplaResUmbral[1]) +"</th>" +\
         "<th>"+str(tuplaResUmbral[2]) +"</th>"+\
-        "<th>"+str(date_handler.msToDatetime(tuplaResUmbral[3])) +"</th>"
+        "<th>"+str(tuplaResUmbral[3]) +"</th>"
         tablaHTML += "</tr>"
         #Fin Tabla
         tablaHTML += "</table>"
         
         return tablaHTML
 
+        #"<th>"+str(date_handler.msToDatetime(tuplaResUmbral[1])) +"</th>"
+        #"<th>"+str(date_handler.msToDatetime(tuplaResUmbral[3])) +"</th>"
 
-
+#Obtiene la media de los datos alamcenados en un
+#base de datos y devuelve el resultado en forma
+#de tabla HTML
 def getMediaHTML(DBHandler, debug=False):
     #Usamos MySQL o Beebotte
     if DBHandler.__class__.__name__ == "SQLHandler"\
