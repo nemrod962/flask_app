@@ -8,6 +8,7 @@ este lo muestre a través de render_template
 
 import web_functions
 import date_handler
+import web_fetcher.bee_graph_fetcher as graphFetcher
 
 #obtiene la tabla de MySQL y la
 #inserta en HTML
@@ -162,4 +163,11 @@ def getMediaHTML(DBHandler, debug=False):
         tablaHTML += "</table>"
         
         return tablaHTML
+
+#Obtiene el código HTML de los grafos de Beebotte creados
+#en la página web. Emplea la función getGraphHTML presente 
+#en bee_graph_fetcher.py
+def getGrafoHTML(debug=False):
+    grafoHTML = graphFetcher.getGraphHTML(debug)
+    return grafoHTML
 

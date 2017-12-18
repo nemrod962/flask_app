@@ -159,7 +159,9 @@ def webMedia_post():
 #GRAFOS
 @app.route("/grafo")
 def webGrafo():
-    return "Grafo: PLACEHOLDER"
+    #return "Grafo: PLACEHOLDER"
+    return render_template("grafo.html",\
+    resGrafo = web_presentation.getGrafoHTML(debug))
 
 @app.route("/grafo", methods=['POST'])
 def webGrafo_post():
