@@ -18,7 +18,7 @@ app = Flask(__name__)
 
 #VAR GLOBAL
 #debug - Activar si se quieren ver los mensajes
-debug = True
+#debug = False
 #Manejo de BBDD
 SQLHandler = sql_rnd.SQLHandler(app)
 BeeHandler = beebotte_rnd.BeeHandler()
@@ -169,10 +169,22 @@ def webGrafo_post():
 
 if __name__ == "__main__":
 
+   #Pregunto si se quiere activar al modo debug
+   global debug
+   
+   debug_str = raw_input("Activar Modo Debug?[Y\N]: ")
+   
+   if debug_str == "Y" or debug_str == "y":
+       debug = True
+   else:
+       debug = False
+
+
    #Iniciar y lanzar proceso de carga de datos en las BBDD
    #LOS MANEJADORES DE LAS DBs SE INICIALIZAN EN SU CONSTRUCTOR
-   uploader = rnd_uploader.RndUploader(app, SQLHandler, BeeHandler, 120, True) 
-   #prueba
+   uploader = rnd_uploader.RndUploader(app, SQLHandler, BeeHandler, 120, debug) 
+   
+   #prueba de las funcionalidades
    if debug:
        r1 = web_functions.umbral(uploader.getSQLHandler(), 50, True) 
        r2 = web_functions.umbral(uploader.getBeeHandler(), 50, True) 
@@ -190,12 +202,14 @@ if __name__ == "__main__":
        print media1
        print "media Bee: "
        print media2
-    
+   
+   
+   #Arrancar el el servidor
    app.run(host='0.0.0.0')
-    
-   #señal de finalizar al proceso
-   #uploader.enable = False
 
+    
+   #señal de finalizar al proceso de subida de datos
+   #uploader.enable = False
    uploader.finalizar()
 
    print "FIN"

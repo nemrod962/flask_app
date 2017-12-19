@@ -1,0 +1,5 @@
+Esta carpeta contiene scripts que se han utilizado como pruebas para comprender diferentes apartados de la práctica.
+
+Si se quiere probar alguno es posible que haya que moverlo al directorio superior si importa alguna de las liberías escritas para la práctica. 
+
+Existe la posibilidad de que aún así no funcionen pues se escribieron con antiguas versiones de las librerias y ya no son compatibles con las actuales.

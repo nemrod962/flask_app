@@ -65,14 +65,16 @@ class RndUploader:
             if self.__debug:
                 print "num aleatorio a escribir: " + str(rnd)
 
-            
+            """
             #BORRA ESTO!-----------------------------
+            #Este trozo de codigo sirve para que esta
+            #clase no suba numeros.
             print "PELIGRO: BORRA ESTO!!! rnd-uploader.upload() line-70"
             self.__enable.value = False
             self.__SQLHand.readDataDB()
             self.__BeeHand.readRandom()
             #BORRA ESTO!-----------------------------
-            
+            """
 
             #Escribir
             if(self.__enable.value):
