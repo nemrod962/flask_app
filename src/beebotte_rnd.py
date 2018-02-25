@@ -35,8 +35,22 @@ class BeeHandler:
     #Iniciamos la conexion con Beebotte
     def initConn(self):
         #bclient = BBT("API_KEY", "SECRET_KEY")
+        #Leo las credenciales de un fichero en vez de meterlas a mano
+        """
         _accesskey = "6dcd5477c26e32e1819f487f169f2a45"
         _secretkey = "e6912a135c4da71e9b2d605046f534be154d06f32ac5784f53a562ccb48d336b"
+        """
+        #Abro fichero.
+        bee_key_file=open("credentials/beebotte_credentials", "r")
+        #Leo linea a linea las credenciales. Debo respetar el orden
+        #en el que estan escritas las credenciales.
+        #Al leer una linea, tengo '\n' al final.
+        #rstrip() me elimina este caracter.
+        _accesskey = bee_key_file.readline().rstrip() 
+        _secretkey = bee_key_file.readline().rstrip()
+        #cierro fichero
+        bee_key_file.close()
+
         _hostname = "api.beebotte.com"
         bclient = BBT(_accesskey, _secretkey, hostname = _hostname)
         return bclient

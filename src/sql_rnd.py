@@ -64,10 +64,26 @@ class SQLHandler:
     def initDBConn(self):
         #SQL config
         mysql = MySQL()
+        #En vez de establecer credenciales a mano,
+        #las leo de un fichero
+        """
         self.app.config['MYSQL_DATABASE_USER'] = 'lab'
         self.app.config['MYSQL_DATABASE_PASSWORD'] = 'ubuntu16'
         self.app.config['MYSQL_DATABASE_DB'] = 'myFlaskDB'
         self.app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+        """
+        #Abro fichero. 
+        sql_key_file=open("credentials/sql_credentials", "r")
+        #Debo leer los datos del fichero en orden.
+        #Al leer una linea, tengo '\n' al final.
+        #rstrip() me elimina este caracter
+        self.app.config['MYSQL_DATABASE_USER']=sql_key_file.readline().rstrip()
+        self.app.config['MYSQL_DATABASE_PASSWORD']=sql_key_file.readline().rstrip()
+        self.app.config['MYSQL_DATABASE_DB']=sql_key_file.readline().rstrip()
+        self.app.config['MYSQL_DATABASE_HOST']=sql_key_file.readline().rstrip()
+        #cierro fichero
+        sql_key_file.close()
+
         #SQL INIT
         mysql.init_app(self.app)
         conn = mysql.connect()
