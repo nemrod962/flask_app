@@ -9,8 +9,23 @@ show grants for 'lab'@'localhost';
 #cambiar tipo de dato de una columna
 alter table <table_name> modify column <columna_name> <tipo_dato_nuevo>
 
+#añadir columna
+#ALTER TABLE <table_name> ADD <column_name> <type> [AFTER <columname> | FIRST];
+ALTER TABLE contacts ADD email VARCHAR(60);
+ALTER TABLE contacts ADD email VARCHAR(60) AFTER name;
 
+#cambiar dato de una celda
+UPDATE mytable
+    SET column1 = value1,
+        column2 = value2
+    WHERE key_value = some_value;
 
+#insertar datos
+INSERT INTO table_name ( field1, field2,...fieldN )
+   VALUES ( value1, value2,...valueN );
+
+#borrar datos (filas)
+delete from <table> where <condicion>
 
 
 
