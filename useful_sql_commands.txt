@@ -3,7 +3,50 @@ use <DB_name>;          #selecciona base de datos a utilizar
 show tables;            #enseña las tablas en la base de datos seleccionada
 describe <table_name>;  #enseña las columnas de la tabla seleccionada
 
+#permisos del usuario 'lab'
+show grants for 'lab'@'localhost'; 
+
 #cambiar tipo de dato de una columna
 alter table <table_name> modify column <columna_name> <tipo_dato_nuevo>
 
+
+
+
+
+
+#https://www.digitalocean.com/community/tutorials/how-to-create-a-new-user-and-grant-permissions-in-mysql
+#Crear usuario y darle permisos
+#crear usuario
+CREATE USER 'newuser'@'localhost' IDENTIFIED BY 'password';
+
+#El usuario creado no tendrá ningún permiso, por lo que no
+#podrá trabajar con ninguna base de datos ni tabla
+#Para dar permisos:
+
+#GRANT type_of_permission ON database_name.table_name TO ‘username’@'localhost’;
+GRANT ALL PRIVILEGES ON * . * TO 'newuser'@'localhost';
+
+#El primer asterisco se refiere a la base de datos, el segundo
+#a la tabla de la base de datos especificada.
+
+#Los tipos de permisos que se pueden dar son:
+
+    ALL PRIVILEGES- as we saw previously, this would allow a MySQL user full access to a designated database (or if no database is selected, global access across the system)
+    CREATE- allows them to create new tables or databases
+    DROP- allows them to them to delete tables or databases
+    DELETE- allows them to delete rows from tables
+    INSERT- allows them to insert rows into tables
+    SELECT- allows them to use the SELECT command to read through databases
+    UPDATE- allow them to update table rows
+    GRANT OPTION- allows them to grant or remove other users' privileges
+
+#quitar permisos
+REVOKE type_of_permission ON database_name.table_name FROM ‘username’@‘localhost’;
+
+#redcargar privilegios para que tengan efecto los cambios
+FLUSH PRIVILEGES;
+
+
+lab/root
+ubuntu16
 
