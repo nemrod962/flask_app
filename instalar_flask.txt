@@ -1,0 +1,14 @@
+#instrucciones sobre como instalar flask mediante un entporno virtual.
+sudo apt-get install python-dev
+sudo apt-get install python-virtualenv
+mkdir flask_env
+cd flask_env
+virtualenv flask
+. flask/bin/activate
+#pip install flask          #Estas dos ordenes nos son necesarias ya que
+#pip install flask-script   #instalamos todas dependencias con la sig linea 
+pip install -r ../requirements.txt
+
+#Para iniciar flask (entorno virtual) en las sucesivas veces:
+#cd flask_env
+#. flask/bin/activate
