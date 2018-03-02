@@ -180,8 +180,7 @@ class BeeHandler:
     #ejemplod de la info obtenida.
     #{u'_id': u'5a2fd04c0e4d72e331909666', u'data': 82.28, u'ts': 1513082955796L, u'wts': 1513082956160L}
     def parseDate(self, cadena):
-        fechaMs = re.findall('u\'ts\': (.*?)L', cadena)
-        #print fechaMs[0]
+        fechaMs = re.findall('u\'ts\': (.*?),', cadena)
         return fechaMs[0]
 
     #saca el numero de toda la string obtenida de beebotte

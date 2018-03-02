@@ -44,6 +44,22 @@ class SQLHandler:
         self.listaGlobalFecha = list()
         #lista temporal con todas las entradas de mysql (numeros)
         self.listaGlobalNumero = list()
+        """
+        Modoa prueba de fallos. En caso de que no se pueda conectar
+        a una instancia local de mysql, se activará este modo, de forma
+        que esta clase no realizará ninguna función pero evitara el 
+        crasheo de la aplicación.
+        En un principio stará desactivado, pero si fallamos al conectar
+        a la base da datos en la funcion initDBConn(), lo activamos.
+        """
+        self.modoPruebaFallos=False
+
+        #-----
+        #Lo ejecutamos una vez de forma que se 
+        #active el modo a prueba de fallos si no hay
+        #una base de datos mysql en el equipo
+        self.initDBConn()
+
 
     """
     #ruta por defecto para ejecutar flask
@@ -85,8 +101,16 @@ class SQLHandler:
         sql_key_file.close()
 
         #SQL INIT
-        mysql.init_app(self.app)
-        conn = mysql.connect()
+       	mysql.init_app(self.app)
+        try:
+            conn = mysql.connect()
+        except:
+            print "ATENCION: NO SE PUDO CONECTAR A MYSQL."
+            #Inicializamos conn
+            conn = None
+            #Activar modo a preba de fallos
+            self.modoPruebaFallos=True
+            #print self.modoPruebaFallos
         return conn
 
 
@@ -96,77 +120,98 @@ class SQLHandler:
     #insertar junto con su fecha.
     #Si no es asi, se generará uno.
     def writeDataDB(self, numRnd, fecha, debug = False):
-        #obtenemos los datos a escribir
-        #numero aleatorio. Lo convertimos a String
-        #ya que es necesario para meterlo en la orden SQL
-        # de cursor.execute()
-        #PASO DE INT A STRING
-        #es necesario tenerlo en string pues la orden SQL
-        #es una cadena, y como vamos a poner el numero 
-        #en esa cadena deberá ser del tipo string
-        rnd = str(numRnd)
-        #fecha en ms
-        #fecha = str(date_handler.getDatetimeMs())
-        #FECHA Y RND LOS TOMO COMO PARAMETROS
-        #debug:
-        if debug:
-            print "Num: "+rnd+"\nfecha: "+fecha
-
-        #inciiamos conexion con BD
-        conn = self.initDBConn()
-        #escribimos datos en la BD
-        cursor = conn.cursor()
-        cursor.execute("insert into NumberList values (%s, %s)", (rnd, fecha))
-        res = cursor.fetchall()
-        """
-        if debug:
-            cursor.execute("select * from NumberList")
-            res = cursor.fetchall()
-            print "La tabla tras la insercion: "
-            print res
-        """
-        #comprobación de errores
-        if len(res) is 0:
-            conn.commit()
-            if debug:
-                print 'Query success!'
-        else:
-            print 'SQL_rnd.py error: ' + str(res[0])
         
-        cursor.close()
-        conn.close()
+        #Solo ejecuto realmente esta funcion si he
+        #logrado realmente conectarme a la base de datos,
+        #es decir, si el modo a prueba de fallos no esta
+        #activado
+        if debug:
+            print "writeDataDb - MODO PRUEBA FALLOS: " + str(self.modoPruebaFallos)
+        if self.modoPruebaFallos==False:
+            print "HOLA - " + str(self.modoPruebaFallos)
+            #obtenemos los datos a escribir
+            #numero aleatorio. Lo convertimos a String
+            #ya que es necesario para meterlo en la orden SQL
+            # de cursor.execute()
+            #PASO DE INT A STRING
+            #es necesario tenerlo en string pues la orden SQL
+            #es una cadena, y como vamos a poner el numero 
+            #en esa cadena deberá ser del tipo string
+            rnd = str(numRnd)
+            #fecha en ms
+            #fecha = str(date_handler.getDatetimeMs())
+            #FECHA Y RND LOS TOMO COMO PARAMETROS
+            #debug:
+            if debug:
+                print "Num: "+rnd+"\nfecha: "+fecha
+
+            #inciiamos conexion con BD
+            conn = self.initDBConn()
+            #escribimos datos en la BD
+            cursor = conn.cursor()
+            cursor.execute("insert into NumberList values (%s, %s)", (rnd, fecha))
+            res = cursor.fetchall()
+            """
+            if debug:
+                cursor.execute("select * from NumberList")
+                res = cursor.fetchall()
+                print "La tabla tras la insercion: "
+                print res
+            """
+            #comprobación de errores
+            if len(res) is 0:
+                conn.commit()
+                if debug:
+                    print 'Query success!'
+            else:
+                print 'SQL_rnd.py error: ' + str(res[0])
+            
+            cursor.close()
+            conn.close()
+
+
+
 
     #ACTUALIZO LAS LISTAS LOCALES CON LOS DATOS DE LA BD
     #Lee los datos existentes en la Base de datos
     #Almaceno los datos obtenidos en las listas globales
     def readDataDB(self, debug = False):
-        #inciamos conexion con BD
-        conn = self.initDBConn()
-        #escribimos datos en la BD
-        cursor = conn.cursor()
-        cursor.execute("select * from NumberList")
-        #En res se encuentran todos los datos de la BD
-        #en forma de tuplas
-        res = cursor.fetchall()
+
+        #Solo ejecuto realmente esta funcion si he
+        #logrado realmente conectarme a la base de datos,
+        #es decir, si el modo a prueba de fallos no esta
+        #activado.
         if debug:
-            print "La tabla de la BD: "
-            print res
-        cursor.close()
-        conn.close()
-        #DEBUG. para tenerlo disponible desde la consola
-        #self.cadenaGlobal = res
-        #en longitud tengo el numero de tuplas
-        #que hay en el resultado.
-        longitud = len(res)
-        #inicializamos las listas globales para
-        #que tengan esta longitud
-        self.listaGlobalFecha = [None] * longitud
-        self.listaGlobalNumero = [None] * longitud
-        #sacare la fecha y el numero de cada tupla
-        for tupla in xrange(longitud):
-            cadena = str(res[tupla])
-            self.listaGlobalFecha[tupla] = int(self.parseDate(cadena))
-            self.listaGlobalNumero[tupla] = float(self.parseNumber(cadena))
+            print "readDataDB - MODO PRUEBA FALLOS: " + str(self.modoPruebaFallos)
+        if self.modoPruebaFallos==False:
+
+            #inciamos conexion con BD
+            conn = self.initDBConn()
+            #escribimos datos en la BD
+            cursor = conn.cursor()
+            cursor.execute("select * from NumberList")
+            #En res se encuentran todos los datos de la BD
+            #en forma de tuplas
+            res = cursor.fetchall()
+            if debug:
+                print "La tabla de la BD: "
+                print res
+            cursor.close()
+            conn.close()
+            #DEBUG. para tenerlo disponible desde la consola
+            #self.cadenaGlobal = res
+            #en longitud tengo el numero de tuplas
+            #que hay en el resultado.
+            longitud = len(res)
+            #inicializamos las listas globales para
+            #que tengan esta longitud
+            self.listaGlobalFecha = [None] * longitud
+            self.listaGlobalNumero = [None] * longitud
+            #sacare la fecha y el numero de cada tupla
+            for tupla in xrange(longitud):
+                cadena = str(res[tupla])
+                self.listaGlobalFecha[tupla] = int(self.parseDate(cadena))
+                self.listaGlobalNumero[tupla] = float(self.parseNumber(cadena))
             
 
 
@@ -192,13 +237,23 @@ class SQLHandler:
 
     #Limpia todos los valores de la tabla de MySQL
     def cleanData(self):
-        #inciiamos conexion con BD
-        conn = self.initDBConn()
-        #obtenenmos cursor para ejecutar queries
-        cursor = conn.cursor()
-        cursor.execute("delete from NumberList where true")
-        cursor.close()
-        conn.close()
+
+
+        #Solo ejecuto realmente esta funcion si he
+        #logrado realmente conectarme a la base de datos,
+        #es decir, si el modo a prueba de fallos no esta
+        #activado
+        if debug:
+            print "cleanData - MODO PRUEBA FALLOS: " + str(self.modoPruebaFallos)
+        if self.modoPruebaFallos==False:
+
+            #inciiamos conexion con BD
+            conn = self.initDBConn()
+            #obtenenmos cursor para ejecutar queries
+            cursor = conn.cursor()
+            cursor.execute("delete from NumberList where true")
+            cursor.close()
+            conn.close()
 
     #permite al usuario añadir canales y variables a los mismos
     def user_op(self):

@@ -41,10 +41,19 @@ def umbral(DBHandler, umbral, debug = False):
                 print DBHandler.listaGlobalFecha
                 print DBHandler.listaGlobalNumero
         
-
+        #No puedo estar esperando a que se llenen. Hay casos
+        #en los que no podremos conectarnos a la base de datos de 
+        #mysql local, por lo que las listas estarán vacías.
+        #Si esperamos a que se llenen, cosa que nunca ocurrirá,
+        #colgaremos el programa.
+        """
         while len(DBHandler.listaGlobalNumero) <= 0 :
             print "LISTAS VACIAS. ESPERANDO..."
             time.sleep(1)
+        """
+        #Añado alerta en su lugar
+        if len(DBHandler.listaGlobalNumero) <= 0 :
+            print "ATENCION: LISTAS VACIAS!"
 
         #obtengo listas 
         listaNum = DBHandler.listaGlobalNumero
@@ -53,16 +62,17 @@ def umbral(DBHandler, umbral, debug = False):
         l1 = len(listaNum)
         l2 = len(listaDate)
         if l1 != l2:
-            print "umbral(): LONGITUD DE LISTAS DIFERENTES!"
-        
-        if debug:
+            print "umbral(): LONGITUD DE LISTAS (fecha y número) DIFERENTES!"
+        elif debug:
             print "Longitud de la(s) lista(s): " + str(l1)
 
         #umbral superior
         resNumSup = umbral
         resDateSup = 0
         #recorro lista entera buscando valor superior
-        #al especificado por el umbral
+        #al especificado por el umbral.
+        #Si l1 == 0, no se llega a entrar en el for,
+        #por lo que seria a prueba de errores.
         for index in xrange(l1):
             if listaNum[index] > umbral:
                 #Nos quedaremos con el ULTIMO 
@@ -76,7 +86,9 @@ def umbral(DBHandler, umbral, debug = False):
         resNumInf = umbral
         resDateInf = 0
         #recorro lista entera buscando valor inferior
-        #al especificado por el umbral
+        #al especificado por el umbral.
+        #Si l1 == 0, no se llega a entrar en el for,
+        #por lo que seria a prueba de errores.
         for index in xrange(l1):
             if listaNum[index] < umbral:
                 #Nos quedaremos con el ULTIMO 
@@ -130,9 +142,19 @@ def media(DBHandler, debug = True):
                 print DBHandler.listaGlobalNumero
         
 
+        #No puedo estar esperando a que se llenen. Hay casos
+        #en los que no podremos conectarnos a la base de datos de 
+        #mysql local, por lo que las listas estarán vacías.
+        #Si esperamos a que se llenen, cosa que nunca ocurrirá,
+        #colgaremos el programa.
+        """
         while len(DBHandler.listaGlobalNumero) <= 0 :
             print "LISTAS VACIAS. ESPERANDO..."
             time.sleep(1)
+        """
+        #Añado alerta en su lugar
+        if len(DBHandler.listaGlobalNumero) <= 0 :
+            print "ATENCION: LISTAS VACIAS!"
 
         #obtengo listas 
         listaNum = DBHandler.listaGlobalNumero
@@ -152,7 +174,12 @@ def media(DBHandler, debug = True):
         for index in xrange(l1):
             sumatorio += listaNum[index]
         
-        media = sumatorio/l1
+        #Si l1 == 0, no hay numeros en las listas,
+        #por lo que no se ha podido leer de las bases de datos.
+        if l1==0:
+            media = "-"
+        else:
+            media = sumatorio/l1
         return media
 
 
