@@ -1,0 +1,11 @@
+#----
+#SCRIPT TO INSTALL PHANTOMJS
+#EXECUTE THIS WITH: bash -x install_phantomjs.txt
+arch=$(uname -m)
+cd /usr/local/share
+sudo wget "https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-${arch}.tar.bz2"
+sudo tar xjf phantomjs-2.1.1-linux-${arch}.tar.bz2
+sudo ln -s /usr/local/share/phantomjs-2.1.1-linux-${arch}/bin/phantomjs /usr/local/share/phantomjs
+sudo ln -s /usr/local/share/phantomjs-2.1.1-linux-${arch}/bin/phantomjs /usr/local/bin/phantomjs
+sudo ln -s /usr/local/share/phantomjs-2.1.1-linux-${arch}/bin/phantomjs /usr/bin/phantomjs
+
