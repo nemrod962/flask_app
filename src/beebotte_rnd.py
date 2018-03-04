@@ -8,7 +8,7 @@ BEEBOTTE
 #include beebotte SDK for python
 from beebotte import *
 
-#expresiones regulares para parsear losd atos obtenidos
+#expresiones regulares para parsear los datos obtenidos
 import re
 
 #importamos la clase para obtener los numeros aleatorios
@@ -181,6 +181,12 @@ class BeeHandler:
     #{u'_id': u'5a2fd04c0e4d72e331909666', u'data': 82.28, u'ts': 1513082955796L, u'wts': 1513082956160L}
     def parseDate(self, cadena):
         fechaMs = re.findall('u\'ts\': (.*?),', cadena)
+        #print "FECHA ANTES PARSE: " + fechaMs[0]
+        #Problemas al parsear. A veces la fecha incluye la L al final 
+        #y otras no. Comprobaremos si tiene L, y si es asi la quitamos.
+        if fechaMs[0].endswith("L"):
+            fechaMs[0]=fechaMs[0].replace("L","")
+        #print "FECHA DESPUES PARSE: " + fechaMs[0]
         return fechaMs[0]
 
     #saca el numero de toda la string obtenida de beebotte
