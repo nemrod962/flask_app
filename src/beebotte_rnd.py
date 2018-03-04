@@ -30,6 +30,16 @@ class BeeHandler:
         self.listaGlobalFecha = list()
         #lista temporal con todas las entradas de beebotte (numeros)
         self.listaGlobalNumero = list()
+        """
+        Modoa prueba de fallos. En caso de que no se pueda conectar
+        con Beebotte, se activará este modo, de forma
+        que esta clase no realizará ninguna función pero evitara el 
+        crasheo de la aplicación.
+        En un principio stará desactivado, pero si fallamos al conectar
+        a la base da datos en la funcion initConn(), lo activamos.
+        """
+        self.sinConexion=False
+
     
 
     #Iniciamos la conexion con Beebotte
@@ -53,6 +63,25 @@ class BeeHandler:
 
         _hostname = "api.beebotte.com"
         bclient = BBT(_accesskey, _secretkey, hostname = _hostname)
+        print "Conectando a Beebotte..."
+        
+        #COMPROBACION DE LA CONECTIVIDAD CON BEEBOTTE
+        #Intento leer un valor de beebotte
+        try:
+            #Como estoy comprobando constantemente la conexion,
+            #Empiezo suponiendo que tengo conectividad. Si no es asi,
+            #cambio la variable e indico que no hay conectividad.
+            #Hago esta comprobacion para que cuando pase de no tener
+            #conectividad a tenerla, la variable sinConexion pase
+            #a tener valor False, de forma que la funciones realmente
+            #realicen sus operaciones
+            self.sinConexion=False
+            bclient.read("NumberList", "numero", 1)
+        except:
+            print "No se pudo conectar con Beebotte."
+            self.sinConexion=True
+            print "Modo sin conexion: " + str(self.sinConexion)
+
         return bclient
 
 
@@ -69,46 +98,51 @@ class BeeHandler:
                     #parametros canal
                     myLabel="channel label", 
                     descr="channel description", isPublic=True,
+                    debug=False
                     ):
-        try:
-            if varType == "string":
-                bclient.addChannel(
-                    channelName,
-                    label = myLabel,
-                    description = descr,
-                    ispublic = isPublic,
-                    
-                    resources = [
-                    {
-                    
-                        "name": varName,
-                        "vtype": BBT_Types.String
-                    
-                    } 
-                    ]
-                    
-                )
-            else:
-                bclient.addChannel(
-                    channelName,
-                    label = myLabel,
-                    description = descr,
-                    ispublic = isPublic,
-                    
-                    resources = [
-                    {
-                    
-                        "name": varName,
-                        "vtype": BBT_Types.Number
-                    
-                    } 
-                    ]
-                    
-                )
-            return 0
-        except:
-            print "Error when creating channel "+channelName
-            return 1
+        #Si no podemos conectar con la Beebotte, no hacemos nada.
+        if debug:
+            print "createChannel - modo sin conexion : " + str(self.sinConexion)
+        if self.sinConexion == False:
+            try:
+                if varType == "string":
+                    bclient.addChannel(
+                        channelName,
+                        label = myLabel,
+                        description = descr,
+                        ispublic = isPublic,
+                        
+                        resources = [
+                        {
+                        
+                            "name": varName,
+                            "vtype": BBT_Types.String
+                        
+                        } 
+                        ]
+                        
+                    )
+                else:
+                    bclient.addChannel(
+                        channelName,
+                        label = myLabel,
+                        description = descr,
+                        ispublic = isPublic,
+                        
+                        resources = [
+                        {
+                        
+                            "name": varName,
+                            "vtype": BBT_Types.Number
+                        
+                        } 
+                        ]
+                        
+                    )
+                return 0
+            except:
+                print "Error when creating channel "+channelName
+                return 1
 
         
     #add resource
@@ -116,35 +150,39 @@ class BeeHandler:
     #los tipos de la variable puede ser "string" o "number"
     def createResource(self, bclient, myChannel, varName, varType="string",
                         myLabel = "label", descr = "description",
-                        isSendOnSubscribe=False):
-        if varType == "string":
-            try:
-                bclient.addResource(
-                    channel = myChannel,
-                    name = varName,
-                    vtype = BBT_Types.String,
-                    label = myLabel,
-                    description = descr,
-                    sendOnSubscribe = isSendOnSubscribe
-                )
-                return 2
-            except:
-                print "Error adding resource "+varName
-                return 1
-        else:
-            try:
-                bclient.addResource(
-                    channel = myChannel,
-                    name = varName,
-                    vtype = BBT_Types.Number,
-                    label = myLabel,
-                    description = descr,
-                    sendOnSubscribe = isSendOnSubscribe
-                )
-                return 0
-            except :
-                print "Error adding resource "+varName
-                return 1
+                        isSendOnSubscribe=False, debug=False):
+        #Si no podemos conectar con la Beebotte, no hacemos nada.
+        if debug:
+            print "createResource - modo sin conexion : " + str(self.sinConexion)
+        if self.sinConexion == False:
+            if varType == "string":
+                try:
+                    bclient.addResource(
+                        channel = myChannel,
+                        name = varName,
+                        vtype = BBT_Types.String,
+                        label = myLabel,
+                        description = descr,
+                        sendOnSubscribe = isSendOnSubscribe
+                    )
+                    return 2
+                except:
+                    print "Error adding resource "+varName
+                    return 1
+            else:
+                try:
+                    bclient.addResource(
+                        channel = myChannel,
+                        name = varName,
+                        vtype = BBT_Types.Number,
+                        label = myLabel,
+                        description = descr,
+                        sendOnSubscribe = isSendOnSubscribe
+                    )
+                    return 0
+                except :
+                    print "Error adding resource "+varName
+                    return 1
 
 #-------------------------------------------------------------------------
     """
@@ -161,7 +199,8 @@ class BeeHandler:
             
         except:
             if debug:
-                print "Could not write value "+value+" into variable "+varName
+                print "Could not write value "+ str(value) +" into variable "\
+                + str(varName)
             return 1
         
 
@@ -207,62 +246,73 @@ class BeeHandler:
     def writeRandom(self, rndNumber, debug=False):
         #iniciamos conexion con la base ded datos online
         bclient = self.initConn()
-        #obtenemos numero aleatorio de internet
-        #rndClass = web_fetcher.rnd_fetcher.Rnd_fetcher()
-        #rndNumber = rndClass.get_web_rnd()
+        #Si no podemos conectar con la Beebotte, no hacemos nada.
         if debug:
-            print "El numero aleatorio es: "+str(rndNumber)
-        #escribimos el numero random en la BBDD online
-        #es necseraio convertirlo a string para pasarlo como parametro
-        success=self.writeData(bclient,"NumberList","numero",rndNumber,debug)
-        if success == 0:
+            print "writeRandom - ModoFallo : " + str(self.sinConexion)
+        if self.sinConexion == False:
+            #obtenemos numero aleatorio de internet
+            #rndClass = web_fetcher.rnd_fetcher.Rnd_fetcher()
+            #rndNumber = rndClass.get_web_rnd()
             if debug:
-                print "Numero "+str(rndNumber)+" escrito satisfactoriamente en NumberList"
-            return 0
-        else:
-            if debug:
-                print "ERROR: no se pudo escribir el numero "+str(rndNumber)
-            return 1
+                print "El numero aleatorio es: "+str(rndNumber)
+            #escribimos el numero random en la BBDD online
+            #es necseraio convertirlo a string para pasarlo como parametro
+            success=self.writeData(bclient,"NumberList","numero",rndNumber,debug)
+            if success == 0:
+                if debug:
+                    print "Numero "+str(rndNumber)+" escrito satisfactoriamente en NumberList"
+                return 0
+            else:
+                if debug:
+                    print "ERROR: no se pudo escribir el numero "+str(rndNumber)
+                return 1
 
 
     #ACTUALIZO LAS LISTAS LOCALES CON LOS DATOS DE LA BD
     #Lee los numeros aleatorios ya esxitentes en la Base de datos online
     def readRandom(self, debug = False):
         bclient = self.initConn()
-        #tengo una lista con los numeros aleatorios y su fecha en resultado
-        resultado = self.readData(bclient, "NumberList", "numero", 1024, debug)
-        
-        #Una vez obtenido el resultado, parsearemos y volcaremos los
-        #numeros y sus fechas en dos listas de esta clase con la
-        #que trabajaremos mas adelante.
-
-        #en l tengo la longitud de la lista de los resultados
-        l = len(resultado)
-        #lista temporal con todas las entradas de beebotte (fecha)
-        self.listaGlobalFecha = [None] * l
-        #lista temporal con todas las entradas de beebotte (numeros)
-        self.listaGlobalNumero = [None] * l
+        #Si no podemos conectar con la Beebotte, no hacemos nada.
         if debug:
-            print "LONGITUD RESULTADO: "+str(l)
-        for index in xrange( l ):
-            #parseo fecha
-            fechaMs=self.parseDate(str(resultado[index]))
-            numero =self.parseNumber(str(resultado[index]))
-            #Añado a las listas globales.
-            #Como mas adelante tendre que trabajar con estos
-            #datos comparandolos unos con otros, los almacenaré como dato
-            #numerico.
+            print "readRandom - ModoFallo : " + str(self.sinConexion)
+        if self.sinConexion == False:
+            #tengo una lista con los numeros aleatorios y su fecha en resultado
+            #   #NumberList : canal (tabla de la BBDD) a utilizar
+            #   #numero : variable del canal a leer
+            #   #1024 : numero máximo de valores a leer
+            resultado = self.readData(bclient, "NumberList", "numero", 1024, debug)
+            
+            #Una vez obtenido el resultado, parsearemos y volcaremos los
+            #numeros y sus fechas en dos listas de esta clase con la
+            #que trabajaremos mas adelante.
 
-            #Fecha es un entero, pues esta en ms y no tiene decimales
-            self.listaGlobalFecha[index] = int(fechaMs)
-            #Numero sera un float pues tiene decimales
-            self.listaGlobalNumero[index] = float(numero)
+            #en l tengo la longitud de la lista de los resultados
+            l = len(resultado)
+            #lista temporal con todas las entradas de beebotte (fecha)
+            self.listaGlobalFecha = [None] * l
+            #lista temporal con todas las entradas de beebotte (numeros)
+            self.listaGlobalNumero = [None] * l
             if debug:
-                print "Entada ["+str(index)+"] num: "+numero+" fecha: "+fechaMs
-        if debug:        
-            print "Todas las entradas de Beebotte"
-            print self.listaGlobalFecha
-            print self.listaGlobalNumero
+                print "LONGITUD RESULTADO: "+str(l)
+            for index in xrange( l ):
+                #parseo fecha
+                fechaMs=self.parseDate(str(resultado[index]))
+                numero =self.parseNumber(str(resultado[index]))
+                #Añado a las listas globales.
+                #Como mas adelante tendre que trabajar con estos
+                #datos comparandolos unos con otros, los almacenaré como dato
+                #numerico.
+
+                #Fecha es un entero, pues esta en ms y no tiene decimales
+                self.listaGlobalFecha[index] = int(fechaMs)
+                #Numero sera un float pues tiene decimales
+                self.listaGlobalNumero[index] = float(numero)
+                if debug:
+                    print "Entada ["+str(index)+"] num: "+numero+" fecha: "+fechaMs
+            if debug:        
+                print "Todas las entradas de Beebotte"
+                print self.listaGlobalFecha
+                print self.listaGlobalNumero
 
 #-------------------------------------------------------------------------
     #INTERFAZ DE USUARIO
@@ -285,7 +335,8 @@ class BeeHandler:
                 descr = raw_input("Descripcion: ")
                 varName = raw_input("Nombre variable: ")
                 varType = raw_input("Tipo variable (\"string\" o \"number\": ")
-                res = createChannel(bclient, nombre, varName, varType, label, descr)
+                isPublic = True
+                res = self.createChannel(bclient, nombre, varName, varType, label, descr, isPublic, debug)
                 print res
             #Añadir variable
             elif opcion == "2":
@@ -294,7 +345,8 @@ class BeeHandler:
                 tipo= raw_input("tipo (string o number): ")
                 label= raw_input("label: ")
                 descr= raw_input("descripcion: ")
-                res = createResource(bclient, canal, nombre,tipo,label, descr)
+                sendOnSubs = False
+                res = self.createResource(bclient, canal, nombre,tipo,label, descr, sendOnSubs, debug)
                 print res
             elif opcion == "3":
                 nombre = raw_input("Nombre canal: ")

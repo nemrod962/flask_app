@@ -9,13 +9,29 @@ import urllib2
 import re
 
 class Rnd_fetcher:
+
+    #Atributo con la direccion de la web de la cual
+    #se van a extraer los datos
+    def __init__(self, dir = "http://www.numeroalazar.com.ar/", deb = False):
+        self.web_dir = dir
+        self.debug= deb
+
     #OBTIENE TODOS LOS NUMERO ALEATORIOS (CON CODIGO HTML ENTRE MEDIAS)
-    def get_all_numbers(self):
+    def get_all_numbers(self, debug=False):
+        #Activo el modo debug si la clase lo tiene activado
+        if debug == False:
+            debug = self.debug
+
         #get source
-        response = urllib2.urlopen("http://www.numeroalazar.com.ar/")
+        try:
+            response = urllib2.urlopen(self.web_dir)
+        except:
+            print "No se ha podido conectar a " + self.web_dir
+            return -1
         page_source = response.read()
-        print page_source
-        print "\n\n----------------\nREGEXP\n---------------------------"
+        if debug:
+            print page_source
+            print "\n\n----------------\nREGEXP\n---------------------------"
         #regexp
         #OBTENER TODOS LOS NUMERO ALEATORIOS. PRUEBA:
         searchObj = re.findall('<div class="container"  id="numeros_generados">(.*?)</div>', page_source, re.S)
@@ -25,16 +41,28 @@ class Rnd_fetcher:
         -> esta bandera (re.S) hace que . tambien sustituya a \n.
         Sin ella, la expresion regular no funciona correctamente 
         """
-        #searchObj = re.findall('<div(.*)</div>', page_source, re.I | re.S)
 
-        for line in searchObj:
-            print "iteration---"
-            print line
+        if debug:
+            for line in searchObj:
+                print "iteration---"
+                print line
+
+        return searchObj
 
     #OBTENER SOLO EL PRIMER NUMEROALEATORIO
     def get_web_rnd(self, debug=False):
+        
+        #Activo el modo debug si la clase lo tiene activado
+        if debug == False:
+            debug = self.debug
+
         #get source
-        response = urllib2.urlopen("http://www.numeroalazar.com.ar/")
+        try:
+            response = urllib2.urlopen(self.web_dir)
+        except:
+            print "No se ha podido conectar a " + self.web_dir
+            return -1
+        #----
         page_source = response.read()
         if debug:
             print page_source
@@ -55,4 +83,10 @@ class Rnd_fetcher:
                 print line
                 print "NUMERO: ", numero
         return numero
+
+
+#Obtenemos un numero aleatorio si ejecutamos este .py
+if __name__ == "__main__":
+    clase =Rnd_fetcher()
+    clase.get_web_rnd(True)
 
