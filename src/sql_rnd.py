@@ -124,11 +124,10 @@ class SQLHandler:
         #Solo ejecuto realmente esta funcion si he
         #logrado realmente conectarme a la base de datos,
         #es decir, si el modo a prueba de fallos no esta
-        #activado
+        #activado, es decir, si tengo conexion con la BD.
         if debug:
             print "writeDataDb - MODO PRUEBA FALLOS: " + str(self.modoPruebaFallos)
         if self.modoPruebaFallos==False:
-            print "HOLA - " + str(self.modoPruebaFallos)
             #obtenemos los datos a escribir
             #numero aleatorio. Lo convertimos a String
             #ya que es necesario para meterlo en la orden SQL

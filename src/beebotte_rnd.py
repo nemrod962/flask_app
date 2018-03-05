@@ -145,9 +145,9 @@ class BeeHandler:
                 return 1
 
         
-    #add resource
-    #el canal debe existir
-    #los tipos de la variable puede ser "string" o "number"
+    #ADD RESOURCE. Añade una 'variable' al canal.
+    #El canal debe existir.
+    #los tipos de la variable pueden ser "string" o "number".
     def createResource(self, bclient, myChannel, varName, varType="string",
                         myLabel = "label", descr = "description",
                         isSendOnSubscribe=False, debug=False):
