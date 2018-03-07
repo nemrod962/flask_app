@@ -1,7 +1,14 @@
+# -*- coding: UTF-8 -*-
 from flask import Flask
+#graficas
 import pygal
 from pygal.style import DarkSolarizedStyle
+#numeros aleatorios
 import random
+#nombre de la base de datos utilizada
+import web_functions
+#formato y conversion fechas
+import date_handler
  
 app = Flask(__name__)
 
@@ -18,19 +25,44 @@ las graficas.
 class GraphMaker:
     
     #Crea un grafo de lineas con las listas 
-    #de numeros y fechas proporcionadas
-    def grafoLineas(self, listaNumeros, listaFechas):
+    #de numeros y fechas proporcionadas.
+    #Las listas las obtenemos de DBHandler,
+    #que sera una instancia de SQLHandler
+    #o de BeeHandler. Ambas clases contienen
+    #las listas listaGlobalNumero y
+    #listaGlobalFecha.
+    #Accesibles mediante DBHandler.listaGlobal...
+    def crearGrafo(self, DBHandler):
+        
+        #Obtengo las listas de los numeros y su tiempo de obtencion
+        listaNumeros = DBHandler.listaGlobalNumero
+        listaFechas = DBHandler.listaGlobalFecha
+        
+        #Obtengo que DB estoy empleando
+        dbname = web_functions.getDBSimpleName(DBHandler)
+
+        #Si la base de datos empleada es Beebotte, en las listas de
+        #numeros y fechas estan los mas recientes en las primeras posiciones.
+        #Para hacer bien la grafica, tendremos que invertir ambas listas
+        if dbname == "beebotte":
+            #dar vuelta
+            listaNumeros.reverse()
+            listaFechas.reverse()
+
+        #Cambio el formato de las fechas, de ms a formato fecha
+        for indice in xrange(len(listaFechas)):
+            listaFechas[indice] = date_handler.msToDatetime(listaFechas[indice])
 
         graph = pygal.Line()
         #graph = pygal.Bar()
-        graph.title = 'Grafo numeros aleatorios'
+        graph.title = 'Grafo ' + dbname
         graph.x_labels = listaFechas
-        graph.add('Numero Aleatorio', listaNumeros)
+        graph.add('Numeros Aleatorios', listaNumeros)
         graph_data = graph.render() 
 
         #print graph_data
 
-        titulo = "titulo"
+        titulo = "Grafo " + dbname
 
         html = """ <html>
         <head>
@@ -42,7 +74,7 @@ class GraphMaker:
         </html>
         """ % (titulo, graph_data)
 
-        return html
+        return graph_data
 
 
 #---------------------------------------------

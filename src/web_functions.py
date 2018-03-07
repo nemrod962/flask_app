@@ -196,3 +196,12 @@ def getDBName(DBHandler):
         return "Beebotte (online)"
     else:
         return "Descon."
+
+def getDBSimpleName(DBHandler):
+    #Usamos MySQL o Beebotte
+    if DBHandler.__class__.__name__ == "SQLHandler":
+        return "mysql"
+    elif DBHandler.__class__.__name__ == "BeeHandler" :
+        return "beebotte"
+    else:
+        return "desconocido"

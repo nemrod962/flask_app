@@ -12,6 +12,16 @@ import web_presentation
 #Manejo Bases de Datos
 import sql_rnd
 import beebotte_rnd
+#Crear Graficas
+import graph_maker
+
+#Prueba, cambiar codificacion
+#Necesario para visualizar graficos
+#PyGal desde un template
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
+#print sys.getdefaultencoding()
 
 #Creo instancia de Flask
 app = Flask(__name__) 
@@ -24,7 +34,8 @@ SQLHandler = sql_rnd.SQLHandler(app)
 BeeHandler = beebotte_rnd.BeeHandler()
 #Manejador a emplear. Será elegido en el
 #menú principal. Por defecto MySQL.
-DBHandler = SQLHandler
+#DBHandler = SQLHandler
+DBHandler = BeeHandler
 
 #PAGINA INICIAL
 #Mostramos la pagina inicial
@@ -65,8 +76,11 @@ def webMain_post():
     if opcion == "media":
         return redirect(url_for('webMedia'))
 
+    if opcion == "grafoBee":
+        return redirect(url_for('webGrafoBee'))
+
     if opcion == "grafo":
-        return redirect(url_for('webGrafo'))
+        return redirect(url_for('createGraph'))
 
     else:
         return "ERROR: Opción Desconocida"
@@ -107,19 +121,6 @@ def webTabla_post():
     return redirect(url_for('webMain'))
 
 #UMBRAL
-"""
-@app.route("/umbral")
-def webUmbral():
-    #return "Umbral: PLACEHOLDER"
-    return render_template("umbral.html",\
-    resUmbral = web_presentation.getUmbralHTML(DBHandler, 50, debug),\
-    DBName = web_functions.getDBName(DBHandler))
-    #resUmbral = "<div>HOLA</div>")
-
-@app.route("/umbral", methods=['POST'])
-def webUmbral_post():
-    return redirect(url_for('webMain'))
-"""
 @app.route("/umbral/<umb>")
 def webUmbral(umb):
     #return "Umbral: PLACEHOLDER"
@@ -156,15 +157,33 @@ def webMedia():
 def webMedia_post():
     return redirect(url_for('webMain'))
 
-#GRAFOS
-@app.route("/grafo")
-def webGrafo():
+#GRAFOS REMOTOS (obtenidos de Beebotte)
+@app.route("/grafoBee")
+def webGrafoBee():
     #return "Grafo: PLACEHOLDER"
-    return render_template("grafo.html",\
+    return render_template("grafoBee.html",\
     resGrafo = web_presentation.getGrafoHTML(debug))
 
+@app.route("/grafoBee", methods=['POST'])
+def webGrafoBee_post():
+    return redirect(url_for('webMain'))
+
+#GRAFOS LOCALES, los creo con la clase GraphMaker en graph_maker.py
+@app.route("/grafo")
+def createGraph():
+    #creo instancia
+    gm = graph_maker.GraphMaker()
+    
+    #return gm.crearGrafo(DBHandler)
+    
+    return render_template("grafo.html",\
+    nombreDBSimple=web_functions.getDBSimpleName(DBHandler),\
+    graph_data=gm.crearGrafo(DBHandler),\
+    DBName = web_functions.getDBName(DBHandler))
+    
+
 @app.route("/grafo", methods=['POST'])
-def webGrafo_post():
+def createGraph_post():
     return redirect(url_for('webMain'))
 
 if __name__ == "__main__":
