@@ -78,13 +78,20 @@ class RndUploader:
 
             #Escribir
             if(self.__enable.value):
-                #escribo en Beebotte
-                self.__BeeHand.writeRandom(rnd, self.__debug)
-                #solo necesario para la BD local, ya que Beebotte
-                #almacena automaticamente la fecha
-                fecha = str(date_handler.getDatetimeMs())
-                #escribo en MySQL
-                self.__SQLHand.writeDataDB(rnd, fecha, self.__debug)
+                
+                #La funcion de obtener numeros aleatorios
+                #devuelve -1 en caso de no haber podido conectar
+                #con la web de donde obtenemos los numeros aleatorios.
+                #En este caso, rnd sera = a -1, por lo que no guardaremos
+                #este valor en las BDs.
+                if rnd > -1:
+                    #escribo en Beebotte
+                    self.__BeeHand.writeRandom(rnd, self.__debug)
+                    #solo necesario para la BD local, ya que Beebotte
+                    #almacena automaticamente la fecha
+                    fecha = str(date_handler.getDatetimeMs())
+                    #escribo en MySQL
+                    self.__SQLHand.writeDataDB(rnd, fecha, self.__debug)
                 
                 #ACTUALIZO LOS DATOS EN LAS LISTAS LOCALES 
                 #DE LOS MANEJADORES
