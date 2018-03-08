@@ -1,11 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
+<head>
+    <title>Grafo {{nombreDBSimple}}</title>
+    <!--Necesario para que Flask lea adecuadamente la grafica generada-->
+    <script type="text/javascript" src="http://kozea.github.com/pygal.js/javascripts/svg.jquery.js">
+    </script>
+    <script type="text/javascript" src="http://kozea.github.com/pygal.js/javascripts/pygal-tooltips.js">
+    </script>
+</head>
+
 <body>
-<title>Grafo {{nombreDBSimple}}</title>
-<div>Grafos obtenidos de Beebotte:  </div>
 <br>
 <!--Hay que poner el '| safe' detrás de la variable para que Flask la interprete como código HTML-->
-{{ graph_data }}
+{{ graph_data | safe }}
 <br>
     <div>Base de datos empleada: {{DBName}}</div>
 <br>

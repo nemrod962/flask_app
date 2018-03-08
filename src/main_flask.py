@@ -15,14 +15,6 @@ import beebotte_rnd
 #Crear Graficas
 import graph_maker
 
-#Prueba, cambiar codificacion
-#Necesario para visualizar graficos
-#PyGal desde un template
-import sys
-reload(sys)
-sys.setdefaultencoding('utf8')
-#print sys.getdefaultencoding()
-
 #Creo instancia de Flask
 app = Flask(__name__) 
 

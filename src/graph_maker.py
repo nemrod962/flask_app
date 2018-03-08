@@ -33,10 +33,21 @@ class GraphMaker:
     #listaGlobalFecha.
     #Accesibles mediante DBHandler.listaGlobal...
     def crearGrafo(self, DBHandler):
+
+        #Parametros de la grafica
+        anchura = 900
+        altura = 900
+        tam_explicito = True
         
         #Obtengo las listas de los numeros y su tiempo de obtencion
-        listaNumeros = DBHandler.listaGlobalNumero
-        listaFechas = DBHandler.listaGlobalFecha
+        #Aqui no obtengo una copia, si no que referencio a las mismas listas.
+        #listaNumeros = DBHandler.listaGlobalNumero
+        #listaFechas = DBHandler.listaGlobalFecha
+        #De esta forma obtengo una copia de las listas.
+        #Así puedo operar con ellas y transformarlas de forma
+        #que no afecten a otras partes del programa.
+        listaNumeros = list(DBHandler.listaGlobalNumero)
+        listaFechas = list(DBHandler.listaGlobalFecha)
         
         #Obtengo que DB estoy empleando
         dbname = web_functions.getDBSimpleName(DBHandler)
@@ -53,95 +64,21 @@ class GraphMaker:
         for indice in xrange(len(listaFechas)):
             listaFechas[indice] = date_handler.msToDatetime(listaFechas[indice])
 
-        graph = pygal.Line()
+        #graph = pygal.Line()
+        graph = pygal.Line(\
+        #width = anchura,\
+        #height=altura,\
+        explicit_size=tam_explicito)
         #graph = pygal.Bar()
         graph.title = 'Grafo ' + dbname
         graph.x_labels = listaFechas
         graph.add('Numeros Aleatorios', listaNumeros)
-        graph_data = graph.render() 
+        #Es necesario poner is_unicode=True para que la aplicacion
+        #pueda insertar adecuadamente el grafo en el html template.
+        graph_data = graph.render(is_unicode=True) 
 
         #print graph_data
-
-        titulo = "Grafo " + dbname
-
-        html = """ <html>
-        <head>
-        <title>%s</title>
-        </head>
-        <body>
-        %s
-        </body>
-        </html>
-        """ % (titulo, graph_data)
 
         return graph_data
 
 
-#---------------------------------------------
-@app.route('/')
-def pygalexample():
-    try:
-
-        #Prueba---
-        #listas con datos de prueba
-        listaNumeros=[None] * 10
-        listaFechas=[None] * 10
-        for i in xrange(10):
-            print "i in xrange(10): " + str(i)
-            listaNumeros[i]=random.randint(0,100)
-            if i == 0:
-                listaFechas[i]=2000000
-            else:
-                listaFechas[i]=listaFechas[i-1]+random.randint(0,10000)
-        
-
-        listaNumeros.append(77)
-        listaFechas.append(2100000)
-        listaFechas.append(2200000)
-        listaFechas.append(2300000)
-        listaFechas.append(2400000)
-        listaFechas.append(2500000)
-
-        print "listaNumeros" + str(listaNumeros)
-        print "listaFechas" + str(listaFechas)
-
-        longitud = len(listaNumeros)
-        print "Num\tFecha"
-        for i in xrange(longitud):
-            try:
-                print str(listaNumeros[i]) + "\t" + str(listaFechas[i])
-            except:
-                print "out of range"
-        
-
-        #---
-
-        graph = pygal.Line()
-        #graph = pygal.Bar()
-        graph.title = 'Test Graph'
-        graph.x_labels = listaFechas
-        graph.add('Numero', listaNumeros)
-        graph_data = graph.render() 
-
-        #print graph_data
-
-        titulo = "titulo Custom"
-
-        html = """ <html>
-        <head>
-        <title>%s</title>
-        </head>
-        <body>
-        %s
-        </body>
-        </html>
-        """ % (titulo,graph_data)
-
-        return html
-    
-    except Exception, e:
-        print "ERROR"
-        return(str(e))
-
-if __name__ == '__main__':    
-    app.run()
