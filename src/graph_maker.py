@@ -32,7 +32,7 @@ class GraphMaker:
     #las listas listaGlobalNumero y
     #listaGlobalFecha.
     #Accesibles mediante DBHandler.listaGlobal...
-    def crearGrafo(self, DBHandler):
+    def crearGrafo(self, DBHandler, tipo=None):
 
         #Parametros de la grafica
         anchura = 900
@@ -64,12 +64,24 @@ class GraphMaker:
         for indice in xrange(len(listaFechas)):
             listaFechas[indice] = date_handler.msToDatetime(listaFechas[indice])
 
-        #graph = pygal.Line()
-        graph = pygal.Line(\
+        #graph = pygal.Line(\
         #width = anchura,\
         #height=altura,\
-        explicit_size=tam_explicito)
-        #graph = pygal.Bar()
+        #explicit_size=tam_explicito)
+
+        #SELECCIONO TIPO DE GRAFO
+
+        if str(tipo).lower() == "bar":
+            #print "TIPO: BARRAS"
+            graph = pygal.Bar()
+        #Si la string recibida definiendo el tipo no es 'bar',
+        #supongo que el tipo deseado es 'line'. Si recibimos una
+        #cadena diferente a cualquiera de las opciones, utilizaremos
+        #el grafo de líneas por defecto.
+        else:
+            #print "TIPO: LINEAS"
+            graph = pygal.Line()
+
         graph.title = 'Grafo ' + dbname
         graph.x_labels = listaFechas
         graph.add('Numeros Aleatorios', listaNumeros)

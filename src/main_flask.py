@@ -163,6 +163,17 @@ def webGrafoBee_post():
 #GRAFOS LOCALES, los creo con la clase GraphMaker en graph_maker.py
 @app.route("/grafo")
 def createGraph():
+    
+    #Las urls pueden tener las dos siguientes formas:
+    #http://0.0.0.0:5000/grafo
+    #http://0.0.0.0:5000/grafo?tipo=line
+    #Para obtener el valor del argumento tipo en la segunda
+    #url emplearemos la siguiente línea de código.
+    tipo = request.args.get('tipo')
+    #En caso de que la url recibida sea del primer tipo
+    #y no contenga parámetros, el valor de tipo será 'None'
+    #print "argumento URL: " + str(tipo)
+
     #creo instancia
     gm = graph_maker.GraphMaker()
     
@@ -170,12 +181,64 @@ def createGraph():
     
     return render_template("grafo.html",\
     nombreDBSimple=web_functions.getDBSimpleName(DBHandler),\
-    graph_data=gm.crearGrafo(DBHandler),\
+    graph_data=gm.crearGrafo(DBHandler, tipo),\
     DBName = web_functions.getDBName(DBHandler))
-    
+
 
 @app.route("/grafo", methods=['POST'])
 def createGraph_post():
+    #obtener datos del form
+    try:
+        tipoGrafo = request.form['graphType']
+    except:
+        #print "Has pulsado volver al menu principal."
+        #Este código se ejecuta cuando se selecciona volver
+        #al menú principal en lugar de seleccionar el tipo
+        #de lista. Supongo que esto es debido a que si
+        #pulsamos el botón volver al menú principal, se esta utilizando
+        #el formulario 'volver', por lo que el formulario 'graphType' no 
+        #tiene ningún valor y da error al obtenerlo.
+
+        #Si se ha pulsado el botón 'volver al menú principal', pues
+        #redirigimos a la página principal
+        return redirect(url_for('webMain'))
+    try:
+        volver = request.form['volver']
+    except:
+        #print "Has pulsado Refresh."
+        #Este código se ejecuta cuando se selecciona el tipo de
+        #lista. Supongo que esto es debido a que si seleccionamos
+        #el tipo de lista, estamos devolviendo el valor del formulario 
+        #'graphType', por lo que el formulario 'volver' (el botón para
+        #volver al menú principal) no tiene ningún valor y da error al obtenerlo.
+        
+        #Si se ha seleccionado 'Refresh', volvemos a cargar la página del grafo
+        #con le tipo de grafo indicado.
+
+        #Hay dos formas de que createGraph lea este argumento 'arg'.
+        #   1º -> Si en la url de createGraph hay un argumento 'arg', la
+        #funcion recibira arg como parámetro y podemos leerlo directamente.
+        #Podemos también utilizar rutas opcionales para que createGraph
+        #necesite este argumento en su url o no:
+        #@app.route("/grafo/")
+        #@app.route("/grafo/<arg>")
+        #def createGraph(arg=None):
+        #    print "argumento: " + str(arg)
+        #
+        #   2º -> Otra forma es incluir este argumento como un argumento
+        #en la propia url. Dentro de la función podemos leer este argumento
+        #de la url de la siguiente forma:
+        #@app.route("/grafo")
+        #def createGraph():
+        #    arg = request.args.get('arg')
+        #    print "argumento URL: " + str(arg)
+        #
+        #La ventaja de este segundo metodo es que no tenemos que definir urls
+        #opcionales para la función como en el caso anterior.
+        return redirect(url_for('createGraph', tipo=tipoGrafo))
+
+    #No se debería llegar a este punto, pero por si se llega
+    #redirigimos al menú principal.
     return redirect(url_for('webMain'))
 
 if __name__ == "__main__":

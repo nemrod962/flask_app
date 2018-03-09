@@ -10,6 +10,16 @@
 </head>
 
 <body>
+    <div>Seleccione tipo de grafo: <div>
+    <br>
+<!--Formulario utlizado para seleccionar el tipo de grafo-->
+    <form action="{{ url_for('createGraph_post') }}" method="POST">
+        <select name="graphType">
+            <option value="line">GrafoLineas</option>
+            <option value="bar">GrafoBarras</option>
+        <input type="submit" name="refrescar" value="Refrescar"><br>
+    </form>
+
 <br>
 <!--Hay que poner el '| safe' detrás de la variable para que Flask la interprete como código HTML-->
 {{ graph_data | safe }}
