@@ -33,6 +33,11 @@ DBHandler = BeeHandler
 #Mostramos la pagina inicial
 @app.route("/") 
 def webMain():
+    
+    #Cargo en en las listas globales de DBHandler
+    #los datos de las bases de datos
+    DBHandler.reload()
+
     return render_template("index.html",\
     DBName = web_functions.getDBName(DBHandler))
 

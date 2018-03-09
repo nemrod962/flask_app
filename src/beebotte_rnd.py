@@ -375,6 +375,13 @@ class BeeHandler:
             if(opcion2 != "Y" and opcion2 != "y"):
                 repetir = False
 
+    #INTERFAZ PARA CARGAR EN LAS LISTAS GLOBALES
+    #LOS DATOS DE LAS BASES DE DATOS.
+    #Este metodo se llamará igual tanto en el
+    #manejador de SQL como de Beebotte.
+    def reload(self):
+        self.readRandom()
+
 if __name__ == "__main__":
     clase = BeeHandler()
     clase.user_op()
