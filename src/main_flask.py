@@ -14,6 +14,8 @@ import sql_rnd
 import beebotte_rnd
 #Crear Graficas
 import graph_maker
+#Graficas plot.ly
+import plotly_manager
 
 #Creo instancia de Flask
 app = Flask(__name__) 
@@ -24,19 +26,23 @@ app = Flask(__name__)
 #Manejo de BBDD
 SQLHandler = sql_rnd.SQLHandler(app)
 BeeHandler = beebotte_rnd.BeeHandler()
+
 #Manejador a emplear. Será elegido en el
-#menú principal. Por defecto MySQL.
+#menú principal. Por defecto Beebotte.
 #DBHandler = SQLHandler
 DBHandler = BeeHandler
+
+#Cargo en en las listas globales de DBHandler
+#los datos de las bases de datos inicialmente,
+#de forma que cuando acceda al menú principal por
+#primera vez las listas ya estén pobladas
+DBHandler.reload()
 
 #PAGINA INICIAL
 #Mostramos la pagina inicial
 @app.route("/") 
 def webMain():
     
-    #Cargo en en las listas globales de DBHandler
-    #los datos de las bases de datos
-    DBHandler.reload()
 
     return render_template("index.html",\
     DBName = web_functions.getDBName(DBHandler))
@@ -79,6 +85,16 @@ def webMain_post():
     if opcion == "grafo":
         return redirect(url_for('createGraph'))
 
+    if opcion == "plotly":
+        #return redirect(url_for('plotly'))
+        plotlyHandler=plotly_manager.PlotlyHandler()
+        plotlyHandler.crearGrafo(DBHandler)
+        #Abre la gráfica en una nueva pestaña
+        #del navegador, por lo que vuelvo a 
+        #cargar el menú principal. No necesito
+        #cargar otra paǵina.
+        return redirect(url_for('webMain'))
+
     else:
         return "ERROR: Opción Desconocida"
 
@@ -102,6 +118,11 @@ def webDBSelect_post():
         DBHandler = BeeHandler
     else:
         print "DB seleccionada descon."
+    #Una vez seleccionada la base de datos,
+    #utilizo la funcion reload() para que 
+    #pueble las listas globales con los numeros
+    #aleatorios y su fecha de obtencion
+    DBHandler.reload()
     #return render_template("DBselect.html")
     return redirect(url_for('webMain'))
 

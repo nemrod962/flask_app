@@ -8,7 +8,7 @@
         <h2>Selecciona una opción</h2>
         <form action="." method="POST">
             <!--<input type="text" name="text"><br>-->
-            <input type="radio" name="option" value="elegir" checked>
+            <input type="radio" name="option" value="elegir">
             Elegir base de datos <br>
             <input type="radio" name="option" value="tablas" checked>
             Mostrar tablas <br>
@@ -19,9 +19,11 @@
             <input type="radio" name="option" value="media">
             Media Valores <br>
             <input type="radio" name="option" value="grafoBee">
-            Obtener gráficas de Beebotte <br>
+            Obtener gráficas de Beebotte.com <br>
             <input type="radio" name="option" value="grafo">
-            Crear gráfica de la base de datos actual <br>
+            Crear gráfica local Pygal <br>
+            <input type="radio" name="option" value="plotly">
+            Obtener gráfica de plot.ly <br>
             <input type="submit" name="my-form" value="Send"><br>
     </fieldset>
 </form>

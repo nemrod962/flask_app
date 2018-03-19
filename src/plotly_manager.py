@@ -1,23 +1,33 @@
 # -*- coding: UTF-8 -*-
-#graficas
-import pygal
-from pygal.style import DarkSolarizedStyle
+#PLOTLY
+import plotly
+import plotly.plotly as py
+from plotly.graph_objs import *
 #nombre de la base de datos utilizada
 import web_functions
 #formato y conversion fechas
 import date_handler
  
 """
-Clase encargada de dibujar grafos con los 
+Clase encargada de crear grafos plot.ly con los 
 datos contenidos en las bases de datos sobre
 los numeros aleatorios.
 
 Recibiremos las listas con los valores de los numeros 
-y sus fechas de obtencion. A partir de ellas generaremos
-las graficas.
+y sus fechas de obtencion. Se las enviaremos a plot.ly
+Para generar gráficas con ellas.
 
 """
-class GraphMaker:
+class PlotlyHandler:
+
+    def cargarCredenciales(self):
+        #Abro fichero con las credenciales
+        credentialsFile=open("./credentials/plotly_credentials", "r")
+        myUsername=credentialsFile.readline().rstrip()
+        myApiKey=credentialsFile.readline().rstrip()
+
+        #Cargo credenciales para utlizar Plotly. Crea fichero ~/.plotly/.credentials
+        plotly.tools.set_credentials_file(username=myUsername, api_key=myApiKey)
 
     #Doy formato a las listas en caso de estar utilizando
     #Beebotte, ya que me devuelve las listas con el orden
@@ -38,7 +48,7 @@ class GraphMaker:
         for indice in xrange(len(listaFechas)):
             listaFechas[indice] = date_handler.msToDatetime(listaFechas[indice])
     
-    #Crea un grafo de lineas con las listas 
+    #Crea un grafo plot.ly con las listas 
     #de numeros y fechas proporcionadas.
     #Las listas las obtenemos de DBHandler,
     #que sera una instancia de SQLHandler
@@ -47,54 +57,48 @@ class GraphMaker:
     #listaGlobalFecha.
     #Accesibles mediante DBHandler.listaGlobal...
     def crearGrafo(self, DBHandler, tipo=None):
+        #Cargo Credenciales para usar plot.ly
+        self.cargarCredenciales()
 
-        #Parametros de la grafica
-        anchura = 900
-        altura = 900
-        tam_explicito = True
-        
         #Obtengo las listas de los numeros y su tiempo de obtencion
+        #---
         #Aqui no obtengo una copia, si no que referencio a las mismas listas.
         #listaNumeros = DBHandler.listaGlobalNumero
         #listaFechas = DBHandler.listaGlobalFecha
+        #---
         #De esta forma obtengo una copia de las listas.
         #Así puedo operar con ellas y transformarlas de forma
         #que no afecten a otras partes del programa.
         listaNumeros = list(DBHandler.listaGlobalNumero)
         listaFechas = list(DBHandler.listaGlobalFecha)
-        
+
         #Doy formato a las listas.
         self.formatoListas(DBHandler, listaNumeros, listaFechas)
 
-        #graph = pygal.Line(\
-        #width = anchura,\
-        #height=altura,\
-        #explicit_size=tam_explicito)
+        #LLegados a este punto, tengo en las listas
+        # listaNumeros y listaFechas los datos que
+        #necesita plot.ly para crear las gráficas.
 
-        #SELECCIONO TIPO DE GRAFO
+        #Le doy el formato que precisa plot.ly
+        traza0 = Scatter(
+            x=listaFechas,
+            y=listaNumeros
+        )
+        
+        #Puedo incluir más de una traza
+        datos=Data([traza0])
 
-        if str(tipo).lower() == "bar":
-            #print "TIPO: BARRAS"
-            graph = pygal.Bar()
-        #Si la string recibida definiendo el tipo no es 'bar',
-        #supongo que el tipo deseado es 'line'. Si recibimos una
-        #cadena diferente a cualquiera de las opciones, utilizaremos
-        #el grafo de líneas por defecto.
-        else:
-            #print "TIPO: LINEAS"
-            graph = pygal.Line()
-
-        #Obtengo que DB estoy empleando
-        dbname = web_functions.getDBSimpleName(DBHandler)
-        graph.title = 'Grafo ' + dbname
-        graph.x_labels = listaFechas
-        graph.add('Numeros Aleatorios', listaNumeros)
-        #Es necesario poner is_unicode=True para que la aplicacion
-        #pueda insertar adecuadamente el grafo en el html template.
-        graph_data = graph.render(is_unicode=True) 
-
-        #print graph_data
-
-        return graph_data
-
-
+    
+        #envio datos a plot.ly para que genere la gráfica online.
+        #En caso de no haber conexión a internet, genero la gráfica de
+        #forma local
+        try:
+            py.plot(datos, filename="Num. aleatorios")
+        except:
+            print "plot.ly OFFLINE"
+            #Obtengo que DB estoy empleando
+            dbname = web_functions.getDBSimpleName(DBHandler)
+            plotly.offline.plot({
+                "data": [Scatter(x=listaFechas, y=listaNumeros)],
+                "layout": Layout(title="plot.ly " + dbname)
+                })

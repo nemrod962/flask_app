@@ -19,6 +19,12 @@ Las operaciones disponibles son:
 
 Para instalar un entorno virtual con flask para poder ejecutar la aplicación se pueden utilizar los scripts proporcionados en el repositorio:
 
+* Copiar contenido del repositorio
+
+```shell
+git clone https://github.com/pablopenna/flask_app
+```
+
 * Instalar python, virtualenv y sus dependencias:
 
 ```shell
@@ -32,6 +38,14 @@ bash -x instalar_phantomjs.txt
 ```
 
 * Instalar las librerías que la aplicación necesita
+
 ```shell
 pip install -r requirements.txt
+```
+
+* Ejecutar la aplicación. Es importante hacerlo desde dentro del directorio 'src', ya que se buscan los archivos de credenciales en la ruta relatica './credentials/'.
+
+```shell
+cd src
+python main_flask.py
 ```
