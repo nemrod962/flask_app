@@ -40,7 +40,9 @@ print "BORRADOS: " + str(res.deleted_count)
 
 #almaceno en cursor el resultado de obtener todos los 
 #documentos (~filas,entradas) en la coleciion 'system.users'.
-cursor = coll.find().sort("num",1)
+#Con .limit() podemos limitar el numero de documentos devueltos
+#cursor = coll.find().sort("num",1)
+cursor = coll.find().limit(5).sort("num",1)
 #Obtengo solo los numeros mas grades de 50.
 #Ordeno los resultados enorden ascendente.
 #cursor = coll.find({"num": {"$gt":50}}, {"num": 1, "_id": 0}).sort("num", 1)
