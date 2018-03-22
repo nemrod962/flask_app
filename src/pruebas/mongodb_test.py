@@ -1,5 +1,6 @@
 import pymongo
 import random
+#import json
 
 #Conectarse con MongoDB en localhost puerto 8080
 #con el usuario pablo y la contrasenna 123456
@@ -17,19 +18,46 @@ db=conn['mydb']
 #coll=db['system.users']
 coll=db['numeros']
 
+"""
 #insertar numero y ~fecha aleatoria
 #coll == db.numeros
 rand = random.randint(0,100)
 fecha = random.randint(200000,299999)
-result = coll.insert_one({"num":rand,"tiempo":fecha})
+#result = coll.insert({"num":rand,"tiempo":fecha})
+result = coll.insert({"tiempo":fecha,"num":rand})
+"""
 
-#alamceno en cursor el resultado de obtener todos los 
+#cambio el tiempo de los  numeros mayores de 90 a 0.
+print "UPDATE!"
+res = db.numeros.update_many({"num": {'$gt': 90} }, {'$set': {"tiempo": 0} })
+print "Coincidencias: " + str(res.matched_count)
+print "Modificiaciones: " + str(res.modified_count)
+
+#borrar Una entrada que tenga el num 100.
+#Para borrar todas usar delete_many
+res = db.numeros.delete_one({"num": 100})
+print "BORRADOS: " + str(res.deleted_count)
+
+#almaceno en cursor el resultado de obtener todos los 
 #documentos (~filas,entradas) en la coleciion 'system.users'.
-cursor = coll.find()
+cursor = coll.find().sort("num",1)
+#Obtengo solo los numeros mas grades de 50.
+#Ordeno los resultados enorden ascendente.
+#cursor = coll.find({"num": {"$gt":50}}, {"num": 1, "_id": 0}).sort("num", 1)
 
+
+
+listaNum=list()
 #Muestro por pantalla el resultado obtenido
+#Cada doc es de typo 'dict'
 for doc in cursor:
     print doc
+    print type(doc)
+    print "Entrada:"
+    print str(doc['num'])
+    #Agrego
+    listaNum.append(doc['num'])
+    print "Lista:" + str(listaNum)
 
 
 #Termino conexion
