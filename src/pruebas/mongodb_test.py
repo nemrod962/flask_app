@@ -10,22 +10,22 @@ user='pablo'
 passw='123456'
 conn=pymongo.MongoClient('mongodb://'+user+':'+passw+'@'+host+':'+port+'/')
 
-#Almaceno en db la bd 'admin'
-#db=conn['admin']
-db=conn['mydb']
+#Almaceno en db la bd 'mydb'
+test='mydb'
+db=conn[test]
 
 #alamceno en coll la coleccion (~tabla) 'system.users'
 #coll=db['system.users']
-coll=db['numeros']
+coll=db.numeros
 
-"""
+#"""
 #insertar numero y ~fecha aleatoria
 #coll == db.numeros
 rand = random.randint(0,100)
 fecha = random.randint(200000,299999)
 #result = coll.insert({"num":rand,"tiempo":fecha})
 result = coll.insert({"tiempo":fecha,"num":rand})
-"""
+#"""
 
 #cambio el tiempo de los  numeros mayores de 90 a 0.
 print "UPDATE!"
@@ -35,7 +35,11 @@ print "Modificiaciones: " + str(res.modified_count)
 
 #borrar Una entrada que tenga el num 100.
 #Para borrar todas usar delete_many
-res = db.numeros.delete_one({"num": 100})
+#res = db.numeros.delete_one({"num": 101})
+#Borrar entradas que tengan el campo "num" vacio
+res = db.numeros.delete_many({"num": {"$exists": False}})
+#CUIDADO. Con este borro todos
+#res = db.numeros.delete_many({})
 print "BORRADOS: " + str(res.deleted_count)
 
 #almaceno en cursor el resultado de obtener todos los 
