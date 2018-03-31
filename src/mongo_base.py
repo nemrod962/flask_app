@@ -131,7 +131,7 @@ class MongoBasic:
     
     #Cambiar coleccion 
     def setColeccion(self, coleccion):
-        slef.coleccion=coleccion
+        self.coleccion=coleccion
 
     
     """

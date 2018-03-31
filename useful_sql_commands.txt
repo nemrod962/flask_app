@@ -65,3 +65,29 @@ FLUSH PRIVILEGES;
 lab/root
 ubuntu16
 
+
+#DATOS SOBRE LAS TABLAS
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| myFlaskDB          |
++--------------------+
+
+mysql> show tables;
++---------------------+
+| Tables_in_myFlaskDB |
++---------------------+
+| NumberList          |
++---------------------+
+
+mysql> describe NumberList;
++--------+------------+------+-----+---------+-------+
+| Field  | Type       | Null | Key | Default | Extra |
++--------+------------+------+-----+---------+-------+
+| numero | float(5,2) | YES  |     | NULL    |       |
+| fecha  | bigint(13) | YES  |     | NULL    |       |
++--------+------------+------+-----+---------+-------+
+
