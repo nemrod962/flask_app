@@ -303,12 +303,13 @@ class MongoBasic:
                 col=self.client[self.coleccion]
                 #Realizo la consulta a la coleecion
                 try:
+                    #res0 contendrá el _id que le ha asignado Mongo a los datos.
                     res0=col.insert(datos)
+                    #print res0
+                    res=0
                 except Exception as e:
                     print "MongoBasic.escribir() - ERROR: " + str(e)
-                    res0=-1
-                print res0
-                res=0
+                    res0=1
                 
             else:
                 if self.__debug:
@@ -339,29 +340,33 @@ class MongoBasic:
     #para borrar campo vacio -> {"num": {"$exists": False}}
     #para borrar todos documentos con campo "var" 
     # -> {"var":{"$regex": ".*"}}
-    #Devuelve 0 en caso de una correcta ejecución y 1 si no.
-    #Debuelve -1 si no hay conexión con MongoDB
+    #Devuelve el número de documentos borrados.
+    #Devuelve -2 en caso de error.
+    #Debuelve -1 si no hay conexión con MongoDB.
     def borrar(self, condicion):
         #Si no hay conexión, no ejecutamos la función
         if self.checkConn():
             if isinstance(condicion, dict):
                 #Obtengo cursor a la collecion
                 col=self.client[self.coleccion]
-                #Realizo la consulta a la coleecion
                 error=False
                 try:
+                    #Realizo la consulta a la coleecion
                     res0=col.delete_many(condicion)
+                    res=res0.deleted_count
                 except Exception as e:
                     print "MongoBasic.borrar() - ERROR: " + str(e)
+                    res=-2
                     error=True
-                res=0
+                
+                #Debug
                 if self.__debug and not error :
                     print "Se han borrado " +  str(res0.deleted_count) + " documentos."
             else:
                 if self.__debug:
                     if not isinstance(condicion, dict):
                         print "Los datos proporcionados no son de tipo dict!"
-                res=1
+                res=-2
 
             return res
         #Si no hay conexión devuelvo -1
@@ -383,22 +388,25 @@ class MongoBasic:
     #ser de tipo dict.
     #e.g cond -> {"num": {'$gt': 90} }
     #e.g asig -> {"tiempo": 0}
-    #Devuelve 0 en caso de una correcta ejecución y 1 si no.
-    #Debuelve -1 si no hay conexión con MongoDB
+    #Devuelve el número de documentos borrados.
+    #Devuelve -2 en caso de error.
+    #Debuelve -1 si no hay conexión con MongoDB.
     def actualizar(self, condicion, asignacion):
         #Si no hay conexión, no ejecutamos la función
         if self.checkConn():
             if isinstance(condicion, dict) and isinstance(asignacion, dict):
                 #Obtengo cursor a la collecion
                 col=self.client[self.coleccion]
-                #Realizo la consulta a la coleecion
                 error = False
                 try:
+                    #Realizo la consulta a la coleecion
                     res0=col.update_many(condicion, {"$set": asignacion})
+                    res=res0.modified_count
                 except Exception as e:
                     print "MongoBasic.actualizar() - ERROR: " + str(e)
                     error=True
-                res=0
+                    res = -2
+                #Debug
                 if self.__debug and not error:
                     print "Cumplen la condición " +  str(res0.matched_count) + " documentos."
                     print "Se han modificado " +  str(res0.modified_count) + " documentos."
@@ -408,7 +416,7 @@ class MongoBasic:
                         print "Los datos de condicion proporcionados no son de tipo dict!"
                     if not isinstance(asignacion, dict):
                         print "Lo datos de asignacion proporcionados no son de tipo dict!"
-                res=1
+                res=-2
 
             return res
         #Si no hay conexión, retorno -1
@@ -419,21 +427,36 @@ class MongoBasic:
 if __name__ == "__main__":
     m = MongoBasic("test",1024,True)
     #res3=m.leerOrden("tiempo",True)
+
+    #escribir
+    r=random.randint(0,100)
+    t=random.randint(2000000,2999999)
+    m.escribir({"var" : "descr1" , "num" : r , "tiempo" : t})
+    
+    
+    #borrar
     dato={"var":{"$regex": ".*"}}
-    #res3 = m.borrar(dato)
+    res3 = m.borrar(dato)
+    print "Borrados: " + str(res3)
+    
+    """
+    #actualizar
     con={"num": {"$gt":50}}
     asig={"tiempo": 777}
-    #res1=m.actualizar(con, asig)
+    res1=m.actualizar(con, asig)
+    print "Actualizados: " + str(res1)
+    """
+    #leer
     res2=m.leer()
     
-    dato="num"
+    #dato="num"
     #print "res1"
     #for doc in res1:
     #    print doc[dato]
     #print res1
-    print "res2"
-    for doc in res2:
-        print doc
+    #print "res2"
+    #for doc in res2:
+    #    print doc
     #print "res3"
     #print res3
     m.endConn()
