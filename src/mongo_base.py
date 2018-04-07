@@ -151,8 +151,9 @@ class MongoBasic:
         #Si no hay conexión, no ejecutamos la función
         if self.checkConn():
             #Si no se especifica campo, o el campo introducido no es string
-            if campo==None or not isinstance(campo, str):
-                if self.__debug and not isinstance(campo, str):
+            #Si campo==None, entonces isinstance(campo, str) = False
+            if not isinstance(campo, str):
+                if self.__debug and campo!=None:
                     print "Nombre de campo introducido no válido!"
                 #Obtengo cursor a la collecion
                 col=self.client[self.coleccion]

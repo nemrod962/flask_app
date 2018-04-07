@@ -290,19 +290,92 @@ class UserManager(MongoBasic):
     #Genera valor aleatorio para una cookie.
     #PLACEHOLDER
     def genCookieVal(self):
+        #HAY QUE COMPROBAR SI YA EXISTE ESE VALOR EN LISTASESIONES
         return random.randint(0,100)
+
+    #Modificar valor umbral para un usuario
+    #Dado un usuario y un valor para el umbral, asignaremos ese
+    #umbral al usuario. El umbral debe estar comprendido entre 0 y 100.
+    def modUmbral(self, userId, umbral):
+        #COMPROBACION TIPOS
+        #nombre usuario valido
+        if not ( isinstance(userId, str) and len(userId)>0 ):
+            if self.debug:
+                print "modUmbral : Tipo y/o longitud de usuario no válido."
+            return -1
+        #umbral valido
+        if not ( isinstance(umbral, Number) and umbral >=0 \
+        and umbral <=100 ):
+            if self.debug:
+                print "modUmbral : Tipo y/o valor de umbral no válido."+ \
+                "El valor del umbral debe estar comprendido entre 0 y 100."
+            return -1
+        
+        #MODIFICACION UMBRAL
+        #busco usuario indicado
+        condicion={self.campoUsername : userId}
+        #DEBUG
+        if self.debug:
+            print condicion
+        #Obtengo el resultado de búsqueda de usuario en res    
+        res=self.leerCondicion(condicion, userId)
+
+        #DEBUG
+        if self.debug:
+            print "Con user: " + str(userId)
+            print "Se ha encontrado el usuario: "
+            for doc in res:
+                print doc
+            #muy importante hacer rewind
+            res.rewind()
+        #Si se ha encontrado usuario. res.count() sera > 0.
+        if res.count() > 0:
+            #Existe usuario. Procedo a modificar el umbral.
+            #creo la asignacion. La condicion ya la tengo declarada.
+            asignacion={ self.campoUmbral : umbral }
+            #Actualizo valor en MongoDB
+            res = self.actualizar(condicion, asignacion)
+            return res
+        else:
+            if self.debug:
+                print "No se ha encontrado el usuario: " + str(userId)
+            return -1
             
 
+
+            
 if __name__ == "__main__":
+
+    #Funcion privada para parsear strings a numeros
+    def num(s):
+        try:
+            return int(s)
+        except ValueError:
+            try:
+                return float(s)
+            except ValueError:
+                return None
+    #----------------------------------------------
     u = UserManager()
     u.deleteUser("asd", "asd")
+    """
     print "Crear:"
     userr = raw_input("user: ")
     passs = raw_input("pass: ")
     u.createUser(userr, passs)
+    
     u.leer()
     print "Login:"
     userr = raw_input("user: ")
     passs = raw_input("pass: ")
     u.login(userr,passs)
+    """
+    u.leer()
+    userr = raw_input("user: ")
+    umbrall = raw_input("umbral: ")
+    umbrall=num(umbrall)
+    #userr = 123
+    #umbrall = 12L
+    res=u.modUmbral(userr, umbrall)
+    print "modUmbral : " + str(res)
     u.endConn()
