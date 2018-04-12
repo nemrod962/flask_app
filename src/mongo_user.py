@@ -117,7 +117,7 @@ class UserManager(MongoBasic):
                 #Usuario y contraseña correctos.
                 #Añado el valor de la cookie y el usuario al
                 #que corresponde.
-                cookie=self.genCookieVal()
+                cookie=self.genCookieVal(userId)
                 entrada={cookie : userId}
                 self.listaSesiones.update(entrada)
                 #Consultando la cookie en este diccionario, nos
@@ -289,9 +289,25 @@ class UserManager(MongoBasic):
     """
     #Genera valor aleatorio para una cookie.
     #PLACEHOLDER
-    def genCookieVal(self):
-        #HAY QUE COMPROBAR SI YA EXISTE ESE VALOR EN LISTASESIONES
-        return random.randint(0,100)
+    def genCookieVal(self, userId):
+        repetir=True
+        while repetir:
+            #La cookie consistirá en el nombre de usuario seguido de un
+            #número aleatorio entre 0 y 1000000.
+            #Todo ello será codificado en base64
+            prefijo = random.randint(0,1000000)
+            cookiePre=str(userId)+str(prefijo)
+            #DEBUG
+            if self.debug:
+                print "Cookie sin codificar: " + str(cookiePre)
+            cookie=base64.b64encode(cookiePre)
+            #HAY QUE COMPROBAR SI YA EXISTE ESE VALOR EN LISTASESIONES
+            #Si ya existe, generop de nuevo la clave
+            #SI no (lo normal), salgo y retorono la cookie
+            if not (cookie in self.listaSesiones):
+                repetir=False
+        #retorno la cookie
+        return cookie
 
     #Modificar valor umbral para un usuario
     #Dado un usuario y un valor para el umbral, asignaremos ese
@@ -358,18 +374,18 @@ if __name__ == "__main__":
     #----------------------------------------------
     u = UserManager()
     u.deleteUser("asd", "asd")
-    """
+    """ 
     print "Crear:"
     userr = raw_input("user: ")
     passs = raw_input("pass: ")
     u.createUser(userr, passs)
-    
+    """
     u.leer()
     print "Login:"
     userr = raw_input("user: ")
     passs = raw_input("pass: ")
     u.login(userr,passs)
-    """
+    
     u.leer()
     userr = raw_input("user: ")
     umbrall = raw_input("umbral: ")
