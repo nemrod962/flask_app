@@ -24,9 +24,17 @@ import time
 def umbral(DBHandler, umbral, debug = False):
     #Usamos MySQL o Beebotte
     if DBHandler.__class__.__name__ == "SQLHandler"\
-    or DBHandler.__class__.__name__ == "BeeHandler" :
+    or DBHandler.__class__.__name__ == "BeeHandler"\
+    or DBHandler.__class__.__name__ == "MongoHandler":
+
 
         #ACTUALIZO LAS LISTAS EN DBHANDLER
+        DBHandler.reload()
+        if debug:
+            print "Usando " + str(DBHandler.__class__.__name__)
+            print DBHandler.listaGlobalFecha
+            print DBHandler.listaGlobalNumero
+        """
         if DBHandler.__class__.__name__ == "BeeHandler":
             DBHandler.readRandom()
             if debug:
@@ -40,7 +48,7 @@ def umbral(DBHandler, umbral, debug = False):
                 print "Usando MySQL"
                 print DBHandler.listaGlobalFecha
                 print DBHandler.listaGlobalNumero
-        
+        """
         #No puedo estar esperando a que se llenen. Hay casos
         #en los que no podremos conectarnos a la base de datos de 
         #mysql local, por lo que las listas estarán vacías.
@@ -122,10 +130,20 @@ def umbral(DBHandler, umbral, debug = False):
 #Calcular el valor medio de los numeros almacenados. Se debe especificar
 #la base de datos que se ha empleado.
 def media(DBHandler, debug = True):
-    #Usamos MySQL o Beebotte
+    #Usamos MySQL o Beebotte o Mongo
     if DBHandler.__class__.__name__ == "SQLHandler"\
-    or DBHandler.__class__.__name__ == "BeeHandler" :
+    or DBHandler.__class__.__name__ == "BeeHandler"\
+    or DBHandler.__class__.__name__ == "MongoHandler":
 
+
+        #ACTUALIZO LAS LISTAS EN DBHANDLER
+        DBHandler.reload()
+        if debug:
+            print "Usando " + str(DBHandler.__class__.__name__)
+            print DBHandler.listaGlobalFecha
+            print DBHandler.listaGlobalNumero
+
+        """
         #ACTUALIZO LAS LISTAS EN DBHANDLER
         if DBHandler.__class__.__name__ == "BeeHandler":
             DBHandler.readRandom()
@@ -141,7 +159,7 @@ def media(DBHandler, debug = True):
                 print DBHandler.listaGlobalFecha
                 print DBHandler.listaGlobalNumero
         
-
+        """
         #No puedo estar esperando a que se llenen. Hay casos
         #en los que no podremos conectarnos a la base de datos de 
         #mysql local, por lo que las listas estarán vacías.
@@ -194,6 +212,8 @@ def getDBName(DBHandler):
         return "MySQL (local)"
     elif DBHandler.__class__.__name__ == "BeeHandler" :
         return "Beebotte (online)"
+    elif DBHandler.__class__.__name__ == "MongoHandler" :
+        return "MongoDB (local)"
     else:
         return "Descon."
 
@@ -203,5 +223,7 @@ def getDBSimpleName(DBHandler):
         return "mysql"
     elif DBHandler.__class__.__name__ == "BeeHandler" :
         return "beebotte"
+    elif DBHandler.__class__.__name__ == "MongoHandler" :
+        return "mongodb"
     else:
         return "desconocido"

@@ -3,7 +3,8 @@
 EJEMPLO INICIAL DE FLASK
 """
 #FLASK
-from flask import Flask, render_template, url_for, redirect, request
+from flask import Flask, render_template, url_for,\
+redirect, request, make_response
 #proceso para subir los datos a las BBDD
 import rnd_uploader
 #funcionalidad de la web con los datos
@@ -12,6 +13,9 @@ import web_presentation
 #Manejo Bases de Datos
 import sql_rnd
 import beebotte_rnd
+import mongo_rnd
+#Usuarios en Bases de Datos
+from mongo_user import UserManager
 #Crear Graficas
 import graph_maker
 #Graficas plot.ly
@@ -26,11 +30,15 @@ app = Flask(__name__)
 #Manejo de BBDD
 SQLHandler = sql_rnd.SQLHandler(app)
 BeeHandler = beebotte_rnd.BeeHandler()
+MongoHandler = mongo_rnd.MongoHandler()
+
+#Manejo de Usuarios almacenados en MongoDB
+UserHandler = UserManager()
 
 #Manejador a emplear. Será elegido en el
 #menú principal. Por defecto Beebotte.
 #DBHandler = SQLHandler
-DBHandler = BeeHandler
+DBHandler = MongoHandler
 
 #Cargo en en las listas globales de DBHandler
 #los datos de las bases de datos inicialmente,
@@ -39,11 +47,54 @@ DBHandler = BeeHandler
 DBHandler.reload()
 
 #PAGINA INICIAL
+#Login
+@app.route("/login")
+def webLogin():
+    return render_template("login.html")
+
+@app.route("/login", methods=['POST'])
+def webLogin_post():
+    #Los convierto a string pues estrán en tipo 'unicode'
+    user=str(request.form['user'])
+    passw=str(request.form['pass'])
+    
+    #DEBUG
+    print "DEBUG - /login"
+    print "user - type: " + str(type(user))
+    print "user: " + str(user)
+    print "pass - type: " + str(type(passw))
+    print "pass: " + str(passw)
+
+    #Creo la respuesta que devolveré al cliente.
+    #Esta respuesta estrá compuesta por el resultado
+    #devuelto por la función render_template().
+    #A esta respuesta le añadiré la cookie generada como resultado del 
+    #inicio de sesión, si este es satisfactorio.
+    resp = make_response(redirect(url_for('webMain')))
+
+    #Obtengo cookie resultado de log in
+    cookieVal=UserHandler.login(user,passw)
+    #Si se ha iniciado sesion, el valor de 
+    #cookieVal será != -1
+    print "DEBUG - Cookie: " + str(cookieVal)
+    if cookieVal != -1:
+        resp.set_cookie('SessionId', cookieVal)
+    
+    #return redirect(url_for('webMain'))
+    return resp
+
+
+#menú principal
 #Mostramos la pagina inicial
 @app.route("/") 
 def webMain():
-    
 
+    #Cookies
+    idSesion=request.cookies.get('SessionId')
+    print "SESION: " + str(idSesion)
+    nombreUsuario = UserHandler.checkCookie(idSesion)
+    print "Usuario: " + str(nombreUsuario)
+    #---
     return render_template("index.html",\
     DBName = web_functions.getDBName(DBHandler))
 
@@ -116,6 +167,8 @@ def webDBSelect_post():
         DBHandler = SQLHandler
     elif opcion == "Beebotte":
         DBHandler = BeeHandler
+    elif opcion == "MongoDB":
+        DBHandler = MongoHandler
     else:
         print "DB seleccionada descon."
     #Una vez seleccionada la base de datos,
@@ -282,7 +335,8 @@ if __name__ == "__main__":
 
    #Iniciar y lanzar proceso de carga de datos en las BBDD
    #LOS MANEJADORES DE LAS DBs SE INICIALIZAN EN SU CONSTRUCTOR
-   uploader = rnd_uploader.RndUploader(app, SQLHandler, BeeHandler, 120, debug) 
+   uploader = rnd_uploader.RndUploader(app, SQLHandler, BeeHandler,\
+   MongoHandler,120, debug) 
    
    #prueba de las funcionalidades
    if debug:

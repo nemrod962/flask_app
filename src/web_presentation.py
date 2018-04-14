@@ -16,22 +16,15 @@ def getTableHTML(DBHandler, debug = False):
 #--------------------------------------------------
     #Usamos MySQL o Beebotte
     if DBHandler.__class__.__name__ == "SQLHandler"\
-        or DBHandler.__class__.__name__ == "BeeHandler" :
+    or DBHandler.__class__.__name__ == "BeeHandler"\
+    or DBHandler.__class__.__name__ == "MongoHandler":
 
         #ACTUALIZO LAS LISTAS EN DBHANDLER
-        if DBHandler.__class__.__name__ == "BeeHandler":
-            DBHandler.readRandom()
-            if debug:
-                print "Usando Beebotte"
-                print DBHandler.listaGlobalFecha
-                print DBHandler.listaGlobalNumero
-
-        if DBHandler.__class__.__name__ == "SQLHandler":
-            DBHandler.readDataDB()
-            if debug:
-                print "Usando MySQL"
-                print DBHandler.listaGlobalFecha
-                print DBHandler.listaGlobalNumero
+        DBHandler.reload()
+        if debug:
+            print "Usando " + str(DBHandler.__class__.__name__)
+            print DBHandler.listaGlobalFecha
+            print DBHandler.listaGlobalNumero
 
         #obtengo listas 
         listaNum = DBHandler.listaGlobalNumero
@@ -78,9 +71,10 @@ def getTableHTML(DBHandler, debug = False):
 #la base de datos especificada y devuelve una tabla
 #HTML con los mismos.
 def getUmbralHTML(DBHandler, umbral, debug=False):
-    #Usamos MySQL o Beebotte
+    #Usamos mysql, beebotte o mongo
     if DBHandler.__class__.__name__ == "SQLHandler"\
-    or DBHandler.__class__.__name__ == "BeeHandler" :
+    or DBHandler.__class__.__name__ == "BeeHandler"\
+    or DBHandler.__class__.__name__ == "MongoHandler":
         #Obtenemos el resultado con el siguiente formato:
         #tuple(numSup, fechaNumSup, numInf, fechaNumInf)
         tuplaResUmbral = web_functions.umbral(DBHandler, umbral, debug)
@@ -140,9 +134,10 @@ def getUmbralHTML(DBHandler, umbral, debug=False):
 #base de datos y devuelve el resultado en forma
 #de tabla HTML
 def getMediaHTML(DBHandler, debug=False):
-    #Usamos MySQL o Beebotte
+    #Usamos mysql, beebotte o mongo
     if DBHandler.__class__.__name__ == "SQLHandler"\
-    or DBHandler.__class__.__name__ == "BeeHandler" :
+    or DBHandler.__class__.__name__ == "BeeHandler"\
+    or DBHandler.__class__.__name__ == "MongoHandler":
         #Obtenemos la media de los datos
         media = web_functions.media(DBHandler, debug)
 

@@ -32,6 +32,14 @@ def getDatetimeMs():
 #Dada una fecha en milisegundos devuelve su equivalente
 #en formato "%Y-%m-%d %H:%M:%S"
 def msToDatetime(tiempoMs):
+    #print "DEBUG: DATEHANDLER - msToDatetime:"
+    #print "type: tiempoMs - " + str(type(tiempoMs))
+    #print "tiempoMs - " + str(tiempoMs)
+    #Esto es debido a que las fechas recuperadas de 
+    #MongoDB son del tipo 'unicode', por lo que da problemas
+    #si no se convierte a un tipo adecuado
+    if not isinstance(tiempoMs, int):
+        tiempoMs=int(tiempoMs)
     #Redondeo para que los segundos no tengan decimales
     fechaSegundos = int(round(tiempoMs/1000.0))
     fechabuena = datetime.datetime.fromtimestamp(fechaSegundos)

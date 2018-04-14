@@ -308,6 +308,17 @@ class UserManager(MongoBasic):
                 repetir=False
         #retorno la cookie
         return cookie
+    
+    #CONSULTAR USUARIO
+    #Se nos dará el valor de una cookie y se devolverá
+    #a qué usuario pertenece.
+    #Si no pertenece, devuelvo None
+    def checkCookie(self, sessionId):
+        try:
+            sessionId=str(sessionId)
+            return self.listaSesiones[sessionId]
+        except KeyError:
+            return None
 
     #Modificar valor umbral para un usuario
     #Dado un usuario y un valor para el umbral, asignaremos ese

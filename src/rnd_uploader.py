@@ -15,6 +15,7 @@ import time
 #librerias propias para trabajar con las bases de datos
 import sql_rnd
 import beebotte_rnd
+import mongo_rnd
 #libreria propia para extraer un numero aleatorio de la web
 import web_fetcher.rnd_fetcher
 #libreria propia para trabajar con las fechas
@@ -26,7 +27,7 @@ class RndUploader:
     #se inicializa como True. Miestras tenga este valor
     #se seguiran subiendo datos cada 2 minutos.
     #cuando se cambie su valor a Flase parara.
-    def __init__(self, flaskApp, handSQL, handBee,\
+    def __init__(self, flaskApp, handSQL, handBee, handMongo,\
     tiempoSleep = 120, debug = False):
         #self.__enable -> __enable es privado gracias a '__'
         #para acceder al valor de enable utilizaremos
@@ -44,6 +45,17 @@ class RndUploader:
         #self.__BeeHand = beebotte_rnd.BeeHandler()
         self.__SQLHand = handSQL
         self.__BeeHand = handBee
+        #MongoClient opened before fork. Create MongoClient only after forking.
+        #See PyMongo's documentation for details:
+        #http://api.mongodb.org/python/current/faq.html#is-pymongo-fork-safe
+        #No es seguro que esta clase reciba la instancia de MongoDB del main
+        #Por lo que creare en esta clase mi propia instancia de MongoHandler
+        #Esto no debería importar ya que aunque sean dos instancias distintas
+        #leerán de la misma base de datos.
+        #La instancia en esta clase se dedicará principalmente a escribir y la
+        #que está en el main a leer.
+        #self.__MongoHand= handMongo
+        self.__MongoHand= mongo_rnd.MongoHandler()
         #inicio proceso para subir los datos a las BBDD
         self.lanzar()
     
@@ -54,7 +66,11 @@ class RndUploader:
     #Devuelve el manejador de Beebotte
     def getBeeHandler(self):
         return self.__BeeHand
-    
+
+    #Devuelve el manejador de MongoDB
+    def getMongoHandler(self):
+        return self.__MongoHand
+
     #Subira un número aleatorio cada 2 min
     def upload(self):
         while self.__enable.value:
@@ -73,6 +89,7 @@ class RndUploader:
             self.__enable.value = False
             self.__SQLHand.readDataDB()
             self.__BeeHand.readRandom()
+            self.__MongoHand.readRandom()
             #BORRA ESTO!-----------------------------
             """
 
@@ -90,6 +107,8 @@ class RndUploader:
                     #solo necesario para la BD local, ya que Beebotte
                     #almacena automaticamente la fecha
                     fecha = str(date_handler.getDatetimeMs())
+                    #escribo en MongoDB
+                    self.__MongoHand.writeRandom(rnd, fecha)
                     #escribo en MySQL
                     self.__SQLHand.writeDataDB(rnd, fecha, self.__debug)
                 
@@ -97,6 +116,7 @@ class RndUploader:
                 #DE LOS MANEJADORES
                 self.__SQLHand.readDataDB()
                 self.__BeeHand.readRandom()
+                self.__MongoHand.readRandom()
                 
                 if self.__debug:
                     print "Tablas MySQL:"
@@ -105,6 +125,9 @@ class RndUploader:
                     print "Tablas Bee:"
                     print self.__BeeHand.listaGlobalFecha
                     print self.__BeeHand.listaGlobalNumero
+                    print "Tablas Mongo:"
+                    print self.__MongoHand.listaGlobalFecha
+                    print self.__MongoHand.listaGlobalNumero
 
                 #esperar entre escrituras
                 try:
@@ -115,6 +138,7 @@ class RndUploader:
 
         print "Uploader.upload(): saliendo..."
     
+    """
     #funcion utilizada para testing
     def hola(self, nombre):
         while self.__enable.value:
@@ -125,9 +149,12 @@ class RndUploader:
                 print "Uploader.hola(): sleep fue interrumpido!"
                 #self.__enable.value = False
         print "Uploader.hola(): PROCESO ACABADO"
+    """
 
     #funcion de prueba para probar el multiprocesamiento
     #genera el proceso
+    #Función que genera un proceso que ejecuta la función
+    #upload() de esta misma clase en segundo plano.
     def lanzar(self):
         #proceso que será el uploader.
         #si solo pasamos un parametro como argumento (args),
@@ -140,6 +167,7 @@ class RndUploader:
         self.proceso.start()
         #proceso.join()
 
+    #Marca y espera que los procesos en segundo plano terminen su ejecución.
     def finalizar(self):
         self.__enable.value=False
         if self.__debug:

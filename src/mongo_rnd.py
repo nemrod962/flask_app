@@ -117,6 +117,15 @@ class MongoHandler(MongoBasic):
                 "readRandom - No se ha podido leer de MongoDB"
             return -1
 
+
+    #INTERFAZ PARA CARGAR EN LAS LISTAS GLOBALES
+    #LOS DATOS DE LAS BASES DE DATOS.
+    #Este metodo se llamará igual tanto en el
+    #manejador de SQL como de Beebotte como de MongoDB.
+    def reload(self):
+        self.readRandom()
+
+
     """
     __        __    _ _       
     \ \      / / __(_) |_ ___ 
@@ -130,11 +139,13 @@ class MongoHandler(MongoBasic):
     #Devuelve 0 si se han escrito los datos satisfactoriamente,
     #1 en caso contrario.
     #Si no hay conexion, se devuelve -1.
-    def writeRandom(self, rndNumber):
+    def writeRandom(self, rndNumber, fecha):
         
         #Obtengo la fecha actual para almacenarla
         #junto con el número aleatorio
-        fechaObt = date_handler.getDatetimeMs()
+        #fechaObt = date_handler.getDatetimeMs()
+        #La recibo como parámetro
+        fechaObt=fecha
             
         #El método escribir() de MongoBasic recibe
         #los datos a escribir en MongoDB en forma
