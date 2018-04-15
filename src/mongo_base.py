@@ -6,7 +6,7 @@ para comunicarse con MongoDB
 import pymongo
 import random
 #Para errores de conexion con MongoDB
-from pymongo.errors import ConnectionFailure
+from pymongo.errors import ConnectionFailure, OperationFailure
 
 class MongoBasic:
 
@@ -95,6 +95,12 @@ class MongoBasic:
         except ConnectionFailure:
             print("MongoDB server not available")
             #Si ha saltado la exception no hay conexion
+            self.hayConexion=False
+        except OperationFailure as e:
+            print("MongoDB - OperationFailure: " + str(e))
+            #Si salta esta excepttion, lo más
+            #probable es que las credenciales aportadas
+            #no sean válidas
             self.hayConexion=False
 
 
@@ -434,11 +440,12 @@ if __name__ == "__main__":
     t=random.randint(2000000,2999999)
     m.escribir({"var" : "descr1" , "num" : r , "tiempo" : t})
     
-    
+    """    
     #borrar
     dato={"var":{"$regex": ".*"}}
     res3 = m.borrar(dato)
     print "Borrados: " + str(res3)
+    """
     
     """
     #actualizar
