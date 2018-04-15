@@ -24,6 +24,8 @@ import base64
 from passlib.hash import pbkdf2_sha256
 #para numeros aleatorios
 import random
+#para manejo de fechas
+import date_handler
 #Para comprobar si un objeto es un numero de cualq tipo
 from numbers import Number
 #Herencia de la clase base para trabajar con MongoDB
@@ -41,7 +43,12 @@ class UserManager(MongoBasic):
         self.campoUmbral="umbral"
         #Diccionario que contiene los pares de cookie y usuario correspondiente
         self.listaSesiones=dict()
-
+        #Contiene los pares de cookies y fecha de caducidad. Las cookies
+        #caducan despus de que pase le tiempo indicado por tiempoCaducidad
+        #(contiene escapcio de tiempo en ms, p.ej. 30 minutos) sin ser
+        #utilizadas.
+        self.tiempoCaducidad=date_handler.minToMs(1)
+        self.listaCaducidad=dict()
         #Debug
         self.debug=debug
 
@@ -75,43 +82,11 @@ class UserManager(MongoBasic):
             return -1
 
         #REALIZO OPERACIONES PARA LOGIN
-        condicion={self.campoUsername : userId}
-        if self.debug:
-            print condicion
-        res=self.leerCondicion(condicion, userId)
-
-        #DEBUG
-        if self.debug:
-            print "Con user: " + str(userId)
-            print "Se ha encontrado el usuario: "
-            for doc in res:
-                print doc
-            #muy importante
-            res.rewind()
-        #Si se ha encontrado usuario. res.count() sera > 0.
-        if res.count() > 0:
+        #comprobamos que el nombre del usuario existe
+        if self.checkUserName(userId):
             #Existe usuario.
             #Ahora comprobamos contraseña
-            #Obtenemos el has de la contraseña iterando por el resultado.
-            #Si lo hacemos de otra manera, p.ej. res[0]["pass"]
-            #nos devolverá u'pass' en lugar de pass
-            hashPass=None
-            for doc in res:
-                if self.debug:
-                    #print "iteracion: " + str(doc)
-                    #print "iteracion pt2: " + str(doc[self.campoPassword])
-                    print ""
-                hashPass=doc[self.campoPassword]
-            
-            #Comparamos la contraseña introducida con el
-            #hash de la contraseña verdadera
-            correctPass = pbkdf2_sha256.verify(userPass , hashPass)
-
-            #DEBUG
-            if self.debug:
-                print "hash pass buena: " + str(hashPass)
-                print "pass introducida: " + str(userPass)
-                print "Coinciden? : " + str(correctPass)
+            correctPass = self.checkPassword(userPass, userPass)
 
             if correctPass:
                 #Usuario y contraseña correctos.
@@ -122,8 +97,25 @@ class UserManager(MongoBasic):
                 self.listaSesiones.update(entrada)
                 #Consultando la cookie en este diccionario, nos
                 #devolverá el usuario al que pertenece la cookie
+                #---
+                #Añado también la información de caducidad de la cookie
+                #Será la fecha actual + tiempoCaducidad.
+                #Es decir, si tiempoCaducidad son 30 minutos,
+                #caducidad contendrá la fecha de dentro de 30 minutos.
+                caducidad=date_handler.getDatetimeMs() + self.tiempoCaducidad
+                entrada2={cookie : caducidad}
+                self.listaCaducidad.update(entrada2)
                 if self.debug:
                     print "Sesion iniciada. Id: " + str(cookie)
+                    print "Caducidad Sesion:"
+                    fechaAct=date_handler.getDatetimeMs()
+                    print "Tiempo Actual: " + str(fechaAct)
+                    print "conversion: " + \
+                    str(date_handler.msToDatetime(fechaAct))
+                    cadcook=self.listaCaducidad[cookie]
+                    print "Caducidad Cookie: " + str(cadcook)
+                    print "conversion: " + \
+                    str(date_handler.msToDatetime(cadcook))
                 return cookie
 
             else:
@@ -141,6 +133,7 @@ class UserManager(MongoBasic):
     def logout(self, cookieVal):
         try:
             del self.listaSesiones[cookieVal]
+            del self.listaCaducidad[cookieVal]
             return 0
         except KeyError as e:
             if self.debug:
@@ -183,20 +176,8 @@ class UserManager(MongoBasic):
                 print "El usuario y la contraseña deben" + \
                 "ser de al menos 4 chars de longitud!"
             return -1
-        #comprobamos que el nombre del usuario no existe
-        condicion={self.campoUsername : userId}
-        res=self.leerCondicion(condicion, userId)
-        #DEBUG
-        if self.debug:
-            print "Con user: " + str(userId)
-            print "Se ha encontrado el usuario: "
-            for doc in res:
-                print doc
-            #muy importante
-            res.rewind()
-
-        #Si se ha encontrado usuario. res.count() sera > 0.
-        if res.count() > 0:
+        #comprobamos que el nombre del usuario existe
+        if self.checkUserName(userId):
             #Existe usuario. Aborto misión.
             #Salimos con código de error.
             return -1
@@ -232,21 +213,8 @@ class UserManager(MongoBasic):
             return -1
 
         #BORRAR USUARIO
-        condicion={self.campoUsername : userId}
-        if self.debug:
-            print condicion
-        res=self.leerCondicion(condicion, userId)
-
-        #DEBUG
-        if self.debug:
-            print "Con user: " + str(userId)
-            print "Se ha encontrado el usuario: "
-            for doc in res:
-                print doc
-            #muy importante
-            res.rewind()
-        #Si se ha encontrado usuario. res.count() sera > 0.
-        if res.count() > 0:
+        #comprobamos que el nombre del usuario existe
+        if self.checkUserName(userId):
             #Existe usuario.
             #Ahora comprobamos contraseña
             #Obtenemos el has de la contraseña iterando por el resultado.
@@ -284,11 +252,11 @@ class UserManager(MongoBasic):
             if self.debug:
                 print "No existe el usuario: " + userId
             return -1
+
     """
-    MISC
+    COOKIES
     """
-    #Genera valor aleatorio para una cookie.
-    #PLACEHOLDER
+    #Genera valor "aleatorio" para una cookie.
     def genCookieVal(self, userId):
         repetir=True
         while repetir:
@@ -313,12 +281,130 @@ class UserManager(MongoBasic):
     #Se nos dará el valor de una cookie y se devolverá
     #a qué usuario pertenece.
     #Si no pertenece, devuelvo None
-    def checkCookie(self, sessionId):
+    def getCookieUserName(self, sessionId):
         try:
             sessionId=str(sessionId)
             return self.listaSesiones[sessionId]
         except KeyError:
             return None
+    
+    #-------------------------
+    #-------CADUCIDAD---------
+    #-------------------------
+
+    #Refrescar uso de la cookie. Restrasamos su
+    #fecha de caducidad.
+    def refreshCookie(self, cookieVal):
+        if self.debug:
+            print "Actualizando caducidad cookie - " + str(cookieVal)
+            print "Antes: " + str(self.listaCaducidad)
+
+        if cookieVal in self.listaCaducidad:
+            #Actualiza la fecha para dentro de tiempoCaducidad minutos
+            caducidad=date_handler.getDatetimeMs() + self.tiempoCaducidad
+            self.listaCaducidad[cookieVal]=caducidad
+
+        if self.debug:
+            print "Despues: " + str(self.listaCaducidad)
+
+    #Recorre la lista de todas las cookies y borra las que hayan caducado
+    def deleteExpiredCookies(self):
+        #Si encuentro una cookie a borrar, borrare la entrada
+        #en los diccionarios cuya clave sea ese valor de cookie
+        #mediante el método logout(). Al hacer esto, cambiare el tamaño
+        #de los diccionario listaCaducidad  mientras itero por él.
+        #Esto producirá un error de ejecución.
+        #Para evitarlo, crearé una copia del diccionario y utilizaré
+        #las claves de esta copia para iterar a través del original
+        for value in self.listaCaducidad.copy():
+            #Si el tiempo actual es mayor que la fecha
+            #de caducidad, significa que ha caducado la cookie
+            fechaAct=date_handler.getDatetimeMs()
+            cadTemp=self.listaCaducidad[value]
+            if self.debug:
+                print "Fecha act: " + str(fechaAct)
+                print "tipo: " + str(type(fechaAct))
+                print "Fecha cad: " + str(cadTemp)
+                print "tipo: " + str(type(cadTemp))
+
+            if fechaAct >= cadTemp:
+                if self.debug:
+                    print "La cookie con valor " + str(value) \
+                    + " ha caducado."
+
+                #Si ha caducado, realizo un logout().
+                #Esto borrará el valor de la cookie
+                #de listaSesiones y listaCaducidad
+                self.logout(value)
+
+    #Se llamará a una función cuando se registre el uso de una cookie.
+    #Se borrarán las cookies que han caducado y acto seguido, si no
+    #ha caducado la cookie empleada, se prologará su fecha de caducidad.
+    def checkCookieStatus(self, cookieVal):
+        if self.debug:
+            print "Comprobando caducidad de cookies."
+        self.deleteExpiredCookies()
+        if self.debug:
+            print "Actualizando caducidad de la cookie - " + str(cookieVal)
+        self.refreshCookie(cookieVal)
+                
+    """
+    MISC
+    """
+    #EXISTE USUARIO
+    #Dado el nombre de un usuario comprueba si existe en la base de
+    #datos de MongoDB.
+    #Devuelve True si existe ese Nombre de Usuario,
+    #False en caso contrario
+    def checkUserName(self, userId):
+        condicion={self.campoUsername : userId}
+        if self.debug:
+            print condicion
+        res=self.leerCondicion(condicion, userId)
+        #DEBUG
+        if self.debug:
+            print "Con user: " + str(userId)
+            print "Se ha encontrado el usuario: "
+            for doc in res:
+                print doc
+            #muy importante
+            res.rewind()
+        #Si se ha encontrado usuario. res.count() sera > 0.
+        return res.count() > 0
+    
+    #COMPROBAR CONTRASEÑA
+    #dado usuario y contraseña, se comprueba si la contraseña aportada
+    #es correcta
+    def checkPassword(self, userId, userPass):
+        condicion={self.campoUsername : userId}
+        res=self.leerCondicion(condicion, userId)
+        #Si se ha encontrado usuario. res.count() sera > 0.
+        if res.count() > 0:
+            #Ahora comprobamos contraseña
+            #Obtenemos el has de la contraseña iterando por el resultado.
+            #Si lo hacemos de otra manera, p.ej. res[0]["pass"]
+            #nos devolverá u'pass' en lugar de pass
+            hashPass=None
+            for doc in res:
+                if self.debug:
+                    #print "iteracion: " + str(doc)
+                    #print "iteracion pt2: " + str(doc[self.campoPassword])
+                    print ""
+                hashPass=doc[self.campoPassword]
+            
+            #Comparamos la contraseña introducida con el
+            #hash de la contraseña verdadera
+            correctPass = pbkdf2_sha256.verify(userPass , hashPass)
+            #DEBUG
+            if self.debug:
+                print "hash pass buena: " + str(hashPass)
+                print "pass introducida: " + str(userPass)
+                print "Coinciden? : " + str(correctPass)
+            return correctPass
+        #Si no existe el usuario, retorno False
+        else:
+            return False
+        
 
     #Modificar valor umbral para un usuario
     #Dado un usuario y un valor para el umbral, asignaremos ese
@@ -385,18 +471,20 @@ if __name__ == "__main__":
     #----------------------------------------------
     u = UserManager()
     u.deleteUser("asd", "asd")
-    """ 
+    """
     print "Crear:"
     userr = raw_input("user: ")
     passs = raw_input("pass: ")
     u.createUser(userr, passs)
     """
     u.leer()
+
     print "Login:"
     userr = raw_input("user: ")
     passs = raw_input("pass: ")
     u.login(userr,passs)
     
+    """
     u.leer()
     userr = raw_input("user: ")
     umbrall = raw_input("umbral: ")
@@ -405,4 +493,5 @@ if __name__ == "__main__":
     #umbrall = 12L
     res=u.modUmbral(userr, umbrall)
     print "modUmbral : " + str(res)
+    """
     u.endConn()

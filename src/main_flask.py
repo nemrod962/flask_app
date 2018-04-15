@@ -90,9 +90,14 @@ def webLogin_post():
 def webMain():
 
     #Cookies
+    #Obtengo Cookie
     idSesion=request.cookies.get('SessionId')
+    #CADUCIDAD - BORRO Y ACTUALIZO
+    UserHandler.checkCookieStatus(idSesion)
+    #Muesto info
     print "SESION: " + str(idSesion)
-    nombreUsuario = UserHandler.checkCookie(idSesion)
+    #Si la cookie ha caducado, me mostrara None como Usuario
+    nombreUsuario = UserHandler.getCookieUserName(idSesion)
     print "Usuario: " + str(nombreUsuario)
     #---
     return render_template("index.html",\

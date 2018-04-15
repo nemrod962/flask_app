@@ -51,3 +51,10 @@ def datetimeToMs(fechaCadena):
     date = datetime.strptime(fechaCadena, "%Y-%m-%d %H:%M:%S").strftime('%s')
     dateMs = int(date)*1000
     return dateMs
+
+#Paso minutos a milisegundos.
+def minToMs(minutes):
+    minutes=int(minutes)
+    ms = minutes*60*1000
+    return ms
+
