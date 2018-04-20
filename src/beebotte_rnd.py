@@ -50,16 +50,24 @@ class BeeHandler:
         _accesskey = "6dcd5477c26e32e1819f487f169f2a45"
         _secretkey = "e6912a135c4da71e9b2d605046f534be154d06f32ac5784f53a562ccb48d336b"
         """
+        #Inicializo en caso de fallar al abrir el fichero
+        _accesskey = "placeholder"
+        _secretkey = "placeholder"
         #Abro fichero.
-        bee_key_file=open("credentials/beebotte_credentials", "r")
-        #Leo linea a linea las credenciales. Debo respetar el orden
-        #en el que estan escritas las credenciales.
-        #Al leer una linea, tengo '\n' al final.
-        #rstrip() me elimina este caracter.
-        _accesskey = bee_key_file.readline().rstrip() 
-        _secretkey = bee_key_file.readline().rstrip()
-        #cierro fichero
-        bee_key_file.close()
+        try:
+            bee_key_file=open("credentials/beebotte_credentials", "r")
+            #Leo linea a linea las credenciales. Debo respetar el orden
+            #en el que estan escritas las credenciales.
+            #Al leer una linea, tengo '\n' al final.
+            #rstrip() me elimina este caracter.
+            _accesskey = bee_key_file.readline().rstrip() 
+            _secretkey = bee_key_file.readline().rstrip()
+            #cierro fichero
+            bee_key_file.close()
+        except IOError as e:
+            print "Beebotte Handler: " + str(e)
+            self.sinConexion=True
+            print "Beebotte - Modo sin conexion: " + str(self.sinConexion)
 
         _hostname = "api.beebotte.com"
         bclient = BBT(_accesskey, _secretkey, hostname = _hostname)
@@ -80,7 +88,7 @@ class BeeHandler:
         except:
             print "No se pudo conectar con Beebotte."
             self.sinConexion=True
-            print "Modo sin conexion: " + str(self.sinConexion)
+            print "Beebotte - Modo sin conexion: " + str(self.sinConexion)
 
         return bclient
 

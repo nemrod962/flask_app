@@ -22,9 +22,15 @@ class PlotlyHandler:
 
     def cargarCredenciales(self):
         #Abro fichero con las credenciales
-        credentialsFile=open("./credentials/plotly_credentials", "r")
-        myUsername=credentialsFile.readline().rstrip()
-        myApiKey=credentialsFile.readline().rstrip()
+        try:
+            credentialsFile=open("./credentials/plotly_credentials", "r")
+            myUsername=credentialsFile.readline().rstrip()
+            myApiKey=credentialsFile.readline().rstrip()
+        except IOError as e:
+            print "PlotlyHandler - " + str(e)
+            #Inicializo credenciles
+            myUsername="placeholder"
+            myApiKey="placeholder"
 
         #Cargo credenciales para utlizar Plotly. Crea fichero ~/.plotly/.credentials
         plotly.tools.set_credentials_file(username=myUsername, api_key=myApiKey)

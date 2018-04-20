@@ -89,17 +89,19 @@ class SQLHandler:
         self.app.config['MYSQL_DATABASE_HOST'] = 'localhost'
         """
         #Abro fichero. 
-        sql_key_file=open("credentials/sql_credentials", "r")
-        #Debo leer los datos del fichero en orden.
-        #Al leer una linea, tengo '\n' al final.
-        #rstrip() me elimina este caracter
-        self.app.config['MYSQL_DATABASE_USER']=sql_key_file.readline().rstrip()
-        self.app.config['MYSQL_DATABASE_PASSWORD']=sql_key_file.readline().rstrip()
-        self.app.config['MYSQL_DATABASE_DB']=sql_key_file.readline().rstrip()
-        self.app.config['MYSQL_DATABASE_HOST']=sql_key_file.readline().rstrip()
-        #cierro fichero
-        sql_key_file.close()
-
+        try:
+            sql_key_file=open("credentials/sql_credentials", "r")
+            #Debo leer los datos del fichero en orden.
+            #Al leer una linea, tengo '\n' al final.
+            #rstrip() me elimina este caracter
+            self.app.config['MYSQL_DATABASE_USER']=sql_key_file.readline().rstrip()
+            self.app.config['MYSQL_DATABASE_PASSWORD']=sql_key_file.readline().rstrip()
+            self.app.config['MYSQL_DATABASE_DB']=sql_key_file.readline().rstrip()
+            self.app.config['MYSQL_DATABASE_HOST']=sql_key_file.readline().rstrip()
+            #cierro fichero
+            sql_key_file.close()
+        except IOError as e:
+            print "MySQL Handler: " + str(e)
         #SQL INIT
        	mysql.init_app(self.app)
         try:

@@ -63,7 +63,7 @@ class MongoBasic:
         #Si fallo en abrir fichero, utilizo credenciales por defecto
         except IOError:
             if self.__debug:
-                print "Fallo al abrir archivo credenciales!"
+                print "MongoBase - Fallo al abrir archivo credenciales!"
             host='localhost'
             port='8080'
             user='pablo'
@@ -113,7 +113,7 @@ class MongoBasic:
             #significara que hay conexion
             self.hayConexion=True
         except ConnectionFailure:
-            print("MongoDB server not available")
+            print("MongoBase.checkConn() - MongoDB server not available")
             #Si ha saltado la exception no hay conexion
             self.hayConexion=False
         finally:
