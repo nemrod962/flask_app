@@ -13,6 +13,9 @@ from config_template import CONFIG
 #Utilizado en gedOAuthCredntials()
 from flask import make_response
 
+#Pasar por referencia 
+from oauthRes import OAuthRes
+
 #PREUBAS
 from flask import Flask, render_template, request, redirect, url_for, session
 
@@ -21,12 +24,13 @@ from flask import Flask, render_template, request, redirect, url_for, session
 #--------------------------------------------------------------------------------------------
 class OAuthHandler:
 
-    def __init__(self, debug=False):
+    def __init__(self, app=None, debug=False):
         #Instancia de la clase Authomatic. La utilizo para realizar
         #la autenticación mediante OAuth
         self.debug=debug
+        self.app=app
         self.automatico = Authomatic(CONFIG, 'SECRET_STRING_$%&', report_errors=self.debug)
-        
+    
     """
     Devuelvo un diccionario como resultado de realizar la autenticación
     mediante OAuth. Tendrá las siguientes claves:
@@ -34,7 +38,7 @@ class OAuthHandler:
         -> correo : contiene la dirección del usuario
         -> id : contiene el id único del usuario
     """
-    def getOAuthCredentials(self):
+    def getOAuthCredentials(self, oauthRes):
         
         #Diccionario que retornaremos con los datos
         oauthData=dict()
@@ -68,10 +72,25 @@ class OAuthHandler:
                 oauthData['nombre'] = result.user.name
                 oauthData['correo'] = result.user.email
                 oauthData['id'] = result.user.id
+                oauthRes.setData(oauthData)
                 print "AAAAAAAAAAAAAAA: " + str(oauthData)
-            return str(oauthData)
-        #return response 
+                response=make_response(redirect('/'))
+            #return str(oauthData)
+            return response
+        #Salto de fe.
+        #Como se devuelva la respuesta de abajo
+        #Se mostrará la pantalla vacía como respuesta.
+        #Si cambio response antes del 'if result:', no
+        #se obtiene respuesta de oauth, es como si no
+        #se esperara a que termine la funcion de obtener los valores
+        #de las credenciales de oauth.
+        return response 
 
+    def wrapPollo(self):
+        d=OAuthRes()
+        r=self.getOAuthCredentials(d)
+        print "POLLO: " + str(d)
+        return d
 #--------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':

@@ -46,6 +46,30 @@ DBHandler = MongoHandler
 #primera vez las listas ya estén pobladas
 DBHandler.reload()
 
+#TESTOAUTH
+@app.route("/testoauth/")
+def testoauth():
+    from myoauth.my_google_oauth import OAuthHandler
+    from myoauth.my_google_oauth import OAuthRes
+    oa = OAuthHandler(app)
+    
+    d=OAuthRes()
+    res= oa.getOAuthCredentials(d)
+    print "testing: " + str(res)
+    print "type_ " + str(type(res))
+    try:
+        print "DICT testing: " + str(d)
+        print "DICT testing: " + str(any(d))
+        print "type_ " + str(type(d))
+        print "type_ " + str(d.getDataType)
+    except:
+        print ""
+    return res
+    
+    #print "ATENCION" + str(oa.wrapPollo())
+    #return redirect(url_for('webMain'))
+
+
 #PAGINA INICIAL
 #Login
 @app.route("/login")
