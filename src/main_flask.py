@@ -39,6 +39,7 @@ UserHandler = UserManager()
 #menú principal. Por defecto Beebotte.
 #DBHandler = SQLHandler
 DBHandler = MongoHandler
+#DBHandler = BeeHandler
 
 #Cargo en en las listas globales de DBHandler
 #los datos de las bases de datos inicialmente,
@@ -46,6 +47,8 @@ DBHandler = MongoHandler
 #primera vez las listas ya estén pobladas
 DBHandler.reload()
 
+
+#-----------------------------------PRUEBAS------------------------------------------
 #TESTOAUTH
 @app.route("/testoauth/")
 def testoauth():
@@ -69,6 +72,44 @@ def testoauth():
     #print "ATENCION" + str(oa.wrapPollo())
     #return redirect(url_for('webMain'))
 
+@app.route("/jsoauthlogin/")
+def jsOAuthLogin():
+    return render_template("jsoauthlogin.html")
+@app.route("/jsoauthdata/", methods=['POST'])
+def jsOAuthData():
+    #print "DATOS: "
+    #print "DATA: " + str(request.data)
+    #print "ARGS: " + str(request.args)
+    #print "FORM: " + str(request.form)
+    #print "FILES: " + str(request.files)
+    #print "VALUES: " + str(request.values)
+    #print "JSON: " + str(request.get_json())
+    token=request.form['idtoken']
+    print "RECIBIDO - token:" + str(token)
+
+    #-----VALIDACION TOKEN
+    from google.oauth2 import id_token
+    from google.auth.transport import requests
+    # Specify the CLIENT_ID of the app that accesses the backend:
+    CLIENT_ID="933060102795-0hf4m6v3cuq4ocvubaide7ouqui2l4lg.apps.googleusercontent.com"
+    try:
+        idinfo = id_token.verify_oauth2_token(token, requests.Request(), CLIENT_ID)
+        userid = idinfo['sub']
+        print "USERID: " + userid
+        print "USERMAIL: " + idinfo['email']
+        print "NAME: " + idinfo['name']
+        print "mas info?: "
+        print "data: " + str(idinfo)
+        print "tipo: " + str(type(idinfo))
+    except ValueError as e:
+        print "ERROR TOKEN: " + e
+
+
+    #-----
+
+    return "RECIBIDO - token:" + str(request.form['idtoken'])
+
+#-------------------------------FIN-PRUEBAS------------------------------------------
 
 #PAGINA INICIAL
 #Login
