@@ -254,7 +254,12 @@ class UserManager(MongoBasic):
             return -1
 
     """
-    COOKIES
+      ____            _    _           
+     / ___|___   ___ | | _(_) ___  ___ 
+    | |   / _ \ / _ \| |/ / |/ _ \/ __|
+    | |__| (_) | (_) |   <| |  __/\__ \
+     \____\___/ \___/|_|\_\_|\___||___/
+                                        
     """
     #Genera valor "aleatorio" para una cookie.
     def genCookieVal(self, userId):
@@ -348,8 +353,13 @@ class UserManager(MongoBasic):
             print "Actualizando caducidad de la cookie - " + str(cookieVal)
         self.refreshCookie(cookieVal)
                 
+    
     """
-    MISC
+     __  __ _              _                        
+    |  \/  (_)___  ___ ___| | __ _ _ __   ___  ___  
+    | |\/| | / __|/ __/ _ \ |/ _` | '_ \ / _ \/ _ \ 
+    | |  | | \__ \ (_|  __/ | (_| | | | |  __/ (_) |
+    |_|  |_|_|___/\___\___|_|\__,_|_| |_|\___|\___/ 
     """
     #EXISTE USUARIO
     #Dado el nombre de un usuario comprueba si existe en la base de
@@ -376,6 +386,8 @@ class UserManager(MongoBasic):
     #dado usuario y contraseña, se comprueba si la contraseña aportada
     #es correcta
     def checkPassword(self, userId, userPass):
+        #No utilizo checkUsername porque necesito leer
+        #la contraseña del suario encontrado.
         condicion={self.campoUsername : userId}
         res=self.leerCondicion(condicion, userId)
         #Si se ha encontrado usuario. res.count() sera > 0.

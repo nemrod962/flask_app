@@ -1,4 +1,4 @@
-class Padre:
+class Padre(object):
 
     def __init__(self):
         self.atr0=0
@@ -13,3 +13,7 @@ class Padre:
     def func1(self, n):
         print "Soy func1, del padre. Sumo 1."
         print str(n) + "+ 1 = " + str(n+1)
+
+    def llamar(self, n):
+        print "padre - llamando funcion func1("+str(n)+")"
+        self.func1(n)

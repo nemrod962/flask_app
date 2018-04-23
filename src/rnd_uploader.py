@@ -54,8 +54,11 @@ class RndUploader:
         #leerán de la misma base de datos.
         #La instancia en esta clase se dedicará principalmente a escribir y la
         #que está en el main a leer.
+        #
+        #Debo crearla una vez dentro del subproceso creado, es decir,
+        #dentro de la función upload que es la que ejecuta el proceso.
         #self.__MongoHand= handMongo
-        self.__MongoHand= mongo_rnd.MongoHandler()
+        #self.__MongoHand= mongo_rnd.MongoHandler()
         #inicio proceso para subir los datos a las BBDD
         self.lanzar()
     
@@ -73,6 +76,20 @@ class RndUploader:
 
     #Subira un número aleatorio cada 2 min
     def upload(self):
+        #MongoClient opened before fork. Create MongoClient only after forking.
+        #See PyMongo's documentation for details:
+        #http://api.mongodb.org/python/current/faq.html#is-pymongo-fork-safe
+        #No es seguro que esta clase reciba la instancia de MongoDB del main
+        #Por lo que creare en esta clase mi propia instancia de MongoHandler
+        #Esto no debería importar ya que aunque sean dos instancias distintas
+        #leerán de la misma base de datos.
+        #La instancia en esta clase se dedicará principalmente a escribir y la
+        #que está en el main a leer.
+        #
+        #Debo crearla una vez dentro del subproceso creado, es decir,
+        #dentro de la función upload que es la que ejecuta el proceso.
+        self.__MongoHand= mongo_rnd.MongoHandler()
+
         while self.__enable.value:
 
             #obtenemos numero aleatorio a insertar
@@ -138,21 +155,7 @@ class RndUploader:
 
         print "Uploader.upload(): saliendo..."
     
-    """
-    #funcion utilizada para testing
-    def hola(self, nombre):
-        while self.__enable.value:
-            print "hola " + nombre + " "+ str(self.__enable.value)
-            try:
-                time.sleep(5)
-            except:
-                print "Uploader.hola(): sleep fue interrumpido!"
-                #self.__enable.value = False
-        print "Uploader.hola(): PROCESO ACABADO"
-    """
 
-    #funcion de prueba para probar el multiprocesamiento
-    #genera el proceso
     #Función que genera un proceso que ejecuta la función
     #upload() de esta misma clase en segundo plano.
     def lanzar(self):

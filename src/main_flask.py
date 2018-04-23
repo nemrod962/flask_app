@@ -74,7 +74,9 @@ def testoauth():
 
 @app.route("/jsoauthlogin/")
 def jsOAuthLogin():
+    #CLIENT_ID="933060102795-0hf4m6v3cuq4ocvubaide7ouqui2l4lg.apps.googleusercontent.com"
     return render_template("jsoauthlogin.html")
+
 @app.route("/jsoauthdata/", methods=['POST'])
 def jsOAuthData():
     #print "DATOS: "
@@ -108,6 +110,8 @@ def jsOAuthData():
     #-----
 
     return "RECIBIDO - token:" + str(request.form['idtoken'])
+    #return redirect(url_for('webMain'))
+
 
 #-------------------------------FIN-PRUEBAS------------------------------------------
 
