@@ -370,7 +370,7 @@ class UserManager(MongoBasic):
         condicion={self.campoUsername : userId}
         if self.debug:
             print condicion
-        res=self.leerCondicion(condicion, userId)
+        res=self.leerCondicion(condicion)
         #DEBUG
         if self.debug:
             print "Con user: " + str(userId)
@@ -467,6 +467,45 @@ class UserManager(MongoBasic):
             return -1
             
 
+    #OBTENER UMBRAL
+    #Dado un usuario, devuelve su umbral.
+    #-2 Indica error.
+    #-1 es el valor por defecto si el usuario no ha especificado ninguno.
+    def getUmbral(self, userId):
+        #COMPROBACION TIPOS
+        #nombre usuario valido
+        if not ( isinstance(userId, str) and len(userId)>0 ):
+            if self.debug:
+                print "modUmbral : Tipo y/o longitud de usuario no válido."
+            return -2
+
+        #DEVOLVER UMBRAL
+        #busco usuario indicado
+        condicion={self.campoUsername : userId}
+        res=self.leerCondicion(condicion)
+        #DEBUG
+        if self.debug:
+            print "MongoUser - Con user: " + str(userId)
+            print "Se ha encontrado el usuario: "
+            for doc in res:
+                print doc
+            #muy importante hacer rewind
+            res.rewind()
+        #Si se ha encontrado usuario. res.count() sera > 0.
+        if res.count() > 0:
+            #Existe usuario. Procedo a leer el umbral.
+            #
+            #Nos quedamos con el umbral del ultimo usuario devuelto.
+            #Aunque sólo debería devolverse uno.
+            #Utilizo el for porque si no,
+            #con res[0]['umbral'] me devuelve los datos con basura.
+            for doc in res:
+                umbral=doc['umbral']
+            return umbral
+        else:
+            if self.debug:
+                print "No se ha encontrado el usuario: " + str(userId)
+            return -2
 
             
 if __name__ == "__main__":

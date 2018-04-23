@@ -71,10 +71,14 @@ def OAuthUserManager(UserManager):
     #Verifica si el usuario indicado existe.
     #De ser así, devuelve el valor de la cookie para la 
     #sesion actual del usuario.
-    #Si el usuario indicado no existe, devolveremos -1.
+    #Si el usuario indicado no existe, devolveremos -2.
     #Solo indicamos el nombre de usuario ya que 
     #la autenticación ya se ha realizado mediante OAuth
     def login(self, userId):
+        #La propia funcionde getUmbral me devuelve -2 si el
+        #usuario no existe
+        umbral=self.getUmbral(userId)
+        return umbral
         
 
 
@@ -92,6 +96,11 @@ def OAuthUserManager(UserManager):
      \___/|___/\___|_|  |___/
                      
     """
+    
+    #Si al hacer login, obtenemos como resultado -2, indicando que el usuario no
+    #existe. En el caso de OAuth, indica que esa cuenta no esta registrada en la
+    #apliación, por lo que debemos registrarla y asignarle un umbral.
+    def createUser(self, userId, userMail, userName, userUmbral):
 
     """
       ____            _    _           
@@ -125,7 +134,7 @@ def OAuthUserManager(UserManager):
         if self.debug:
             print condicion
         """
-        res=self.leerCondicion(condicion, userId)
+        res=self.leerCondicion(condicion)
         #DEBUG
         if self.debug:
             print "MongoOauth - Con Id: " + str(userId)

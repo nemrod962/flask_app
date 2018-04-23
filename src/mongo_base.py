@@ -241,7 +241,7 @@ class MongoBasic:
     #La condición debe ser de tipo dict.
     #e.g cond -> {"num": {'$gt': 90} }
     #El resultado podrá ordenarse opcionalmente según un campo
-    def leerCondicion(self, condicion, campo, ordenAsc=True):
+    def leerCondicion(self, condicion, campo=None, ordenAsc=True):
         #Si no hay conexión, no ejecuto la función
         if self.checkConn():
             #Defino el orden
