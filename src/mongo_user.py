@@ -106,6 +106,7 @@ class UserManager(MongoBasic):
                 entrada2={cookie : caducidad}
                 self.listaCaducidad.update(entrada2)
                 if self.debug:
+                    print "MONGO_USER:"
                     print "Sesion iniciada. Id: " + str(cookie)
                     print "Caducidad Sesion:"
                     fechaAct=date_handler.getDatetimeMs()
@@ -214,7 +215,8 @@ class UserManager(MongoBasic):
 
         #BORRAR USUARIO
         #comprobamos que el nombre del usuario existe
-        if self.checkUserName(userId):
+        res=self.checkUserName(userId)
+        if res:
             #Existe usuario.
             #Ahora comprobamos contraseña
             #Obtenemos el has de la contraseña iterando por el resultado.
@@ -241,6 +243,7 @@ class UserManager(MongoBasic):
             if correctPass:
                 #Usuario y contraseña correctos.
                 #Procedo a borrar el usuario
+                condicion={self.campoUsername : userId}
                 res=self.borrar(condicion)
                 return res
 
@@ -268,8 +271,8 @@ class UserManager(MongoBasic):
             #La cookie consistirá en el nombre de usuario seguido de un
             #número aleatorio entre 0 y 1000000.
             #Todo ello será codificado en base64
-            prefijo = random.randint(0,1000000)
-            cookiePre=str(userId)+str(prefijo)
+            sufijo = random.randint(0,1000000)
+            cookiePre=str(userId)+str(sufijo)
             #DEBUG
             if self.debug:
                 print "Cookie sin codificar: " + str(cookiePre)
@@ -380,7 +383,13 @@ class UserManager(MongoBasic):
             #muy importante
             res.rewind()
         #Si se ha encontrado usuario. res.count() sera > 0.
-        return res.count() > 0
+        #return res.count() > 0
+        #Mejor deulevo res de forma que pueda obtener los datos del usuario.
+        #Seguiré pudiendo utilizar este resultado en un if
+        if res.count()>0:
+            return res
+        else:
+            return None
     
     #COMPROBAR CONTRASEÑA
     #dado usuario y contraseña, se comprueba si la contraseña aportada
@@ -521,13 +530,17 @@ if __name__ == "__main__":
                 return None
     #----------------------------------------------
     u = UserManager()
-    u.deleteUser("asd", "asd")
-    """
+    u.deleteUser("test", "test")
+    #"""
     print "Crear:"
     userr = raw_input("user: ")
     passs = raw_input("pass: ")
     u.createUser(userr, passs)
-    """
+    umbrall = raw_input("umbral: ")
+    umbrall=num(umbrall)
+    res=u.modUmbral(userr, umbrall)
+    print "modUmbral : " + str(res)
+    #"""
     u.leer()
 
     print "Login:"

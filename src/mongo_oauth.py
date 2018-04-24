@@ -21,6 +21,7 @@ heredo de MongoBasic, de forma que parte de su funcionalidad se la relegue a
 User Manager, ya que él ya la tiene implementada y de forma que se tengan los
 datos de usuarios en el mismo sitio.
 """
+from mongo_user import UserManager
 
 def OAuthUserManager(UserManager):
     
@@ -34,8 +35,15 @@ def OAuthUserManager(UserManager):
         #Igual que el de el padre pero cambiando la coleccion empleada
         super.__init__(self,coleccionUsuariosOauth,debug)
         #Añadimos los campos que no tenia el padre
+        #En el dicc recibido, puede ser la entrada ['iss']
+        # The ID Token contains a set of claims about the authentication
+        # session, including an identifier for the user (sub), the identifier
+        # for the identity provider who issued the token (iss), and the
+        # identifier of the client for which this token was created (aud).
+        #Obtener el proveedor del campo 'iss'
         self.campoProveedor="provider"
         self.campoEmail="email"
+        self.campoName="name"
         #
         #SOBRESCRIBO el campo 'username' por el campo id,
         #ya que en mongo_user se empleaba este campo como
@@ -71,15 +79,52 @@ def OAuthUserManager(UserManager):
     #Verifica si el usuario indicado existe.
     #De ser así, devuelve el valor de la cookie para la 
     #sesion actual del usuario.
-    #Si el usuario indicado no existe, devolveremos -2.
+    #Si el usuario indicado no existe, devolveremos -1.
     #Solo indicamos el nombre de usuario ya que 
     #la autenticación ya se ha realizado mediante OAuth
     def login(self, userId):
-        #La propia funcionde getUmbral me devuelve -2 si el
-        #usuario no existe
-        umbral=self.getUmbral(userId)
-        return umbral
-        
+        #COMPROBACION DE DATOS
+        if not isinstance(userId, str):
+            if self.debug:
+                print "El usuario debe ser una cadena!"
+        return -2
+    
+        #LOGIN
+        res=self.checkUserName(userId)
+        if res:
+            #existe usuario.
+            #genero cookie sesion.
+            cookie=self.genCookieVal(userId)
+            #Añado a la lista de sesiones de OAuth
+            entrada={cookie : userId}
+            self.listaSesiones.update(entrada)
+            #Consultando la cookie en este diccionario, nos
+            #devolverá el usuario al que pertenece la cookie
+            #---
+            #Añado también la información de caducidad de la cookie
+            #Será la fecha actual + tiempoCaducidad.
+            #Es decir, si tiempoCaducidad son 30 minutos,
+            #caducidad contendrá la fecha de dentro de 30 minutos.
+            caducidad=date_handler.getDatetimeMs() + self.tiempoCaducidad
+            entrada2={cookie : caducidad}
+            self.listaCaducidad.update(entrada2)
+            if self.debug:
+                print "MONGO_OAUTH: "
+                print "Sesion iniciada. Id: " + str(cookie)
+                print "Caducidad Sesion:"
+                fechaAct=date_handler.getDatetimeMs()
+                print "Tiempo Actual: " + str(fechaAct)
+                print "conversion: " + \
+                str(date_handler.msToDatetime(fechaAct))
+                cadcook=self.listaCaducidad[cookie]
+                print "Caducidad Cookie: " + str(cadcook)
+                print "conversion: " + \
+                str(date_handler.msToDatetime(cadcook))
+            return cookie
+        else:
+            print "MONGO_OAUTH:"
+            print "No existe el usuario con el que se ha intentado iniciar sesión."
+            return -1
 
 
     """
@@ -97,10 +142,55 @@ def OAuthUserManager(UserManager):
                      
     """
     
-    #Si al hacer login, obtenemos como resultado -2, indicando que el usuario no
+    #Si al hacer login, obtenemos como resultado -1, indicando que el usuario no
     #existe. En el caso de OAuth, indica que esa cuenta no esta registrada en la
     #apliación, por lo que debemos registrarla y asignarle un umbral.
-    def createUser(self, userId, userMail, userName, userUmbral):
+    #
+    #Se devuelve - en caso de creación satisfactoria, -1 si no se pudo crear 
+    #usuario (ya existia) y -2 si los datos introducidos no tiene tipos válidos.
+    def createUser(self, userProvider, userId, userMail, userName, userUmbral):
+        #Compruebo Datos
+        if not isintance(userId, str):
+            if self.debug:
+                print "MONGOOAUTH - createUser():"
+                print "La id del usuario debe ser tipo string!"
+            return -2
+        if not isintance(userMail, str):
+            if self.debug:
+                print "MONGOOAUTH - createUser():"
+                print "El email del usuario debe ser tipo string!"
+            return -2
+        if not isintance(userName, str):
+            if self.debug:
+                print "MONGOOAUTH - createUser():"
+                print "El nombre del usuario debe ser tipo string!"
+            return -2
+        if not isintance(userUmbral, Number):
+            if self.debug:
+                print "MONGOOAUTH - createUser():"
+                print "El umbral debe ser tipo Number !"
+            return -2
+
+        #Crear usuario
+        res=self.checkUserName(userId)
+        if res:
+            #Usuario ya registrado
+            if self.debug:
+                print "MONGOOAUTH - createUser():"
+                print "El usuario ya existe!"
+            return -1
+        else:
+            #Usuario no existe, lo creamos
+            datos = {self.campoProveedor : userProvider, \
+            self.campoUsername : userId, \
+            self.campoEmail : userMail, \
+            self.campoName : userName, \
+            self.campoUmbral : userUmbral}
+            #escribimos
+            res=self.excribir(datos)
+            return res
+
+
 
     """
       ____            _    _           
@@ -120,7 +210,7 @@ def OAuthUserManager(UserManager):
     """
 
     #@OVERRIDE
-    #EXISTE USUARIO. No cambio el nombre para hacer override, de
+    #EXISTE USUARIO, ie. ¿ESTA REGISTRADO?. No cambio el nombre para hacer override, de
     #forma que cuando ejecute funciones heredadas del padre y estas
     #llamen a la funcion checkUserName, se ejecute esta funcion y 
     #no la original del padre.
@@ -144,7 +234,10 @@ def OAuthUserManager(UserManager):
             #muy importante
             res.rewind()
         #Si se ha encontrado usuario. res.count() sera > 0.
-        return res.count() > 0
+        if res.count() > 0:
+            return res
+        else:
+            return None
     
                                                  
 
