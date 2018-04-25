@@ -95,16 +95,44 @@ def jsOAuthData():
     # Specify the CLIENT_ID of the app that accesses the backend:
     CLIENT_ID="933060102795-0hf4m6v3cuq4ocvubaide7ouqui2l4lg.apps.googleusercontent.com"
     try:
+        #Toda la informacion en diccionario idinfo
         idinfo = id_token.verify_oauth2_token(token, requests.Request(), CLIENT_ID)
-        userid = idinfo['sub']
+        #Diversas variables relevantes en mi caso
+        userid = str(idinfo['sub'])
+        usermail = str(idinfo['email'])
+        username =  str(idinfo['name'])
+        userprov = str(idinfo['iss'])
+        #mostramos variables
         print "USERID: " + userid
         print "USERMAIL: " + idinfo['email']
         print "NAME: " + idinfo['name']
+        print "PROVEEDOR" + idinfo['iss']
         print "mas info?: "
         print "data: " + str(idinfo)
         print "tipo: " + str(type(idinfo))
     except ValueError as e:
         print "ERROR TOKEN: " + e
+
+
+    #-----
+    #Trabajando con usuario
+    from mongo_oauth import OAuthUserManager
+    OAuthHandler = OAuthUserManager()
+    existe=OAuthHandler.checkUserName(userid)
+    if existe:
+        print "Usuario " + userid + " existe!"
+    else:
+        print "Usuario " + userid + " NO existe."
+        print "Creando..."
+        #umbral -1
+        userumbral=-1
+        r=OAuthHandler.createUser(userprov, userid, usermail, username, userumbral)
+        print "ATENCION:"
+        print "res " + str(r)
+        print "res>0 : " + str(r>0)
+        if r > 0:
+            print "Usuario " + username + " creado!"
+
 
 
     #-----

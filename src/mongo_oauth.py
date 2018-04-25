@@ -21,19 +21,20 @@ heredo de MongoBasic, de forma que parte de su funcionalidad se la relegue a
 User Manager, ya que él ya la tiene implementada y de forma que se tengan los
 datos de usuarios en el mismo sitio.
 """
+from numbers import Number
 from mongo_user import UserManager
 
-def OAuthUserManager(UserManager):
+class OAuthUserManager(UserManager):
     
     #Constructor
     #Recibiré una instancia de UserManager, de forma que en vez de tener listas
     #de sesión locales, trabajaré con las de la instancia de UserManager
     #recibida como parámetro, de forma que tendré toda la información de las
     #sesiones unificada.
-    def __init__(self, coleccionUsuariosOauth="usuariosOauth",\
-    mongoUserManager=None, debug=True):
+    def __init__(self, coleccionUsuariosOauth="usuariosOauth", mongoUserManager=None, debug=True):
+    #def __init__(self, coleccionUsuariosOauth):
         #Igual que el de el padre pero cambiando la coleccion empleada
-        super.__init__(self,coleccionUsuariosOauth,debug)
+        UserManager.__init__(self,coleccionUsuariosOauth,debug)
         #Añadimos los campos que no tenia el padre
         #En el dicc recibido, puede ser la entrada ['iss']
         # The ID Token contains a set of claims about the authentication
@@ -146,26 +147,32 @@ def OAuthUserManager(UserManager):
     #existe. En el caso de OAuth, indica que esa cuenta no esta registrada en la
     #apliación, por lo que debemos registrarla y asignarle un umbral.
     #
-    #Se devuelve - en caso de creación satisfactoria, -1 si no se pudo crear 
-    #usuario (ya existia) y -2 si los datos introducidos no tiene tipos válidos.
+    #Se devuelve 'la id del usuario creado' en caso de creación satisfactoria,
+    #-1 si no se pudo crear usuario (ya existia) y -2 si los datos 
+    #introducidos no tiene tipos válidos.
     def createUser(self, userProvider, userId, userMail, userName, userUmbral):
         #Compruebo Datos
-        if not isintance(userId, str):
+        if not isinstance(userProvider, str):
+            if self.debug:
+                print "MONGOOAUTH - createUser():"
+                print "El proveedor debe ser tipo string!"
+            return -2
+        if not isinstance(userId, str):
             if self.debug:
                 print "MONGOOAUTH - createUser():"
                 print "La id del usuario debe ser tipo string!"
             return -2
-        if not isintance(userMail, str):
+        if not isinstance(userMail, str):
             if self.debug:
                 print "MONGOOAUTH - createUser():"
                 print "El email del usuario debe ser tipo string!"
             return -2
-        if not isintance(userName, str):
+        if not isinstance(userName, str):
             if self.debug:
                 print "MONGOOAUTH - createUser():"
                 print "El nombre del usuario debe ser tipo string!"
             return -2
-        if not isintance(userUmbral, Number):
+        if not isinstance(userUmbral, Number):
             if self.debug:
                 print "MONGOOAUTH - createUser():"
                 print "El umbral debe ser tipo Number !"
@@ -187,8 +194,15 @@ def OAuthUserManager(UserManager):
             self.campoName : userName, \
             self.campoUmbral : userUmbral}
             #escribimos
-            res=self.excribir(datos)
-            return res
+            res=self.escribir(datos)
+            #---
+            if self.debug:
+                print "MONGOOAUTH- createuser()"
+                print "created:"
+                print res
+            #---
+            #return res
+            return userId
 
 
 
@@ -219,7 +233,7 @@ def OAuthUserManager(UserManager):
     #Devuelve True si existe ese Id de Usuario,
     #False en caso contrario
     def checkUserName(self, userId):
-        condicion={self.campoId : userId}
+        condicion={self.campoUsername : userId}
         """
         if self.debug:
             print condicion
@@ -240,4 +254,12 @@ def OAuthUserManager(UserManager):
             return None
     
                                                  
+if __name__ == "__main__":
+    u = OAuthUserManager()
+    print "coleccion: " + u.coleccion
+    u.leer()
+    yes=raw_input("Borrar todo?")
+    if yes == "Y":
+        todo=dict()
+        u.borrar(todo)
 
