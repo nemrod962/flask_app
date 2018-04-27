@@ -23,6 +23,7 @@ datos de usuarios en el mismo sitio.
 """
 from numbers import Number
 from mongo_user import UserManager
+import date_handler
 
 class OAuthUserManager(UserManager):
     
@@ -34,7 +35,8 @@ class OAuthUserManager(UserManager):
     def __init__(self, coleccionUsuariosOauth="usuariosOauth", mongoUserManager=None, debug=True):
     #def __init__(self, coleccionUsuariosOauth):
         #Igual que el de el padre pero cambiando la coleccion empleada
-        UserManager.__init__(self,coleccionUsuariosOauth,debug)
+        #UserManager.__init__(self,coleccionUsuariosOauth,debug)
+        UserManager.__init__(self,coleccionUsuariosOauth,True)
         #Añadimos los campos que no tenia el padre
         #En el dicc recibido, puede ser la entrada ['iss']
         # The ID Token contains a set of claims about the authentication
@@ -65,6 +67,9 @@ class OAuthUserManager(UserManager):
         #sesiones unificada.
         self.mongoUserManager=mongoUserManager
 
+        #debug
+        self.debug=debug
+
 
     """
      _                _          ___     _                            _   
@@ -88,7 +93,7 @@ class OAuthUserManager(UserManager):
         if not isinstance(userId, str):
             if self.debug:
                 print "El usuario debe ser una cadena!"
-        return -2
+            return -2
     
         #LOGIN
         res=self.checkUserName(userId)
@@ -243,6 +248,7 @@ class OAuthUserManager(UserManager):
         if self.debug:
             print "MongoOauth - Con Id: " + str(userId)
             print "Se ha encontrado el usuario: "
+            print "COLECCION: " +str(self.coleccion)
             for doc in res:
                 print doc
             #muy importante
@@ -252,10 +258,49 @@ class OAuthUserManager(UserManager):
             return res
         else:
             return None
+
+
+    #GETTERS
+    #Dado el id obtener nombre, email o proveedor.
+    def getUserData(self, userId ,data):
+        #Formato de argumentos
+        userId=str(userId)
+        data=str(data)
+
+        #Obtenemos el diccionario con los datos del usuario.
+        #Consultamos MongoDB utilizando la funcion checkUsername
+        res = self.checkUserName(userId)
+        #SI existe el usuario, buscamos los datos
+        for doc in res:
+            val = doc[data]
+
+            #DEBUG
+            if self.debug:
+                print "MONGOOAUTH - getUserData"
+                print "CAMPO: " + str(data)
+                print "VALOR: " + str(val)
+
+            return val
+        else:
+            return None
+    #envolvedores
+    """
+    self.campoProveedor="provider"
+    self.campoEmail="email"
+    self.campoName="name"
+    """
+    def getUserName(self, userId):
+        return self.getUserData(userId, self.campoName)
+    def getUserMail(self, userId):
+        return self.getUserData(userId, self.campoEmail)
+    def getUserProvider(self, userId):
+        return self.getUserData(userId, self.campoProveedor)
+        
     
                                                  
 if __name__ == "__main__":
     u = OAuthUserManager()
+    print "db: " + str(u.client)
     print "coleccion: " + u.coleccion
     u.leer()
     yes=raw_input("Borrar todo?")

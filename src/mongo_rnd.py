@@ -8,7 +8,7 @@ Hereda de la clase MongoBasic que se
 encuentra en el archivo mongo_base.py
 
 La base de datos a emplear viene indicada
-en el archivo de credenciales ('mydb').
+en el archivo de credenciales ('flask_db').
 
 La colección en la que escribiremos los números 
 será 'NumberList'.

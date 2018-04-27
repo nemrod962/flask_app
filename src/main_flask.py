@@ -16,6 +16,7 @@ import beebotte_rnd
 import mongo_rnd
 #Usuarios en Bases de Datos
 from mongo_user import UserManager
+from mongo_oauth import OAuthUserManager
 #Crear Graficas
 import graph_maker
 #Graficas plot.ly
@@ -34,6 +35,9 @@ MongoHandler = mongo_rnd.MongoHandler()
 
 #Manejo de Usuarios almacenados en MongoDB
 UserHandler = UserManager()
+#Usuarios OAuth
+OAuthHandler = OAuthUserManager()
+
 
 #Manejador a emplear. Será elegido en el
 #menú principal. Por defecto Beebotte.
@@ -49,6 +53,8 @@ DBHandler.reload()
 
 
 #-----------------------------------PRUEBAS------------------------------------------
+
+"""
 #TESTOAUTH
 @app.route("/testoauth/")
 def testoauth():
@@ -71,6 +77,7 @@ def testoauth():
     
     #print "ATENCION" + str(oa.wrapPollo())
     #return redirect(url_for('webMain'))
+"""
 
 @app.route("/jsoauthlogin/")
 def jsOAuthLogin():
@@ -116,8 +123,6 @@ def jsOAuthData():
 
     #-----
     #Trabajando con usuario
-    from mongo_oauth import OAuthUserManager
-    OAuthHandler = OAuthUserManager()
     existe=OAuthHandler.checkUserName(userid)
     if existe:
         print "Usuario " + userid + " existe!"
@@ -128,10 +133,22 @@ def jsOAuthData():
         userumbral=-1
         r=OAuthHandler.createUser(userprov, userid, usermail, username, userumbral)
         print "ATENCION:"
+        print "db: " + str(OAuthHandler.client)
         print "res " + str(r)
         print "res>0 : " + str(r>0)
         if r > 0:
             print "Usuario " + username + " creado!"
+            #Login -> Crear cookie para saber usuario
+            cookieVal = OAuthHandler.login(userid)
+            print "DEBUG - Cookie: " + str(cookieVal)
+            if cookieVal > 0:
+                response = make_response(url_for('cambiarUmbral'))
+                response.set_cookie('SessionId', cookieVal)
+                response.set_cookie('tipoLogin', 'oauth')
+
+            #Pedir umbral
+            return response
+
 
 
 
@@ -140,6 +157,38 @@ def jsOAuthData():
     return "RECIBIDO - token:" + str(request.form['idtoken'])
     #return redirect(url_for('webMain'))
 
+@app.route('/cambiarUmbral', methods=['GET','POST'])
+def cambiarUmbral():
+    print "/cambiarUmbral - METODO: " + str(request.method)
+    response = make_response("cambiarUmbral_placeholder")
+    #Obtengo info de las cookies
+    idSesion=request.cookies.get('SessionId')
+    nombreUser=OAuthHandler.getCookieUserName(idSesion)
+    if request.method == 'GET':
+        response = render_template('changeUserUmbral.html', username=nombreUser)
+        #Prueba Datos Usuario. BORRAR
+        print "Nombre: " + OAuthHandler.getUserName(nombreUser)
+        print "Mail: " + OAuthHandler.getUserMail(nombreUser)
+        print "Prov: " + OAuthHandler.getUserProvider(nombreUser)
+
+    elif request.method == 'POST':
+    #else:
+        print "Estoy en POST"
+        
+        umbral=request.form['umbral']
+        print "UMBRAL RECIBIDO: " + str(umbral)
+        print "tipo: " + str(type(umbral))
+        try:
+            umbral=float(umbral)
+        except ValueError:
+            umbral=101
+        #CAMBIO UMBRAL DEL USUARIO
+        OAuthHandler.modUmbral(nombreUser, umbral)
+
+        #response=make_response(str(umbral))
+        response=make_response("UMBRAL: "+str(OAuthHandler.getUmbral(nombreUser)))
+    return response
+    
 
 #-------------------------------FIN-PRUEBAS------------------------------------------
 
@@ -176,6 +225,7 @@ def webLogin_post():
     print "DEBUG - Cookie: " + str(cookieVal)
     if cookieVal != -1:
         resp.set_cookie('SessionId', cookieVal)
+        resp.set_cookie('tipoLogin', 'flask')
     
     #return redirect(url_for('webMain'))
     return resp

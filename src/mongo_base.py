@@ -68,7 +68,7 @@ class MongoBasic:
             port='8080'
             user='pablo'
             passw='123456'
-            db='mydb'
+            db='flask_db'
 
         #Creo cliente para la conexion con la base de datos especificada
         con = pymongo.MongoClient('mongodb://'+user+':'+passw+'@'+host+':'+port+'/')

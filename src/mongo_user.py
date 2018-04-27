@@ -438,14 +438,15 @@ class UserManager(MongoBasic):
                 print "modUmbral : Tipo y/o longitud de usuario no válido."
             return -1
         #umbral valido
-        if not ( isinstance(umbral, Number) and umbral >=0 \
+        if not ( isinstance(umbral, Number) and umbral >=-100 \
         and umbral <=100 ):
             if self.debug:
                 print "modUmbral : Tipo y/o valor de umbral no válido."+ \
-                "El valor del umbral debe estar comprendido entre 0 y 100."
+                "El valor del umbral debe estar comprendido entre -100 y 100."
             return -1
         
         #MODIFICACION UMBRAL
+        """
         #busco usuario indicado
         condicion={self.campoUsername : userId}
         #DEBUG
@@ -464,8 +465,12 @@ class UserManager(MongoBasic):
             res.rewind()
         #Si se ha encontrado usuario. res.count() sera > 0.
         if res.count() > 0:
+        """
+        res = self.checkUserName(userId)
+        if res:
             #Existe usuario. Procedo a modificar el umbral.
-            #creo la asignacion. La condicion ya la tengo declarada.
+            #creo la asignacion y la condicion
+            condicion={self.campoUsername : userId}
             asignacion={ self.campoUmbral : umbral }
             #Actualizo valor en MongoDB
             res = self.actualizar(condicion, asignacion)
@@ -490,6 +495,7 @@ class UserManager(MongoBasic):
 
         #DEVOLVER UMBRAL
         #busco usuario indicado
+        """
         condicion={self.campoUsername : userId}
         res=self.leerCondicion(condicion)
         #DEBUG
@@ -502,6 +508,9 @@ class UserManager(MongoBasic):
             res.rewind()
         #Si se ha encontrado usuario. res.count() sera > 0.
         if res.count() > 0:
+        """
+        res = self.checkUserName(userId)
+        if res:
             #Existe usuario. Procedo a leer el umbral.
             #
             #Nos quedamos con el umbral del ultimo usuario devuelto.

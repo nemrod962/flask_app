@@ -15,7 +15,14 @@ function onSignIn(googleUser) {
     xhr.open('POST', 'http://dominioppr.com:5000/jsoauthdata/');
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     xhr.onload = function() {
-      console.log('Signed in as: ' + xhr.responseText);
+        //respuesta servidor
+        resp = xhr.responseText;
+        console.log('RESPONSE FROM SERVER: ' + resp);
+        //Si lo recibido es una url, redirigimos
+        if(resp.charAt(0) == '/')
+        {
+            window.location.href=resp
+        }
     };
     xhr.send('idtoken=' + id_token);
     console.log('mensaje enviado');
@@ -30,5 +37,17 @@ function signOut()
     console.log('success?')
     googleAuth.disconnect();
 }
+
+//Impide que se mantenga el boton iniciado de 
+//forma que cuando carguemos la pagina no haga log in inmediatamente
+
+//ERROR: gapi is not defined
+//window.onbeforeunload = signOut();
+
+
+window.onbeforeunload = function(e){
+    console.log("onbefreunload")
+    gapi.auth2.getAuthInstance().disconnect();
+};
 
 console.log('Fin script');
