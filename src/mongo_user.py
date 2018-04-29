@@ -448,26 +448,6 @@ class UserManager(MongoBasic):
             return -1
         
         #MODIFICACION UMBRAL
-        """
-        #busco usuario indicado
-        condicion={self.campoUsername : userId}
-        #DEBUG
-        if self.debug:
-            print condicion
-        #Obtengo el resultado de búsqueda de usuario en res    
-        res=self.leerCondicion(condicion, userId)
-
-        #DEBUG
-        if self.debug:
-            print "Con user: " + str(userId)
-            print "Se ha encontrado el usuario: "
-            for doc in res:
-                print doc
-            #muy importante hacer rewind
-            res.rewind()
-        #Si se ha encontrado usuario. res.count() sera > 0.
-        if res.count() > 0:
-        """
         res = self.checkUserName(userId)
         if res:
             #Existe usuario. Procedo a modificar el umbral.
@@ -485,32 +465,18 @@ class UserManager(MongoBasic):
 
     #OBTENER UMBRAL
     #Dado un usuario, devuelve su umbral.
-    #-2 Indica error.
-    #-1 es el valor por defecto si el usuario no ha especificado ninguno.
+    #102 Indica error.
+    #101 es el valor por defecto si el usuario no ha especificado ninguno.
     def getUmbral(self, userId):
         #COMPROBACION TIPOS
         #nombre usuario valido
         if not ( isinstance(userId, str) and len(userId)>0 ):
             if self.debug:
                 print "modUmbral : Tipo y/o longitud de usuario no válido."
-            return -2
+            return 102
 
         #DEVOLVER UMBRAL
         #busco usuario indicado
-        """
-        condicion={self.campoUsername : userId}
-        res=self.leerCondicion(condicion)
-        #DEBUG
-        if self.debug:
-            print "MongoUser - Con user: " + str(userId)
-            print "Se ha encontrado el usuario: "
-            for doc in res:
-                print doc
-            #muy importante hacer rewind
-            res.rewind()
-        #Si se ha encontrado usuario. res.count() sera > 0.
-        if res.count() > 0:
-        """
         res = self.checkUserName(userId)
         if res:
             #Existe usuario. Procedo a leer el umbral.
@@ -525,7 +491,7 @@ class UserManager(MongoBasic):
         else:
             if self.debug:
                 print "No se ha encontrado el usuario: " + str(userId)
-            return -2
+            return 102
 
             
 if __name__ == "__main__":
@@ -541,8 +507,8 @@ if __name__ == "__main__":
                 return None
     #----------------------------------------------
     u = UserManager()
-    u.deleteUser("test", "test")
-    #"""
+    #u.deleteUser("test", "test")
+    """
     print "Crear:"
     userr = raw_input("user: ")
     passs = raw_input("pass: ")
@@ -551,7 +517,7 @@ if __name__ == "__main__":
     umbrall=num(umbrall)
     res=u.modUmbral(userr, umbrall)
     print "modUmbral : " + str(res)
-    #"""
+    """
     u.leer()
 
     print "Login:"

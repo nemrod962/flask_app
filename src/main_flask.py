@@ -53,32 +53,7 @@ DBHandler.reload()
 
 
 #-----------------------------------PRUEBAS------------------------------------------
-
-"""
-#TESTOAUTH
-@app.route("/testoauth/")
-def testoauth():
-    from myoauth.my_google_oauth import OAuthHandler
-    from myoauth.my_google_oauth import OAuthRes
-    oa = OAuthHandler(app)
-    
-    d=OAuthRes()
-    res= oa.getOAuthCredentials(d)
-    print "testing: " + str(res)
-    print "type_ " + str(type(res))
-    try:
-        print "DICT testing: " + str(d)
-        print "DICT testing: " + str(any(d))
-        print "type_ " + str(type(d))
-        print "type_ " + str(d.getDataType)
-    except:
-        print ""
-    return res
-    
-    #print "ATENCION" + str(oa.wrapPollo())
-    #return redirect(url_for('webMain'))
-"""
-
+#LOGIN por OAuth de Google
 @app.route("/jsoauthlogin/")
 def jsOAuthLogin():
     #CLIENT_ID="933060102795-0hf4m6v3cuq4ocvubaide7ouqui2l4lg.apps.googleusercontent.com"
@@ -86,13 +61,7 @@ def jsOAuthLogin():
 
 @app.route("/jsoauthdata/", methods=['POST'])
 def jsOAuthData():
-    #print "DATOS: "
-    #print "DATA: " + str(request.data)
-    #print "ARGS: " + str(request.args)
-    #print "FORM: " + str(request.form)
-    #print "FILES: " + str(request.files)
-    #print "VALUES: " + str(request.values)
-    #print "JSON: " + str(request.get_json())
+    #Obtener datos enviados por cliente.
     token=request.form['idtoken']
     print "RECIBIDO - token:" + str(token)
 
@@ -119,7 +88,6 @@ def jsOAuthData():
         print "tipo: " + str(type(idinfo))
     except ValueError as e:
         print "ERROR TOKEN: " + e
-
 
     #-----
     #Trabajando con usuario
@@ -191,14 +159,24 @@ def cambiarUmbral():
     response = make_response("cambiarUmbral_placeholder")
     #Obtengo info de las cookies
     idSesion=request.cookies.get('SessionId')
-    nombreUser=OAuthHandler.getCookieUserName(idSesion)
+    #tipo de login
+    idTipo=request.cookies.get('tipoLogin')
+    nombreUser=None
+    #OAUTH
+    if idTipo=="oauth":
+        nombreUser=OAuthHandler.getCookieUserName(idSesion)
+        nombreAMostrar=OAuthHandler.getUserName(nombreUser)
+    #LOCAL
+    elif idTipo=="local":
+        nombreUser=UserHandler.getCookieUserName(idSesion)
+        nombreAMostrar=nombreUser
+    #-------
+    #GET
     if request.method == 'GET':
-        response = render_template('changeUserUmbral.html', username=nombreUser)
-        #Prueba Datos Usuario. BORRAR
-        print "Nombre: " + OAuthHandler.getUserName(nombreUser)
-        print "Mail: " + OAuthHandler.getUserMail(nombreUser)
-        print "Prov: " + OAuthHandler.getUserProvider(nombreUser)
+        response = render_template('changeUserUmbral.html',
+        username=nombreAMostrar)
 
+    #POST
     elif request.method == 'POST':
     #else:
         print "Estoy en POST"
@@ -210,11 +188,15 @@ def cambiarUmbral():
             umbral=float(umbral)
         except ValueError:
             umbral=101
-        #CAMBIO UMBRAL DEL USUARIO
-        OAuthHandler.modUmbral(nombreUser, umbral)
+        #CAMBIO UMBRAL DEL USUARIO.
+        if idTipo=="oauth":
+            OAuthHandler.modUmbral(nombreUser, umbral)
+            response=make_response("UMB: "+str(OAuthHandler.getUmbral(nombreUser)))
+        elif idTipo=="local":
+            UserHandler.modUmbral(nombreUser, umbral)
+            response=make_response("UMB: "+str(UserHandler.getUmbral(nombreUser)))
 
         #response=make_response(str(umbral))
-        response=make_response("UMBRAL: "+str(OAuthHandler.getUmbral(nombreUser)))
     return response
     
 
