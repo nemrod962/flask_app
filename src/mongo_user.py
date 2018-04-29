@@ -304,6 +304,7 @@ class UserManager(MongoBasic):
     #fecha de caducidad.
     def refreshCookie(self, cookieVal):
         if self.debug:
+            print "MongoUser - refreshCookie()"
             print "Actualizando caducidad cookie - " + str(cookieVal)
             print "Antes: " + str(self.listaCaducidad)
 
@@ -330,6 +331,7 @@ class UserManager(MongoBasic):
             fechaAct=date_handler.getDatetimeMs()
             cadTemp=self.listaCaducidad[value]
             if self.debug:
+                print "MongoUser - deleteExpiredCookies()"
                 print "Fecha act: " + str(fechaAct)
                 print "tipo: " + str(type(fechaAct))
                 print "Fecha cad: " + str(cadTemp)

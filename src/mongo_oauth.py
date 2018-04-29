@@ -271,16 +271,17 @@ class OAuthUserManager(UserManager):
         #Consultamos MongoDB utilizando la funcion checkUsername
         res = self.checkUserName(userId)
         #SI existe el usuario, buscamos los datos
-        for doc in res:
-            val = doc[data]
+        if res:
+            for doc in res:
+                val = doc[data]
 
-            #DEBUG
-            if self.debug:
-                print "MONGOOAUTH - getUserData"
-                print "CAMPO: " + str(data)
-                print "VALOR: " + str(val)
+                #DEBUG
+                if self.debug:
+                    print "MONGOOAUTH - getUserData"
+                    print "CAMPO: " + str(data)
+                    print "VALOR: " + str(val)
 
-            return val
+                return val
         else:
             return None
     #envolvedores

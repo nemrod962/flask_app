@@ -123,14 +123,17 @@ def jsOAuthData():
 
     #-----
     #Trabajando con usuario
+
+    #EXISTE?
     existe=OAuthHandler.checkUserName(userid)
     if existe:
         print "Usuario " + userid + " existe!"
     else:
+        #SI NO EXISTE -> LO CREAMOS
         print "Usuario " + userid + " NO existe."
         print "Creando..."
-        #umbral -1
-        userumbral=-1
+        #umbral 101 por defecto
+        userumbral=101
         r=OAuthHandler.createUser(userprov, userid, usermail, username, userumbral)
         print "ATENCION:"
         print "db: " + str(OAuthHandler.client)
@@ -138,22 +141,47 @@ def jsOAuthData():
         print "res>0 : " + str(r>0)
         if r > 0:
             print "Usuario " + username + " creado!"
-            #Login -> Crear cookie para saber usuario
-            cookieVal = OAuthHandler.login(userid)
-            print "DEBUG - Cookie: " + str(cookieVal)
-            if cookieVal > 0:
-                response = make_response(url_for('cambiarUmbral'))
-                response.set_cookie('SessionId', cookieVal)
-                response.set_cookie('tipoLogin', 'oauth')
+        else:
+            print "Error al crear usuario: " + username
+            #Error 1 -> Mal formato argumentos de createUser().
+            #Error 2 -> Usuario ya existe.
+            print "Error: " + r
+            #Que hago en este caso? Nada?
+        
+    #CREAR COOKIE, independientemenste de si existia el usuario o no.
+    #Llegados a este punto, tendremos el usuario creado en la
+    #base de datos de MongoDB.
+    #Ahora iniciamos la sesion, para lo que tendremos que crear las cookies
 
-            #Pedir umbral
-            return response
+    #Obtengo valor de la cookies. 
+    cookieVal = OAuthHandler.login(userid)
+    print "DEBUG - Cookie: " + str(cookieVal)
+    #creo la cookie si el valor que me ha devuelto es válido (> 0).
+    #login devolverá -1 si el usuario no existe o -2 si userid
+    #no es del tipo 'string'.
+    if cookieVal > 0:
+        #Si hemos creado el usuario, tenemos que ofrecerle
+        #que especifique su umbral.
+        if not existe:
+            response = make_response(url_for('cambiarUmbral'))
+        #Si ya existía, lo redirigimos al menú principal
+        else:
+            response = make_response(url_for('webMain'))
+        #Asignamos los datos de la cookie creada a la respuesta
+        response.set_cookie('SessionId', cookieVal)
+        response.set_cookie('tipoLogin', 'oauth')
+    else:
+        #Si ha habido error al hacer login, redirigimos a la pagina de 
+        #login
+        #response = make_response(url_for('webLogin'))
+        print "PELIGRO! ERROR AL HACER LOGIN en /jsoauthdata/"
+        response = make_response(url_for('webMain'))
 
-
-
+    #Retornamos la respuesta creada.
+    return response
 
     #-----
-
+    #No debería llegar a ejecutarse este return
     return "RECIBIDO - token:" + str(request.form['idtoken'])
     #return redirect(url_for('webMain'))
 
@@ -223,9 +251,9 @@ def webLogin_post():
     #Si se ha iniciado sesion, el valor de 
     #cookieVal será != -1
     print "DEBUG - Cookie: " + str(cookieVal)
-    if cookieVal != -1:
+    if cookieVal >= 0:
         resp.set_cookie('SessionId', cookieVal)
-        resp.set_cookie('tipoLogin', 'flask')
+        resp.set_cookie('tipoLogin', 'local')
     
     #return redirect(url_for('webMain'))
     return resp
@@ -237,18 +265,32 @@ def webLogin_post():
 def webMain():
 
     #Cookies
-    #Obtengo Cookie
+    #Obtengo tipo de Cookie : local o OAuth
+    idTipo=request.cookies.get('tipoLogin')
+    #Obtengo valor Cookie
     idSesion=request.cookies.get('SessionId')
-    #CADUCIDAD - BORRO Y ACTUALIZO
-    UserHandler.checkCookieStatus(idSesion)
+    #Inicializo nombreUsuario
+    nombreUsuario=None
+    if idTipo=="local":
+        #CADUCIDAD - BORRO Y ACTUALIZO
+        UserHandler.checkCookieStatus(idSesion)
+        #Si la cookie ha caducado, me mostrara None como Usuario
+        nombreUsuario = UserHandler.getCookieUserName(idSesion)
+    elif idTipo=="oauth":
+        #CADUCIDAD - BORRO Y ACTUALIZO
+        OAuthHandler.checkCookieStatus(idSesion)
+        #Si la cookie ha caducado, me mostrara None como Usuario
+        idUsuario = OAuthHandler.getCookieUserName(idSesion)
+        nombreUsuario = OAuthHandler.getUserName(idUsuario)
+        
     #Muesto info
+    print "Tipo Sesion: " + str(idTipo)
     print "SESION: " + str(idSesion)
-    #Si la cookie ha caducado, me mostrara None como Usuario
-    nombreUsuario = UserHandler.getCookieUserName(idSesion)
     print "Usuario: " + str(nombreUsuario)
     #---
     return render_template("index.html",\
-    DBName = web_functions.getDBName(DBHandler))
+    DBName = web_functions.getDBName(DBHandler),\
+    username=nombreUsuario)
 
 #Procesamos la opción elegida en la pagina inicial
 @app.route("/", methods=['POST'])
