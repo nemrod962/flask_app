@@ -161,7 +161,9 @@ def cambiarUmbral():
     idSesion=request.cookies.get('SessionId')
     #tipo de login
     idTipo=request.cookies.get('tipoLogin')
+    #inicio variables en caso de que no haya cookies en el cliente
     nombreUser=None
+    nombreAMostrar=None
     #OAUTH
     if idTipo=="oauth":
         nombreUser=OAuthHandler.getCookieUserName(idSesion)
@@ -195,14 +197,39 @@ def cambiarUmbral():
         elif idTipo=="local":
             UserHandler.modUmbral(nombreUser, umbral)
             response=make_response("UMB: "+str(UserHandler.getUmbral(nombreUser)))
-
+        else:
+            #EL usuario no ha hecho login
+            response=make_response("Inicia sesión antes de cambiar umbral.")
         #response=make_response(str(umbral))
     return response
     
 
 #-------------------------------FIN-PRUEBAS------------------------------------------
+#Registro
+@app.route("/register", methods=['GET','POST'])
+def webRegister():
+    print "/register - METODO: " + str(request.method)
 
-#PAGINA INICIAL
+    #GET
+    if request.method=='GET':
+        return render_template("register.html")
+
+    #POST
+    if request.method=='POST':
+        print "/register - Estoy en POST"
+        username=request.form['username']
+        password=request.form['password']
+        umbral=request.form['umbral']
+
+        #DEBUG
+        cadena = "<html>REGISTRO:"
+        cadena += "<br>usuario: " + username
+        cadena += "<br>password: " + password
+        cadena += "<br>umbral: " + umbral
+        cadena+="</html>"
+        print cadena
+        return make_response(cadena)
+
 #Login
 @app.route("/login")
 def webLogin():
@@ -241,6 +268,8 @@ def webLogin_post():
     return resp
 
 
+#--------------------------------------------------------------------------------
+#PAGINA INICIAL
 #menú principal
 #Mostramos la pagina inicial
 @app.route("/") 

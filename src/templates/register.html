@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+    <h1>Register</h1>
+    <p>Username:</p>
+    <input type="text" id="user">
+    <br>
+    <p>Password:</p>
+    <input type="password" id="pass">
+    <br>
+    <p>Repeat Password:</p>
+    <input type="password" id="passRep">
+    <br>
+    <p>Umbral:</p>
+    <input type="text" id="umbral">
+    <br>
+    <br>
+    <button 
+    onclick="comprobarRegistro(document.getElementById('user').value,
+    document.getElementById('pass').value,
+    document.getElementById('passRep').value,
+    document.getElementById('umbral').value);">
+    Register
+    </button>
+    
+    <script src="{{ url_for('static', filename='comprobaciones.js') }}">
+    </script>
+
+</body>
+</html>
+

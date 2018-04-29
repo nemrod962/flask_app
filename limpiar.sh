@@ -1,12 +1,7 @@
 #!/bin/sh
-cd src
-rm -f *.pyc
-rm -f ghostdriver.log
-rm -f screen.png
-rm -f temp-plot.html
-cd web_fetcher
-rm -f *.pyc
-rm -f ghostdriver.log
-rm -f screen.png
-cd ../pruebas
-rm -f *.pyc
+BORRAR=('*.pyc' 'ghostdriver.log' 'screen.png')
+for ENTRY in ${BORRAR[*]}
+do
+    find ./src -name $ENTRY -exec echo "borrar {}" \;
+    find ./src -name $ENTRY -exec rm {} \;
+done
