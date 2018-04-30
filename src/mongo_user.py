@@ -315,6 +315,7 @@ class UserManager(MongoBasic):
 
         if self.debug:
             print "Despues: " + str(self.listaCaducidad)
+    
 
     #Recorre la lista de todas las cookies y borra las que hayan caducado
     def deleteExpiredCookies(self):
@@ -330,6 +331,7 @@ class UserManager(MongoBasic):
             #de caducidad, significa que ha caducado la cookie
             fechaAct=date_handler.getDatetimeMs()
             cadTemp=self.listaCaducidad[value]
+            #DEBUG
             if self.debug:
                 print "MongoUser - deleteExpiredCookies()"
                 print "Fecha act: " + str(fechaAct)
@@ -347,16 +349,56 @@ class UserManager(MongoBasic):
                 #de listaSesiones y listaCaducidad
                 self.logout(value)
 
+    #Se comprueba solo si la cookie del usuario especificado ha caducado,
+    #en lugar de recorrer la lista de todas las sesiones
+    #Devuelvo True si borro la cookie
+    #Devuelvo False si la cookie no ha caducado
+    def deleteExpiredCookie(self, sessionId):
+        #OBtengo fecha de caducidad para la sesion indicada
+        try:
+            cadTemp=self.listaCaducidad[sessionId]
+        except KeyError:
+            #Si no existe la cookie no ha caducado,
+            #devuelvo False ya que no he borrado nada
+            return False
+        #Obtengo fecha actual para comparar
+        fechaAct=date_handler.getDatetimeMs()
+        #DEBUG
+        if self.debug:
+            print "MongoUser - deleteExpiredCookie()"
+            print "Fecha act: " + str(fechaAct)
+            print "Fecha cad: " + str(cadTemp)
+
+        #Comparo fechas. Si la actual es mayor que la de caducidad, borro
+        #la cookie de session.
+        if fechaAct >= cadTemp:
+            if self.debug:
+                nombre = self.getCookieUserName(sessionId)
+                print "La cookie del usuario " + nombre + " ha caducado."
+            #Elimino cookie
+            self.logout(sessionId)
+            #Devuelvo True si borro la cookie
+            return True
+        #Devuelvo False si la cookie no ha caducado
+        return False
+
+
     #Se llamará a una función cuando se registre el uso de una cookie.
     #Se borrarán las cookies que han caducado y acto seguido, si no
     #ha caducado la cookie empleada, se prologará su fecha de caducidad.
     def checkCookieStatus(self, cookieVal):
         if self.debug:
-            print "Comprobando caducidad de cookies."
-        self.deleteExpiredCookies()
-        if self.debug:
-            print "Actualizando caducidad de la cookie - " + str(cookieVal)
-        self.refreshCookie(cookieVal)
+            print "Comprobando caducidad de cookie."
+        #self.deleteExpiredCookies()
+        sehaborrado = self.deleteExpiredCookie(cookieVal)
+        #Si se ha borrado, no actualizo
+        if not sehaborrado:
+            if self.debug:
+                print "Actualizando caducidad de la cookie - " + str(cookieVal)
+            self.refreshCookie(cookieVal)
+
+        #Indico si se ha borrado la cookie o no
+        return sehaborrado
                 
     
     """

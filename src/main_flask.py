@@ -51,14 +51,34 @@ DBHandler = MongoHandler
 #primera vez las listas ya estén pobladas
 DBHandler.reload()
 
+#***************************************************************************
+#	               .-')      ('-.  _  .-')    .-')    
+#	              ( OO ).  _(  OO)( \( -O )  ( OO ).  
+#	 ,--. ,--.   (_)---\_)(,------.,------. (_)---\_) 
+#	 |  | |  |   /    _ |  |  .---'|   /`. '/    _ |  
+#	 |  | | .-') \  :` `.  |  |    |  /  | |\  :` `.  
+#	 |  |_|( OO ) '..`''.)(|  '--. |  |_.' | '..`''.) 
+#	 |  | | `-' /.-._)   \ |  .--' |  .  '.'.-._)   \ 
+#	('  '-'(_.-' \       / |  `---.|  |\  \ \       / 
+#	  `-----'     `-----'  `------'`--' '--' `-----'  
+#***************************************************************************
 
-#-----------------------------------PRUEBAS------------------------------------------
+
+"""
+   ___    _         _   _     
+  / _ \  / \  _   _| |_| |__  
+ | | | |/ _ \| | | | __| '_ \ 
+ | |_| / ___ \ |_| | |_| | | |
+  \___/_/   \_\__,_|\__|_| |_|
+                              
+"""
 #LOGIN por OAuth de Google
 @app.route("/jsoauthlogin/")
 def jsOAuthLogin():
     #CLIENT_ID="933060102795-0hf4m6v3cuq4ocvubaide7ouqui2l4lg.apps.googleusercontent.com"
     return render_template("jsoauthlogin.html")
 
+#VERIFICAR datos e iniciar sesion
 @app.route("/jsoauthdata/", methods=['POST'])
 def jsOAuthData():
     #Obtener datos enviados por cliente.
@@ -153,6 +173,95 @@ def jsOAuthData():
     return "RECIBIDO - token:" + str(request.form['idtoken'])
     #return redirect(url_for('webMain'))
 
+    
+
+"""
+  ____            _     _             
+ |  _ \ ___  __ _(_)___| |_ _ __ ___  
+ | |_) / _ \/ _` | / __| __| '__/ _ \ 
+ |  _ <  __/ (_| | \__ \ |_| | | (_) |
+ |_| \_\___|\__, |_|___/\__|_|  \___/ 
+            |___/                     
+"""
+#Registro
+@app.route("/register", methods=['GET','POST'])
+def webRegister():
+    print "/register - METODO: " + str(request.method)
+
+    #GET
+    if request.method=='GET':
+        return render_template("register.html")
+
+    #POST
+    if request.method=='POST':
+        print "/register - Estoy en POST"
+        username=request.form['username']
+        password=request.form['password']
+        umbral=request.form['umbral']
+
+        #DEBUG
+        cadena = "<html>REGISTRO:"
+        cadena += "<br>usuario: " + username
+        cadena += "<br>password: " + password
+        cadena += "<br>umbral: " + umbral
+        cadena+="</html>"
+        print cadena
+        return make_response(cadena)
+
+"""
+  _                _       
+ | |    ___   __ _(_)_ __  
+ | |   / _ \ / _` | | '_ \ 
+ | |__| (_) | (_| | | | | |
+ |_____\___/ \__, |_|_| |_|
+             |___/         
+"""
+#Login
+@app.route("/login")
+def webLogin():
+    return render_template("login.html")
+
+@app.route("/login", methods=['POST'])
+def webLogin_post():
+    #Los convierto a string pues estrán en tipo 'unicode'
+    user=str(request.form['user'])
+    passw=str(request.form['pass'])
+    
+    #DEBUG
+    print "DEBUG - /login"
+    print "user - type: " + str(type(user))
+    print "user: " + str(user)
+    print "pass - type: " + str(type(passw))
+    print "pass: " + str(passw)
+
+    #Creo la respuesta que devolveré al cliente.
+    #Esta respuesta estrá compuesta por el resultado
+    #devuelto por la función render_template().
+    #A esta respuesta le añadiré la cookie generada como resultado del 
+    #inicio de sesión, si este es satisfactorio.
+    resp = make_response(redirect(url_for('webMain')))
+
+    #Obtengo cookie resultado de log in
+    cookieVal=UserHandler.login(user,passw)
+    #Si se ha iniciado sesion, el valor de 
+    #cookieVal será != -1
+    print "DEBUG - Cookie: " + str(cookieVal)
+    if cookieVal >= 0:
+        resp.set_cookie('SessionId', cookieVal)
+        resp.set_cookie('tipoLogin', 'local')
+    
+    #return redirect(url_for('webMain'))
+    return resp
+
+"""
+  _   _           _               _ 
+ | | | |_ __ ___ | |__  _ __ __ _| |
+ | | | | '_ ` _ \| '_ \| '__/ _` | |
+ | |_| | | | | | | |_) | | | (_| | |
+  \___/|_| |_| |_|_.__/|_|  \__,_|_|
+                                    
+"""
+#CAMBIAR umral del usuario
 @app.route('/cambiarUmbral', methods=['GET','POST'])
 def cambiarUmbral():
     print "/cambiarUmbral - METODO: " + str(request.method)
@@ -202,73 +311,26 @@ def cambiarUmbral():
             response=make_response("Inicia sesión antes de cambiar umbral.")
         #response=make_response(str(umbral))
     return response
-    
 
-#-------------------------------FIN-PRUEBAS------------------------------------------
-#Registro
-@app.route("/register", methods=['GET','POST'])
-def webRegister():
-    print "/register - METODO: " + str(request.method)
-
-    #GET
-    if request.method=='GET':
-        return render_template("register.html")
-
-    #POST
-    if request.method=='POST':
-        print "/register - Estoy en POST"
-        username=request.form['username']
-        password=request.form['password']
-        umbral=request.form['umbral']
-
-        #DEBUG
-        cadena = "<html>REGISTRO:"
-        cadena += "<br>usuario: " + username
-        cadena += "<br>password: " + password
-        cadena += "<br>umbral: " + umbral
-        cadena+="</html>"
-        print cadena
-        return make_response(cadena)
-
-#Login
-@app.route("/login")
-def webLogin():
-    return render_template("login.html")
-
-@app.route("/login", methods=['POST'])
-def webLogin_post():
-    #Los convierto a string pues estrán en tipo 'unicode'
-    user=str(request.form['user'])
-    passw=str(request.form['pass'])
-    
-    #DEBUG
-    print "DEBUG - /login"
-    print "user - type: " + str(type(user))
-    print "user: " + str(user)
-    print "pass - type: " + str(type(passw))
-    print "pass: " + str(passw)
-
-    #Creo la respuesta que devolveré al cliente.
-    #Esta respuesta estrá compuesta por el resultado
-    #devuelto por la función render_template().
-    #A esta respuesta le añadiré la cookie generada como resultado del 
-    #inicio de sesión, si este es satisfactorio.
-    resp = make_response(redirect(url_for('webMain')))
-
-    #Obtengo cookie resultado de log in
-    cookieVal=UserHandler.login(user,passw)
-    #Si se ha iniciado sesion, el valor de 
-    #cookieVal será != -1
-    print "DEBUG - Cookie: " + str(cookieVal)
-    if cookieVal >= 0:
-        resp.set_cookie('SessionId', cookieVal)
-        resp.set_cookie('tipoLogin', 'local')
-    
-    #return redirect(url_for('webMain'))
-    return resp
-
-
-#--------------------------------------------------------------------------------
+#***************************************************************************
+#					   ('-.      _ (`-.    _ (`-.  
+#					  ( OO ).-. ( (OO  )  ( (OO  ) 
+#					  / . --. /_.`     \ _.`     \ 
+#					  | \-.  \(__...--''(__...--'' 
+#					.-'-'  |  ||  /  | | |  /  | | 
+#					 \| |_.'  ||  |_.' | |  |_.' | 
+#					  |  .-.  ||  .___.' |  .___.' 
+#					  |  | |  ||  |      |  |      
+#					  `--' `--'`--'      `--'      
+#***************************************************************************
+"""
+  __  __                    ____       _            _             _ 
+ |  \/  | ___ _ __  _   _  |  _ \ _ __(_)_ __   ___(_)_ __   __ _| |
+ | |\/| |/ _ \ '_ \| | | | | |_) | '__| | '_ \ / __| | '_ \ / _` | |
+ | |  | |  __/ | | | |_| | |  __/| |  | | | | | (__| | |_) | (_| | |
+ |_|  |_|\___|_| |_|\__,_| |_|   |_|  |_|_| |_|\___|_| .__/ \__,_|_|
+                                                     |_|            
+"""
 #PAGINA INICIAL
 #menú principal
 #Mostramos la pagina inicial
@@ -284,12 +346,12 @@ def webMain():
     nombreUsuario=None
     if idTipo=="local":
         #CADUCIDAD - BORRO Y ACTUALIZO
-        UserHandler.checkCookieStatus(idSesion)
+        sehaborrado=UserHandler.checkCookieStatus(idSesion)
         #Si la cookie ha caducado, me mostrara None como Usuario
         nombreUsuario = UserHandler.getCookieUserName(idSesion)
     elif idTipo=="oauth":
         #CADUCIDAD - BORRO Y ACTUALIZO
-        OAuthHandler.checkCookieStatus(idSesion)
+        sehaborrado=OAuthHandler.checkCookieStatus(idSesion)
         #Si la cookie ha caducado, me mostrara None como Usuario
         idUsuario = OAuthHandler.getCookieUserName(idSesion)
         nombreUsuario = OAuthHandler.getUserName(idUsuario)
@@ -299,9 +361,13 @@ def webMain():
     print "SESION: " + str(idSesion)
     print "Usuario: " + str(nombreUsuario)
     #---
-    return render_template("index.html",\
+    response = make_response(render_template("index.html",\
     DBName = web_functions.getDBName(DBHandler),\
-    username=nombreUsuario)
+    username=nombreUsuario))
+
+    #if sehaborrado:
+    #    response.set_cookie('expired','1')
+    return response
 
 #Procesamos la opción elegida en la pagina inicial
 @app.route("/", methods=['POST'])
