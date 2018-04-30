@@ -299,7 +299,7 @@ class MongoBasic:
     #Debe tener un formato similar al siguiente:
     #e.g. {"dato1":valor1,"dato2":valor2,...,"dato_n":valor_n}
     #Devuelve 0 si se escribió satisfactoriamente, 1 en caso contrario
-    #Devuelve -1 si no hay conexion con MongoDB
+    #Devuelve None si no hay conexion con MongoDB
     def escribir(self, datos):
         #Si no hay conexión, no ejecutamos la función
         if self.checkConn():
@@ -316,8 +316,7 @@ class MongoBasic:
                     res=0
                 except Exception as e:
                     print "MongoBasic.escribir() - ERROR: " + str(e)
-                    res0=1
-                
+                    res=1
             else:
                 if self.__debug:
                     if not isinstance(datos, dict):
@@ -327,9 +326,9 @@ class MongoBasic:
                 res=1
 
             return res
-        #Si no hay conexión, retorno -1
+        #Si no hay conexión, retorno None
         else:
-            return -1
+            return None
         
 
     """
@@ -348,8 +347,8 @@ class MongoBasic:
     #para borrar todos documentos con campo "var" 
     # -> {"var":{"$regex": ".*"}}
     #Devuelve el número de documentos borrados.
-    #Devuelve -2 en caso de error.
-    #Debuelve -1 si no hay conexión con MongoDB.
+    #Devuelve -1 en caso de error.
+    #Debuelve None si no hay conexión con MongoDB.
     def borrar(self, condicion):
         #Si no hay conexión, no ejecutamos la función
         if self.checkConn():
@@ -363,7 +362,7 @@ class MongoBasic:
                     res=res0.deleted_count
                 except Exception as e:
                     print "MongoBasic.borrar() - ERROR: " + str(e)
-                    res=-2
+                    res=-1
                     error=True
                 
                 #Debug
@@ -373,12 +372,12 @@ class MongoBasic:
                 if self.__debug:
                     if not isinstance(condicion, dict):
                         print "Los datos proporcionados no son de tipo dict!"
-                res=-2
+                res=-1
 
             return res
-        #Si no hay conexión devuelvo -1
+        #Si no hay conexión devuelvo None
         else:
-            return -1
+            return None
 
 
     """
@@ -396,8 +395,8 @@ class MongoBasic:
     #e.g cond -> {"num": {'$gt': 90} }
     #e.g asig -> {"tiempo": 0}
     #Devuelve el número de documentos borrados.
-    #Devuelve -2 en caso de error.
-    #Debuelve -1 si no hay conexión con MongoDB.
+    #Devuelve -1 en caso de error.
+    #Debuelve None si no hay conexión con MongoDB.
     def actualizar(self, condicion, asignacion):
         #Si no hay conexión, no ejecutamos la función
         if self.checkConn():
@@ -412,7 +411,7 @@ class MongoBasic:
                 except Exception as e:
                     print "MongoBasic.actualizar() - ERROR: " + str(e)
                     error=True
-                    res = -2
+                    res = -1
                 #Debug
                 if self.__debug and not error:
                     print "Cumplen la condición " +  str(res0.matched_count) + " documentos."
@@ -423,12 +422,12 @@ class MongoBasic:
                         print "Los datos de condicion proporcionados no son de tipo dict!"
                     if not isinstance(asignacion, dict):
                         print "Lo datos de asignacion proporcionados no son de tipo dict!"
-                res=-2
+                res=-1
 
             return res
-        #Si no hay conexión, retorno -1
+        #Si no hay conexión, retorno None
         else:
-            return -1
+            return None
 
 #Al ejecutar como main
 if __name__ == "__main__":

@@ -157,9 +157,19 @@ class UserManager(MongoBasic):
                      
     """
     #Crea un usuario con los parámetros especificados.
-    #El valor -1 para umbral significa que el usuario no quiere
+    #El valor 101 para umbral significa que el usuario no quiere
     #notificaciones para umbrales.
-    def createUser(self, userId, userPass, umbral=-1):
+    #Valores de retorno:
+    #
+    #->  0 : Creación de usuario correcta
+    #-> -1 : tipos de argumentos no válidos
+    #-> -2 : tipo de umbral no válido
+    #-> -3 : la longitud del usuario y la contraseña
+    #no son superiores a 4 caracteres.
+    #-> -4 : El nombre 'None' no está permitido.
+    #-> -5 : El nombre de usuario ya existe.
+    #-> -6 : No hay conexion con mongoDb
+    def createUser(self, userId, userPass, umbral=101):
         #COMPROBACIONES DATOS
         #compruebo tipos de datos
         if not isinstance(userId, str) or not isinstance(userPass, str):
@@ -169,19 +179,31 @@ class UserManager(MongoBasic):
         if not isinstance(umbral, Number):
             if self.debug:
                 print "El umbral debe ser un número!"
-            return -1
+            return -2
         #CREAR USUARIO    
         #compruebo longitud nombre y pass
         if len(userId) < 4 or len(userPass) < 4:
             if self.debug:
                 print "El usuario y la contraseña deben" + \
                 "ser de al menos 4 chars de longitud!"
-            return -1
+            return -3
+        #Nombre 'None' no permitido, ya que si accedemos a 
+        #la aplicación sin haber hecho login, el nombre de 
+        #usuario actual figurará como 'None'.
+        if userId=="None":
+            if self.debug:
+                print "MongoUser - createUser()"
+                print "El nombre de usuario 'None' no esta permitido."
+            return -4
+                
         #comprobamos que el nombre del usuario existe
         if self.checkUserName(userId):
             #Existe usuario. Aborto misión.
+            if self.debug:
+                print "MongoUser - createUser()"
+                print "El usuario ya existe"
             #Salimos con código de error.
-            return -1
+            return -5
         else:
             #generamos has de la contraseña, que sera lo que guardemos.
             hashPass = pbkdf2_sha256.hash(userPass)
@@ -191,6 +213,13 @@ class UserManager(MongoBasic):
             self.campoUmbral : umbral}
             #escribimos datos de usuario en MongoDB
             res=self.escribir(datos)
+            #Si no hay conexion con Mongo, res sera 'None'
+            if res == None:
+                if self.debug:
+                    print "MongoUser - createUser() - escribir()"
+                    print "La escritura retorna None."
+                    print "No hay conexion?"
+                return -6
             #Retornamos 0 en caso de escciribir los datos satisfactoriamente
             return res
 
@@ -418,6 +447,15 @@ class UserManager(MongoBasic):
         if self.debug:
             print condicion
         res=self.leerCondicion(condicion)
+        #Si no hay conexion a la base de datos MongoDB,
+        #leerCondicion retorna None. Por lo que si este es el
+        #caso, retornamos None.
+        if res==None:
+            if self.debug:
+                print "MongoUser - checkuserName()"
+                print "La búsqueda retorna None."
+                print "No hay conexion?"
+            return None
         #DEBUG
         if self.debug:
             print "Con user: " + str(userId)
@@ -443,6 +481,15 @@ class UserManager(MongoBasic):
         #la contraseña del suario encontrado.
         condicion={self.campoUsername : userId}
         res=self.leerCondicion(condicion, userId)
+        #Si no hay conexion a la base de datos MongoDB,
+        #leerCondicion retorna None. Por lo que si este es el
+        #caso, retornamos None.
+        if res==None:
+            if self.debug:
+                print "MongoUser - checkPassword()"
+                print "La búsqueda retorna None."
+                print "No hay conexion?"
+            return None
         #Si se ha encontrado usuario. res.count() sera > 0.
         if res.count() > 0:
             #Ahora comprobamos contraseña

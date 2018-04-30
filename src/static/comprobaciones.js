@@ -219,10 +219,32 @@ function enviarRegistro(name,pass,umbral)
         //respuesta servidor
         resp = mensaje.responseText;
         console.log('RESPONSE FROM SERVER: ' + resp);
-        //Si lo recibido es una url, redirigimos
-        if(resp.charAt(0) == '/')
+        //El formato con el que se recibe es:
+        //<indicadorOperacion>,<urlRedirección>
+        /*Indicador Operacion:
+		#->  0 : Creación de usuario correcta
+        #-> -1 : tipos de argumentos no válidos
+        #-> -2 : tipo de umbral no válido
+        #-> -3 : la longitud del usuario y la contraseña
+        #no son superiores a 4 caracteres.
+        #-> -4 : El nombre 'None' no está permitido.
+        #-> -5 : El nombre de usuario ya existe.
+        #-> -6 : No hay conexion con mongoDb
+        */
+
+        //Primero, separo ambos
+        var vectorResp=resp.split(",")
+        //Si el indicador de operacion es 0, redirijo a
+        //la url
+        if(parseInt(vectorResp[0]) == 0)
         {
-            window.location.href=resp
+            window.location.href=vectorResp[1];
+        }
+        else
+        {
+            //obtengo mensaje de error y lo muestro
+            var msg=obtenerMensajeAlertaRegistro(vectorResp[0]);
+            window.alert(msg);
         }
     };
     //Muy importante poner 'umbral=', ya que el mensaje sera interpretado por
@@ -232,6 +254,47 @@ function enviarRegistro(name,pass,umbral)
     mensaje.send('username='+name+"&"+'password='+pass+"&"+'umbral='+umbral);
     console.log('mensaje enviado');
 
+}
+
+/*  
+Dado el número de retorno obtenido de la funcion
+crear usuario del servidor, mostramos mensaje al cliente.
+    Codigos:
+        #-> -1 : tipos de argumentos no válidos
+        #-> -2 : tipo de umbral no válido
+        #-> -3 : la longitud del usuario y la contraseña
+        #no son superiores a 4 caracteres.
+        #-> -4 : El nombre 'None' no está permitido.
+        #-> -5 : El nombre de usuario ya existe.
+        #-> -6 : No hay conexion con mongoDb
+        */
+function obtenerMensajeAlertaRegistro(n)
+{
+    var msg="placeholder"
+    //n recibido es String
+    n=parseInt(n)
+    switch(n)
+    {
+        case -1:
+            msg="Tipos de datos de Usuario y/o contraseña no validos."
+            break;
+        case -2:
+            msg="tipo de dato de umbral no válido."
+            break;
+        case -3:
+            msg="la longitud del usuario y la contraseña no son superiores a 4 caracteres."
+            break;
+        case -4:
+            msg= "El nombre 'None' no está permitido."
+            break;
+        case -5:
+            msg= "El nombre de usuario ya existe."
+            break;
+        case -6:
+            msg= "No hay conexion con mongoDB."
+            break;
+    }
+    return msg
 }
 console.log("fin comprobaciones")
 //-----------------------------------------------------

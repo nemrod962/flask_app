@@ -183,7 +183,12 @@ def jsOAuthData():
  |_| \_\___|\__, |_|___/\__|_|  \___/ 
             |___/                     
 """
-#Registro
+#Registro.
+#Registro de usuarios de forma local. Los usuarios OAuth se
+#registran el a ruta /jsoauthdata accesible desde 
+#/jsoauthlogin.
+#Obtenemos datos del cliente y creamos cuenta a partir
+#de los mismos.
 @app.route("/register", methods=['GET','POST'])
 def webRegister():
     print "/register - METODO: " + str(request.method)
@@ -195,18 +200,25 @@ def webRegister():
     #POST
     if request.method=='POST':
         print "/register - Estoy en POST"
-        username=request.form['username']
-        password=request.form['password']
-        umbral=request.form['umbral']
+        username=str(request.form['username'])
+        password=str(request.form['password'])
+        umbral=float(request.form['umbral'])
 
         #DEBUG
-        cadena = "<html>REGISTRO:"
-        cadena += "<br>usuario: " + username
-        cadena += "<br>password: " + password
-        cadena += "<br>umbral: " + umbral
-        cadena+="</html>"
+        cadena = '<html>REGISTRO:'
+        cadena += '<br>usuario: ' + username
+        cadena += '<br>password: ' + password
+        cadena += '<br>umbral: ' + str(umbral)
+        #Creacion usuario
+        exito=UserHandler.createUser(username,password,umbral)
+        cadena+='<br> RET: '+str(exito)+'</html>'
         print cadena
-        return make_response(cadena)
+        #Le envio info sobre el resultado de la operacion y
+        #la pagina web a donde hay que redirigir en caso de
+        #craecion satisfactoria.
+        #Este mensaje es interpretado por el cliente mediante javascript,
+        #de forma que si exito==0 redirige a url_for('webLogin')
+        return make_response(str(exito)+","+url_for('webLogin'))
 
 """
   _                _       
