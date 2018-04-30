@@ -483,13 +483,14 @@ class UserManager(MongoBasic):
         res=self.leerCondicion(condicion, userId)
         #Si no hay conexion a la base de datos MongoDB,
         #leerCondicion retorna None. Por lo que si este es el
-        #caso, retornamos None.
+        #caso, retornamos False (lo equivalente a que la contraseña
+        #no sea correcta).
         if res==None:
             if self.debug:
                 print "MongoUser - checkPassword()"
                 print "La búsqueda retorna None."
                 print "No hay conexion?"
-            return None
+            return False
         #Si se ha encontrado usuario. res.count() sera > 0.
         if res.count() > 0:
             #Ahora comprobamos contraseña
