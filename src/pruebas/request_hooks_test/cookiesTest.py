@@ -33,24 +33,41 @@ def check_cookies(*args, **kwargs):
         #tendremos al funcion index().
         view_func = app.view_functions[request.endpoint]
         run_check= not hasattr(view_func, '_exclude_from_checking')
-    print 'Checkear cookies en {0}: {1}'.format(request.path, run_check)
+        #Muestro daots
+        print 'Checkear cookies en {0}: {1}'.format(request.path, run_check)
+        if run_check:
+            name = request.cookies.get('cookieName')
+            if name == None:
+                print "Inicia sesion!"
+                return redirect(url_for('index'))
+            else:
+                print "Eres " + name + ". Sesion Iniciada."
+    else:
+        #404
+        print "La pagina no existe. Redirigiendo..."
+        return redirect(url_for('index'))
+
 
 @app.route('/')
 @exclude_from_checking
 def index():
    return render_template('index.html')
 
+@exclude_from_checking
 @app.route('/setcookie', methods = ['POST', 'GET'])
 def setcookie():
-   if request.method == 'POST':
-       user = request.form['userIdText']
-       print "USARIO: " + str(user) 
+    user = None
+    if request.method == 'POST':
+        user = request.form['userIdText']
+        print "USARIO: " + str(user) 
    
-   resp = make_response(render_template('readcookie.html'))
-   resp.set_cookie('cookieName', user)
-   resp.set_cookie('animal', 'oveja')
+
+    resp = make_response(render_template('readcookie.html'))
+    if not user==None:
+        resp.set_cookie('cookieName', user)
+        resp.set_cookie('animal', 'oveja')
    
-   return resp
+    return resp
 
 @app.route('/getcookie')
 def testaso():
