@@ -1,6 +1,6 @@
-<!DOCTYPE html>
-<html lang="es">
-<body>
+{# login.html #}
+{% extends "topbar_base.html" %}
+{% block cuerpo %}
     <h1>LOGIN</h1>
     <form action="/login" method="POST">
         <p>Username:</p>
@@ -12,6 +12,4 @@
         <br>
         <input type="submit" name="botonLogin" value="Login">
     </form>
-</body>
-</html>
-
+{% endblock %}

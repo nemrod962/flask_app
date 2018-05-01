@@ -1,6 +1,6 @@
-<!DOCTYPE html>
-<html lang="es">
-<body>
+{# index.html #}
+{% extends "topbar_base.html" %}
+{% block cuerpo %}
 <title>Bienvenido!</title>
 <h1>Aplicación Flask</h1>
 <p align="right">User: {{username}}</p>
@@ -29,6 +29,5 @@
             <input type="submit" name="my-form" value="Send"><br>
     </fieldset>
 </form>
-</body>
-</html>
+{% endblock %}
 

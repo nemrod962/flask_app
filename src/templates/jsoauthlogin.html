@@ -1,11 +1,11 @@
-<html>
-<head>
+{# jsoauthlogin.html #}
+{% extends "topbar_base.html" %}
+
+{% block cabeza %}
     <meta name="google-signin-client_id" content="933060102795-0hf4m6v3cuq4ocvubaide7ouqui2l4lg.apps.googleusercontent.com">
-     <STYLE type="text/css">
-       H1 { text-align: left}
-     </STYLE>
-</head>
-<body>
+{% endblock %}
+
+{% block cuerpo %}
     <p>Google OAuth2 Sign in</p>
     {# Load the Google Platform Library #}
     <script src="https://apis.google.com/js/platform.js" async defer></script>
@@ -22,5 +22,4 @@
     <script type=text/javascript src="{{ url_for('static', 
     filename='oauth_functions.js') }}"></script>
 
-</body>
-</html>
+{% endblock %}

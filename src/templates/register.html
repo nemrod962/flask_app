@@ -1,9 +1,9 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
+{# register.html #}
+{% extends "topbar_base.html" %}
+{% block cabeza %}
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-</head>
-<body>
+{% endblock %}
+{% block cuerpo %}
     <h1>Register</h1>
     <p>Username:</p>
     <input type="text" id="user">
@@ -28,7 +28,4 @@
     
     <script src="{{ url_for('static', filename='comprobaciones.js') }}">
     </script>
-
-</body>
-</html>
-
+{% endblock %}

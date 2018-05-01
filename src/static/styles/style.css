@@ -1,0 +1,51 @@
+/*Estilo general del body*/
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #333;
+  margin: 0px;
+}
+
+/*Estilo de la barra superior*/
+.topnav {
+  overflow: hidden;
+  background-color: #0099cc;
+}
+
+/*Estilo elemntos 'a' en la barra superior*/
+.topnav a {
+  float: right;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+.topnav a:hover {
+    /*Color fondo*/
+    background-color: #ffffff;
+    /*Color texto*/
+    color: red;
+}
+
+/*Estilo elemente 'titulo' de la barra superior.*/
+.topnav div.titulo {
+
+  float: left;
+  color: #000000;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+  /*background-color: #333*/
+  text-transform: uppercase;
+  /*Negrita*/
+  font-weight:bold;
+}
+
+/*Estilo del elemento 'cuerpo' dentro de body. Es donde los diferentes templates
+insertarán su código al heredar de topbar_base.html*/
+
+.cuerpo {
+    margin: 10px 25px;
+}

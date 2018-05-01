@@ -1,6 +1,6 @@
-<!DOCTYPE html>
-<html lang="es">
-<body>
+{# media.html #}
+{% extends "topbar_base.html" %}
+{% block cuerpo %}
 <title>Media</title>
 <div>Media:  </div>
 <br>
@@ -12,6 +12,4 @@
     <form action="{{ url_for('webMedia_post') }}" method="POST">
         <input type="submit" name="volver" value="Menú Principal"><br>
     </form>
-</body>
-</html>
-
+{% endblock %}
