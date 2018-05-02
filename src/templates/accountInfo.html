@@ -1,0 +1,17 @@
+{# accountInfo.html #}
+{% extends "topbar_base.html" %}
+{% block cuerpo %}
+<title>Información Cuenta</title>
+<div class="userInfoBlock">
+    <h1>Informacion:</h1>
+    <span>Nombre: </span> <span class="userInfo">{{ nombrehtml }} </span> <br>
+    <span>E-mail: </span> <span class="userInfo">{{ emailhtml }} </span> <br>
+    <span>Proveedor: </span> <span class="userInfo">{{ proveedorhtml }} </span> <br>
+    <span>Umbral: </span> <span class="userInfo">{{ umbralhtml }} </span> 
+    <button onclick="window.location.href='/cambiarUmbral'">Cambiar Umbral</button> <br>
+       <br><span>Tipo registro: </span> <span class="userInfo">{{ tipoRegistrohtml }} </span> <br>
+</div>
+
+<button onclick="window.location.href='/'">Menú Principal</button>
+
+{% endblock %}

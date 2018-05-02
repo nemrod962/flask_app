@@ -83,6 +83,7 @@ def jsOAuthLogin():
 def jsOAuthData():
     #Obtener datos enviados por cliente.
     token=request.form['idtoken']
+    #token=request.get.args('idtoken','placeholder',type=str)
     print "RECIBIDO - token:" + str(token)
 
     #-----VALIDACION TOKEN
@@ -201,8 +202,11 @@ def webRegister():
     if request.method=='POST':
         print "/register - Estoy en POST"
         username=str(request.form['username'])
+        #username=request.args.get('username','default',type=str)
         password=str(request.form['password'])
+        #password=request.args.get('password','default',type=str)
         umbral=float(request.form['umbral'])
+        #username=request.args.get('umbral','101',type=float)
 
         #DEBUG
         cadena = '<html>REGISTRO:'
@@ -237,7 +241,9 @@ def webLogin():
 def webLogin_post():
     #Los convierto a string pues estrán en tipo 'unicode'
     user=str(request.form['user'])
+    #user=request.args.get('user','default',type=str)
     passw=str(request.form['pass'])
+    #passw=request.args.get('pass','default',type=str)
     
     #DEBUG
     print "DEBUG - /login"
@@ -266,6 +272,39 @@ def webLogin_post():
     return resp
 
 """
+  _                            _   
+ | |    ___   __ _  ___  _   _| |_ 
+ | |   / _ \ / _` |/ _ \| | | | __|
+ | |__| (_) | (_| | (_) | |_| | |_ 
+ |_____\___/ \__, |\___/ \__,_|\__|
+             |___/                 
+"""
+
+#Logout
+@app.route("/logout")
+def webLogout():
+    #Obtengo info de las cookies
+    idSesion=request.cookies.get('SessionId')
+    #tipo de login
+    idTipo=request.cookies.get('tipoLogin')
+    #OAUTH
+    if idTipo=="oauth":
+        #Logout al usuario
+        print "(OAuth)logging out user: " + idSesion
+        OAuthHandler.logout(idSesion)
+    #LOCAL
+    elif idTipo=="local":
+        print "(Local)logging out user: " + idSesion
+        #Logout al usuario
+        UserHandler.logout(idSesion)
+
+    #Retornamos a la pag de login
+    #response=make_response(redirect(url_for('webLogin')))
+    response=make_response(redirect(url_for('webMain')))
+    return response
+    
+
+"""
   _   _           _               _ 
  | | | |_ __ ___ | |__  _ __ __ _| |
  | | | | '_ ` _ \| '_ \| '__/ _` | |
@@ -273,7 +312,7 @@ def webLogin_post():
   \___/|_| |_| |_|_.__/|_|  \__,_|_|
                                     
 """
-#CAMBIAR umral del usuario
+#CAMBIAR umbral del usuario
 @app.route('/cambiarUmbral', methods=['GET','POST'])
 def cambiarUmbral():
     print "/cambiarUmbral - METODO: " + str(request.method)
@@ -304,7 +343,22 @@ def cambiarUmbral():
     #else:
         print "Estoy en POST"
         
-        umbral=request.form['umbral']
+        #umbral=request.form['umbral']
+        umbral=request.form.get('umbral',101)
+        #umbral = request.args.get('umbral', 101, type=float)
+        #
+        #resquest.args.get es mucho mejor, si no encuentra el argumento
+        #'umbral' en vez de lanzar una excepcion da un valor por defecto,
+        #el cual podemos especificar, asi como su tipo.
+        #
+        #INCORRECTO. request.args.get se emplea cuando se envian
+        #parametros mediante GET (los cuales estarán incluidos en la
+        #url).
+        #Lo que es mejor que request.form[<nombreParam>] es 
+        #request.form.get(<nombreParam>, defaultValue), ya que de 
+        #esta forma, si no estan los parametros que intentamos
+        #obtener, la funcion nos devolverá el valor por defecto
+        #especificado en vez de 'None'.
         print "UMBRAL RECIBIDO: " + str(umbral)
         print "tipo: " + str(type(umbral))
         try:
@@ -314,15 +368,92 @@ def cambiarUmbral():
         #CAMBIO UMBRAL DEL USUARIO.
         if idTipo=="oauth":
             OAuthHandler.modUmbral(nombreUser, umbral)
-            response=make_response("UMB: "+str(OAuthHandler.getUmbral(nombreUser)))
+            response=make_response("UMB:"+str(OAuthHandler.getUmbral(nombreUser)))
         elif idTipo=="local":
             UserHandler.modUmbral(nombreUser, umbral)
-            response=make_response("UMB: "+str(UserHandler.getUmbral(nombreUser)))
+            response=make_response("UMB:"+str(UserHandler.getUmbral(nombreUser)))
         else:
-            #EL usuario no ha hecho login
-            response=make_response("Inicia sesión antes de cambiar umbral.")
+            #EL usuario no ha hecho login.
+            #
+            #Los codigos de error de getUmbral() son:
+			#-> 102: El usuario es 'None'. Es el valor que se obtiene cuando no se ha
+			#iniciado sesión
+			#-> 103: Indica que el nombre de usuario recibido no es válido, ya sea por tipo
+			#(no string) o longitud.
+			#-> 104: El usuario indicado no se ha encontrado en la base de datos.
+            #
+            #Los respuestas que se pueden obtener de modUmbral() van de -100
+            #a 104, invluyendo todos los códigos de error. Para indicar
+            #es error que es que no se ha iniciado sesión, utilizaremos el
+            #código 105.
+            #response=make_response("Inicia sesión antes de cambiar umbral.")
+            response=make_response("UMB:"+str(105))
+            #Los códigos de error los interpretaremos en el cliente 
         #response=make_response(str(umbral))
     return response
+
+
+"""
+     _                             _   
+    / \   ___ ___ ___  _   _ _ __ | |_ 
+   / _ \ / __/ __/ _ \| | | | '_ \| __|
+  / ___ \ (_| (_| (_) | |_| | | | | |_ 
+ /_/   \_\___\___\___/ \__,_|_| |_|\__|
+                                       
+"""
+#Mostrar la informacion del usuario y permitir 
+#cambiar el umbral y hacer logout
+@app.route('/cuenta')
+def webAccount():
+    #Obtengo info de usuario
+    #Obtengo info de las cookies
+    idSesion=request.cookies.get('SessionId')
+    #tipo de login
+    idTipo=request.cookies.get('tipoLogin')
+    
+    #Incializamos vairables
+    userid = None
+    nombre = None
+    email = None
+    proveedor = None
+    umbral = None
+
+    #OAUTH
+    if idTipo=="oauth":
+        #Obtengo informacion Usuario OAuth
+        userid = OAuthHandler.getCookieUserName(idSesion)
+        nombre = OAuthHandler.getUserName(userid)
+        email = OAuthHandler.getUserMail(userid)
+        proveedor = OAuthHandler.getUserProvider(userid)
+        umbral = OAuthHandler.getUmbral(userid)
+    #LOCAL
+    elif idTipo=="local":
+        #Obtengo información Usuario Local
+        userid = UserHandler.getCookieUserName(idSesion)
+        nombre = userid
+        umbral = UserHandler.getUmbral(nombre)
+
+    #LLegados a este punto, si userid == None, una de dos:
+    #o el usuario tiene cookie de sesion y le ha caducado,
+    #o directamente no tiene cookie de sesion.
+    #La forma de proceder en ambos casos es hacer que el
+    #cliente inicie sesión en la aplicacion, por lo que
+    #le redirigiremos a la pagina de login.
+    if userid==None:
+        #Creo respuesta
+        response = make_response(redirect(url_for('webLogin')))
+    
+    #En caso contrario, obtenemos los datos y los devolvemos
+    else:
+        #Creo respuesta
+        response = make_response(render_template("accountInfo.html",\
+        nombrehtml = nombre, emailhtml = email,\
+        proveedorhtml=proveedor, umbralhtml=umbral,\
+        tipoRegistrohtml = idTipo))
+
+    #Retorno la respuesta
+    return response
+    
 
 #***************************************************************************
 #					   ('-.      _ (`-.    _ (`-.  
@@ -385,8 +516,10 @@ def webMain():
 @app.route("/", methods=['POST'])
 def webMain_post():
     opcion = request.form['option']
+    #opcion=request.args.get('option','default',type=str)
 
     umbraltxt = request.form['umbralTxt']
+    #umbraltxt=request.args.get('umbralTxt','50',type=str)
     if debug:
         print "--->"+umbraltxt
         
@@ -440,6 +573,7 @@ def webDBSelect():
 @app.route("/seleccDB", methods=['POST'])
 def webDBSelect_post():
     opcion = request.form['chosenDB']
+    #opcion=request.args.get('chosenDB','default',type=str)
     #Declaro DBHandler como global para que
     #su valor realmente cambie en todo el programa,
     #no solo dentro de esta funcion.
@@ -547,11 +681,13 @@ def createGraph():
     DBName = web_functions.getDBName(DBHandler))
 
 
+#CAMBIAR ESTRUCTURA
 @app.route("/grafo", methods=['POST'])
 def createGraph_post():
     #obtener datos del form
     try:
         tipoGrafo = request.form['graphType']
+        #tipoGrafo=request.args.get('graphType','default',type=str)
     except:
         #print "Has pulsado volver al menu principal."
         #Este código se ejecuta cuando se selecciona volver
@@ -566,6 +702,7 @@ def createGraph_post():
         return redirect(url_for('webMain'))
     try:
         volver = request.form['volver']
+        #volver =request.args.get('volver','default',type=str)
     except:
         #print "Has pulsado Refresh."
         #Este código se ejecuta cuando se selecciona el tipo de

@@ -49,3 +49,14 @@ insertarán su código al heredar de topbar_base.html*/
 .cuerpo {
     margin: 10px 25px;
 }
+
+/*accountInfo.html*/
+
+.cuerpo div.userInfoBlock {
+    font-size: 20px;
+}
+
+.cuerpo span.userInfo {
+    color:red;
+}
+

@@ -132,9 +132,17 @@ class UserManager(MongoBasic):
     #Devuelve -1 si la sesiónde la que se ha intentado salir
     #no existía.
     def logout(self, cookieVal):
+        if self.debug:
+            print "MongoUser - logout()"
+            print "clase :" + str(self.__class__.__name__)
+            print "mostrando listas:"
+            print self.listaSesiones
+            print self.listaCaducidad
         try:
             del self.listaSesiones[cookieVal]
             del self.listaCaducidad[cookieVal]
+            if self.debug:
+                print "Se ha salido de la sesion " + cookieVal
             return 0
         except KeyError as e:
             if self.debug:
@@ -554,16 +562,26 @@ class UserManager(MongoBasic):
             
 
     #OBTENER UMBRAL
-    #Dado un usuario, devuelve su umbral.
-    #102 Indica error.
-    #101 es el valor por defecto si el usuario no ha especificado ninguno.
+    #Dado un usuario, devuelve su umbral. 101 es el valor por defecto si 
+    #el usuario no ha especificado ninguno.
+    #valores de retorno:
+    #-> 102: El usuario es 'None'. Es el valor que se obtiene cuando no se ha
+    #iniciado sesión
+    #-> 103: Indica que el nombre de usuario recibido no es válido, ya sea por tipo
+    #(no string) o longitud.
+    #-> 104: El usuario indicado no se ha encontrado en la base de datos.
     def getUmbral(self, userId):
         #COMPROBACION TIPOS
         #nombre usuario valido
+        if userId == None:
+            if self.debug:
+                print "getUmbral() : Usuario 'None'. Inicia sesión."
+            return 102
+        #nombre usuario valido
         if not ( isinstance(userId, str) and len(userId)>0 ):
             if self.debug:
-                print "modUmbral : Tipo y/o longitud de usuario no válido."
-            return 102
+                print "getUmbral() : Tipo y/o longitud de usuario no válido."
+            return 103
 
         #DEVOLVER UMBRAL
         #busco usuario indicado
@@ -580,8 +598,8 @@ class UserManager(MongoBasic):
             return umbral
         else:
             if self.debug:
-                print "No se ha encontrado el usuario: " + str(userId)
-            return 102
+                print "getUmbral() : No se ha encontrado el usuario: " + str(userId)
+            return 104
 
             
 if __name__ == "__main__":

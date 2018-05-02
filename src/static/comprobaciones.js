@@ -111,7 +111,6 @@ function enviarPost(nombre, valor, direccion)
     //mensaje.open('POST', 'http://dominioppr.com:5000/cambiarUmbral');
     mensaje.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     //mensaje.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    //Qué hacer con la respuesta
 	mensaje.onload = function() {
         //respuesta servidor
         resp = mensaje.responseText;
@@ -129,12 +128,57 @@ function enviarPost(nombre, valor, direccion)
     console.log('mensaje enviado');
 }
 
+
 /*Funciones específicas. Funciones específicas para determinadas páginas*/
 
+/*
+
+CAMBIAR UMBRAL
+
+*/
+
+function postUmbral(valor, direccion)
+{
+    console.log("func - enviarPost");
+    //Una vez aqui deberiamos tener un numero en umb
+    //Peticion a enviar al servidor con los datos
+    var mensaje = new XMLHttpRequest();
+    console.log("DIRECCION: " + direccion)
+    mensaje.open('POST', direccion);
+    //mensaje.open('POST', 'http://dominioppr.com:5000/cambiarUmbral');
+    mensaje.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    //mensaje.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	mensaje.onload = function() {
+        //respuesta servidor
+        resp = mensaje.responseText;
+        console.log('RESPONSE FROM SERVER: ' + resp);
+        //Interpreto codigo obtenido del server.
+        //La respuesta tiene el siguiente formato:
+        //UMB:<codigo>
+        var codigo = resp.split(":")[1]
+        codigo=parseFloat(codigo)
+        //interpretamos mensaje
+        codigomsg=obtenerMensajeAlertaUmbral(codigo)
+        window.alert(codigomsg)
+        //Si lo recibido esta entre -100 y 101, la
+        //asignacion de umbral es valida. Redirigmos
+        //al menu principal
+        if(codigo >= -100 && codigo <= 101)
+        {
+            console.log('redirigir: ' + "/" )
+            window.location.href='/'
+        }
+    };
+    //Muy importante poner 'umbral=', ya que el mensaje sera interpretado por
+    //el servidor como un form, el cual debe tener la estructura de
+    //variable=valor
+    mensaje.send('umbral=' + valor);
+    console.log('mensaje enviado');
+}
 /*Enviar unbral en changeUmbral.html.
 Interpreta los valores devueltos por comprobarUmbral() y muestra
 avisos por pantalla.
-Si está todo bien, enviará los datos al servidor.*/
+Si está todo bien, enviará los datos al servidor con postUmbral().*/
 function enviarUmbral(n)
 {
     console.log("func - enviarUmbral");
@@ -150,10 +194,53 @@ function enviarUmbral(n)
     }
     else
     {
-        enviarPost("umbral",n,window.location.href)
+        postUmbral(n,window.location.href)
     }
 }
 
+/*  
+Dado el número de retorno obtenido de la funcion
+crear getUmbral() del servidor, mostramos mensaje al cliente.
+    Codigos:
+        #-> -100 a 101 : Asignación umbral válida. Todo bien.
+        #-> 102: El usuario es 'None'. Es el valor que se obtiene cuando no se
+        ha iniciado sesión o la sesión ha caducado.
+        #-> 103: Indica que el nombre de usuario recibido no es válido, ya sea
+        por tipo (no string) o longitud.
+        #-> 104: El usuario indicado no se ha encontrado en la base de datos.
+        #-> 105: No se ha iniciado sesión.
+*/
+function obtenerMensajeAlertaUmbral(n)
+{
+    var msg="placeholder"
+    //n recibido es String
+    n=parseFloat(n)
+    switch(n)
+    {
+        case 102:
+            msg="No ha iniciado sesión o su sesión ha caducado."
+            msg+=" Por favor, inicie sesión."
+            break;
+        case 103:
+            msg="El nombre de usuario recibido no es válido."
+            break;
+        case 104:
+            msg="El usuario indicado no se ha encontrado en la base de datos."
+            break;
+        case 105:
+            msg="No se ha iniciado sesión."
+            break;
+        default:
+            msg="El umbral se ha cambiado satisfactoriamente."
+            break;
+    }
+    return msg
+}
+/*
+
+REGISTRO
+
+*/
 
 /*Comprobación específica para la página del registro (register.html).
 Comprueba todos los campos.
@@ -234,17 +321,14 @@ function enviarRegistro(name,pass,umbral)
 
         //Primero, separo ambos
         var vectorResp=resp.split(",")
+        //obtengo mensaje de resultado de operacion y lo muestro
+        var msg=obtenerMensajeAlertaRegistro(vectorResp[0]);
+        window.alert(msg);
         //Si el indicador de operacion es 0, redirijo a
-        //la url
+        //la url indicada en la respuesta
         if(parseInt(vectorResp[0]) == 0)
         {
             window.location.href=vectorResp[1];
-        }
-        else
-        {
-            //obtengo mensaje de error y lo muestro
-            var msg=obtenerMensajeAlertaRegistro(vectorResp[0]);
-            window.alert(msg);
         }
     };
     //Muy importante poner 'umbral=', ya que el mensaje sera interpretado por
@@ -275,6 +359,9 @@ function obtenerMensajeAlertaRegistro(n)
     n=parseInt(n)
     switch(n)
     {
+        case 0:
+            msg="El usuario se ha creado satisfactoriamente."
+            break;
         case -1:
             msg="Tipos de datos de Usuario y/o contraseña no validos."
             break;
