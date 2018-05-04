@@ -63,6 +63,153 @@ DBHandler.reload()
 #	  `-----'     `-----'  `------'`--' '--' `-----'  
 #***************************************************************************
 
+"""
+   ____            _    _         ____ _               _    
+  / ___|___   ___ | | _(_) ___   / ___| |__   ___  ___| | __
+ | |   / _ \ / _ \| |/ / |/ _ \ | |   | '_ \ / _ \/ __| |/ /
+ | |__| (_) | (_) |   <| |  __/ | |___| | | |  __/ (__|   < 
+  \____\___/ \___/|_|\_\_|\___|  \____|_| |_|\___|\___|_|\_\
+                                                            
+"""
+
+#Añade el atributo '_exclude_from_checking' a la funcion recibida
+#como parámetra. Este atributo añadido a la función indicará al
+#request_hook que no se comprueben las cookies para la dirección
+#asociada a la view function que posee este atributo.
+#Esta función para añadir un atributo a otra función se
+#utilizará en forma de label.
+#Si, por ejemplo, se quiere excluir a la funcion webLogin() 
+#de la comprobación de cookies habrá que añadir la siguiente 
+#línea nates de la declaración de la función
+# @no_cookie_check
+#de forma que quedará así:
+# @app.route('/login')
+# @no_cookie_check
+# def webLogin():
+# ...
+def no_cookie_check(func):
+    func._exclude_from_checking = True
+    return func
+
+
+#Se establecerá un request hook para comprobar las cookies de sesion, de forma
+#que nos aseguraremos de que el cliente haya iniciado sesión y esta no ha
+#caducado al acceder a ciertas partes de la aplicación (la gran mayoría.
+#Excepciones: login y registro).
+#Un request hook es una función que se ejecutará cada vez que se reciba una
+#petición del cliente (request)
+@app.before_request
+def check_cookies(*args, **kwargs):
+    #default value.
+    #Indica si hay que ejecutar el checkeo o no
+    run_check=True
+
+    #request.endpoint es la peticion al servidor
+    #app.view_functions contiene todas las view functions 
+    #definidas en la app.
+    #
+    #Si se cumple este if, significa que la ruta pedida por el cliente
+    #es correcta y hay una view funciton asociada a ella
+    if request.endpoint in app.view_functions:
+        #Obtengo en view_func la funcion que se tiene que ejecutar
+        #al acceder a la ruta que ha pedido el cliente.
+        #Si por ejemlo se ha pedido la ruta '/', en view_func
+        #tendremos al funcion webMain().
+        view_func = app.view_functions[request.endpoint]
+        #Si la view function en custión no tiene un atributo
+        #llamado '_exclude_from_checking', realizaremos una 
+        #comprobación de las cookies de sesión antes de ejecutar la
+        #view function.
+        #run_check= not hasattr(view_func, '_exclude_from_checking')
+        #También hay que asegurarse de que la cadena '/static/' no 
+        #esté contenida en la URL de la petición, ya que si no, no 
+        #se podrán servir sus contenidos (código javascript y css)
+        #a no ser que se haya iniciado sesión previamente, por lo que
+        #pantallas como la de login no mostrarán el estilo.
+        run_check= not hasattr(view_func, '_exclude_from_checking') \
+        and '/static/' not in request.path
+        #DEBUG. Muestro datos
+        print '-~> Checkear cookies en {0}? {1}'.format(request.path, run_check)
+        if run_check:
+            #En la comprobación verifico que la sesión que indican
+            #las cookies del usuario no está caducada. Si no existen se
+            #da por hecho que no ha iniciado sesión. En ambos casos, habrá
+            #que iniciarla.
+            #
+            #Obtengo tipo de Cookie : local o OAuth
+            idTipo=request.cookies.get('tipoLogin')
+            #Obtengo valor Cookie
+            idSesion=request.cookies.get('SessionId')
+            #Inicializo nombreUsuario
+            nombreUsuario=None
+
+            if idTipo=="local":
+                #CADUCIDAD - BORRO Y ACTUALIZO
+                sehaborrado=UserHandler.checkCookieStatus(idSesion)
+                #Si la cookie ha caducado, me mostrara None como Usuario
+                nombreUsuario = UserHandler.getCookieUserName(idSesion)
+            elif idTipo=="oauth":
+                #CADUCIDAD - BORRO Y ACTUALIZO
+                sehaborrado=OAuthHandler.checkCookieStatus(idSesion)
+                #Si la cookie ha caducado, me mostrara None como Usuario
+                idUsuario = OAuthHandler.getCookieUserName(idSesion)
+                nombreUsuario = OAuthHandler.getUserName(idUsuario)
+
+            #DEBUG. Muesto info
+            print "------CookieCheck----------"
+            print "Tipo Sesion: " + str(idTipo)
+            print "SESION: " + str(idSesion)
+            print "Usuario: " + str(nombreUsuario)
+            try:
+                print "Ha caducado: " + str(sehaborrado)
+            except UnboundLocalError:
+                print "no hay cookies"
+            print "---------------------------"
+
+            #Si el nombre de usuario es None, significa que la sesion ha
+            #caducado o que no existe. Hay que hacer login.
+            if nombreUsuario == None:
+                print "La sesión no existe o ha caducado."
+                print "Por favor, inicie sesión."
+                return redirect(url_for('webLogin'))
+            else:
+                print "Sesión válida. Hola " + nombreUsuario
+    #You can handle 404s difeerently here if u want.
+    else:
+        #404
+        print "La pagina no existe. Redirigiendo..."
+        return redirect(url_for('webMain'))
+
+
+#Función utilizada en view functions para obtener el nombre del 
+#usuario que está conectado. 
+#Devolverá el nombre del usuario conectado o None si la sesión
+#ha caducado o no existe.
+#Similar a check_cookies() pero sin comprobar si las cookies han
+#caducado.
+def getSessionUserName(request):
+    #Obtengo tipo de Cookie : local o OAuth
+    idTipo=request.cookies.get('tipoLogin')
+    #Obtengo valor Cookie
+    idSesion=request.cookies.get('SessionId')
+    #Inicializo nombreUsuario
+    nombreUsuario=None
+    if idTipo=="local":
+        #Si la cookie ha caducado, me mostrara None como Usuario
+        nombreUsuario = UserHandler.getCookieUserName(idSesion)
+    elif idTipo=="oauth":
+        #Si la cookie ha caducado, me mostrara None como Usuario
+        idUsuario = OAuthHandler.getCookieUserName(idSesion)
+        nombreUsuario = OAuthHandler.getUserName(idUsuario)
+    #DEBUG. Muesto info
+    print "------getSessionUser()----------"
+    print "Tipo Sesion: " + str(idTipo)
+    print "SESION: " + str(idSesion)
+    print "Usuario: " + str(nombreUsuario)
+    print "--------------------------------"
+
+    return nombreUsuario
+
 
 """
    ___    _         _   _     
@@ -74,12 +221,14 @@ DBHandler.reload()
 """
 #LOGIN por OAuth de Google
 @app.route("/jsoauthlogin/")
+@no_cookie_check
 def jsOAuthLogin():
     #CLIENT_ID="933060102795-0hf4m6v3cuq4ocvubaide7ouqui2l4lg.apps.googleusercontent.com"
     return render_template("jsoauthlogin.html")
 
 #VERIFICAR datos e iniciar sesion
 @app.route("/jsoauthdata/", methods=['POST'])
+@no_cookie_check
 def jsOAuthData():
     #Obtener datos enviados por cliente.
     token=request.form['idtoken']
@@ -191,6 +340,7 @@ def jsOAuthData():
 #Obtenemos datos del cliente y creamos cuenta a partir
 #de los mismos.
 @app.route("/register", methods=['GET','POST'])
+@no_cookie_check
 def webRegister():
     print "/register - METODO: " + str(request.method)
 
@@ -233,43 +383,44 @@ def webRegister():
              |___/         
 """
 #Login
-@app.route("/login")
+@app.route("/login", methods=['GET','POST'])
+@no_cookie_check
 def webLogin():
-    return render_template("login.html")
+    if request.method == 'GET':
+        return render_template("login.html")
 
-@app.route("/login", methods=['POST'])
-def webLogin_post():
-    #Los convierto a string pues estrán en tipo 'unicode'
-    user=str(request.form['user'])
-    #user=request.args.get('user','default',type=str)
-    passw=str(request.form['pass'])
-    #passw=request.args.get('pass','default',type=str)
-    
-    #DEBUG
-    print "DEBUG - /login"
-    print "user - type: " + str(type(user))
-    print "user: " + str(user)
-    print "pass - type: " + str(type(passw))
-    print "pass: " + str(passw)
+    elif request.method == 'POST':
+        #Los convierto a string pues estrán en tipo 'unicode'
+        user=str(request.form['user'])
+        #user=request.args.get('user','default',type=str)
+        passw=str(request.form['pass'])
+        #passw=request.args.get('pass','default',type=str)
+        
+        #DEBUG
+        print "DEBUG - /login"
+        print "user - type: " + str(type(user))
+        print "user: " + str(user)
+        print "pass - type: " + str(type(passw))
+        print "pass: " + str(passw)
 
-    #Creo la respuesta que devolveré al cliente.
-    #Esta respuesta estrá compuesta por el resultado
-    #devuelto por la función render_template().
-    #A esta respuesta le añadiré la cookie generada como resultado del 
-    #inicio de sesión, si este es satisfactorio.
-    resp = make_response(redirect(url_for('webMain')))
+        #Creo la respuesta que devolveré al cliente.
+        #Esta respuesta estrá compuesta por el resultado
+        #devuelto por la función render_template().
+        #A esta respuesta le añadiré la cookie generada como resultado del 
+        #inicio de sesión, si este es satisfactorio.
+        resp = make_response(redirect(url_for('webMain')))
 
-    #Obtengo cookie resultado de log in
-    cookieVal=UserHandler.login(user,passw)
-    #Si se ha iniciado sesion, el valor de 
-    #cookieVal será != -1
-    print "DEBUG - Cookie: " + str(cookieVal)
-    if cookieVal >= 0:
-        resp.set_cookie('SessionId', cookieVal)
-        resp.set_cookie('tipoLogin', 'local')
-    
-    #return redirect(url_for('webMain'))
-    return resp
+        #Obtengo cookie resultado de log in
+        cookieVal=UserHandler.login(user,passw)
+        #Si se ha iniciado sesion, el valor de 
+        #cookieVal será != -1
+        print "DEBUG - Cookie: " + str(cookieVal)
+        if cookieVal >= 0:
+            resp.set_cookie('SessionId', cookieVal)
+            resp.set_cookie('tipoLogin', 'local')
+        
+        #return redirect(url_for('webMain'))
+        return resp
 
 """
   _                            _   
@@ -480,6 +631,7 @@ def webAccount():
 @app.route("/") 
 def webMain():
 
+    """
     #Cookies
     #Obtengo tipo de Cookie : local o OAuth
     idTipo=request.cookies.get('tipoLogin')
@@ -503,6 +655,9 @@ def webMain():
     print "Tipo Sesion: " + str(idTipo)
     print "SESION: " + str(idSesion)
     print "Usuario: " + str(nombreUsuario)
+    """
+    nombreUsuario = getSessionUserName(request)
+    print "MAIN: Usuario - " + str(nombreUsuario)
     #---
     response = make_response(render_template("index.html",\
     DBName = web_functions.getDBName(DBHandler),\
