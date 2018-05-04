@@ -39,17 +39,18 @@ UserHandler = UserManager()
 OAuthHandler = OAuthUserManager()
 
 
+#DEPRECATED - Guardar Manejador preferido en cookies de cliente.
 #Manejador a emplear. Será elegido en el
 #menú principal. Por defecto Beebotte.
 #DBHandler = SQLHandler
-DBHandler = MongoHandler
+#DBHandler = MongoHandler
 #DBHandler = BeeHandler
-
+#
 #Cargo en en las listas globales de DBHandler
 #los datos de las bases de datos inicialmente,
 #de forma que cuando acceda al menú principal por
 #primera vez las listas ya estén pobladas
-DBHandler.reload()
+#DBHandler.reload()
 
 #***************************************************************************
 #	               .-')      ('-.  _  .-')    .-')    
@@ -173,13 +174,16 @@ def check_cookies(*args, **kwargs):
                 print "Por favor, inicie sesión."
                 return redirect(url_for('webLogin'))
             else:
-                print "Sesión válida. Hola " + nombreUsuario
+                print "Sesión válida. Hola " + str(nombreUsuario)
     #You can handle 404s difeerently here if u want.
     else:
         #404
         print "La pagina no existe. Redirigiendo..."
         return redirect(url_for('webMain'))
 
+"""
+    GETTERS
+"""
 
 #Función utilizada en view functions para obtener el nombre del 
 #usuario que está conectado. 
@@ -187,7 +191,7 @@ def check_cookies(*args, **kwargs):
 #ha caducado o no existe.
 #Similar a check_cookies() pero sin comprobar si las cookies han
 #caducado.
-def getSessionUserName(request):
+def getCookieUserName(request):
     #Obtengo tipo de Cookie : local o OAuth
     idTipo=request.cookies.get('tipoLogin')
     #Obtengo valor Cookie
@@ -210,6 +214,35 @@ def getSessionUserName(request):
 
     return nombreUsuario
 
+#Dada una petición (request), obtendremos de ella las cookies del cliente.
+#De las mismas obtendremos el valot 'db', el cual contiene la base de datos que
+#el cliente quiere emplear para sus consultas.
+def getCookieDB(request):
+    db = str(request.cookies.get('db'))
+
+    print "------getCookieUser()----------"
+    print "DB del cliente: "
+    if db == "MySQL":
+        #retorno la instancia del manejador
+        #de la base de datos de MySQL
+        print "MySQL"
+        return SQLHandler
+    elif db == "Beebotte":
+        #retorno la instancia del manejador
+        #de la base de datos de MySQL
+        print "Beebotte"
+        return BeeHandler
+    elif db == "MongoDB":
+        #retorno la instancia del manejador
+        #de la base de datos de MySQL
+        print "MongoDB"
+        return MongoHandler
+    #Valor por defecto: MongoDB (puede ser cualquiera)
+    else:
+        #retorno la instancia del manejador
+        #de la base de datos de MySQL
+        print "Desconocida"
+        return MongoHandler
 
 """
    ___    _         _   _     
@@ -656,7 +689,10 @@ def webMain():
     print "SESION: " + str(idSesion)
     print "Usuario: " + str(nombreUsuario)
     """
-    nombreUsuario = getSessionUserName(request)
+    nombreUsuario = getCookieUserName(request)
+    #Obtengo el manejador de la BD a 
+    #utilizar según la cookie del usuario.
+    DBHandler = getCookieDB(request)
     print "MAIN: Usuario - " + str(nombreUsuario)
     #---
     response = make_response(render_template("index.html",\
@@ -708,6 +744,10 @@ def webMain_post():
         return redirect(url_for('createGraph'))
 
     if opcion == "plotly":
+        #Obtengo el manejador de la BD a 
+        #utilizar según la cookie del usuario.
+        DBHandler = getCookieDB(request)
+        print "pltly - DBHANDLER: " + str(DBHandler)
         #return redirect(url_for('plotly'))
         plotlyHandler=plotly_manager.PlotlyHandler()
         plotlyHandler.crearGrafo(DBHandler)
@@ -732,29 +772,53 @@ def webDBSelect_post():
     #Declaro DBHandler como global para que
     #su valor realmente cambie en todo el programa,
     #no solo dentro de esta funcion.
-    global DBHandler
+    #
+    #Para permitir realmente la concurrencia de usuarios, en
+    #vez de emplear la variable DBHandler, vuyo valor se compartirá
+    #entre todos los usuarios conectados, haremos que la base de datos
+    #a emplear se almacene en las cookies del usuario, de forma que
+    #cada uno tenga su valor.
+    #
+    #Creo la respuesta a la que asignaré las cookies
+    response = make_response(redirect(url_for('webMain')))
+    #DEBUG
     if debug:
         print "---"+opcion+"---"
+    #Asigno la base de datos seleccionada al cliente
     if opcion == "MySQL":
-        DBHandler = SQLHandler
+        #DBHandler = SQLHandler
+        pass
     elif opcion == "Beebotte":
-        DBHandler = BeeHandler
+        #DBHandler = BeeHandler
+        pass
     elif opcion == "MongoDB":
-        DBHandler = MongoHandler
+        #DBHandler = MongoHandler
+        pass
     else:
         print "DB seleccionada descon."
     #Una vez seleccionada la base de datos,
     #utilizo la funcion reload() para que 
     #pueble las listas globales con los numeros
     #aleatorios y su fecha de obtencion
-    DBHandler.reload()
+    #DBHandler.reload()
+    #Guardo la base de datos seleccionada en la cookie
+    #del cliente.
+    #Utilizare la funcion getCookieDB() para, dada
+    #la peticion, obtener la cookie del cliente y
+    #de alli la base de datos a emplear
+    response.set_cookie('db',opcion)
     #return render_template("DBselect.html")
-    return redirect(url_for('webMain'))
+    return response
 
 #TABLAS
 @app.route("/tablas")
 def webTabla():
-    #return "Tablas: PLACEHOLDER"
+    #Obtengo el manejador de base de datos
+    #de la base de datos que haya elegido 
+    #el cliente (especificado en su cookie).
+    #Si no tiene ninguna, se empleara MongoDB
+    DBHandler = getCookieDB(request)
+
     return render_template("tablas.html",\
     tablaHTML = web_presentation.getTableHTML(DBHandler, debug),\
     DBName = web_functions.getDBName(DBHandler))
@@ -766,7 +830,10 @@ def webTabla_post():
 #UMBRAL
 @app.route("/umbral/<umb>")
 def webUmbral(umb):
-    #return "Umbral: PLACEHOLDER"
+    #Obtengo el manejador de la BD a 
+    #utilizar según la cookie del usuario.
+    DBHandler = getCookieDB(request)
+    #Obtengo el umbral
     try:
         trueUmbral = float(umb)
     except ValueError:
@@ -791,7 +858,10 @@ def webUmbral_post():
 #MEDIA
 @app.route("/media")
 def webMedia():
-    #return "Media: PLACEHOLDER"
+    #Obtengo el manejador de la BD a 
+    #utilizar según la cookie del usuario.
+    DBHandler = getCookieDB(request)
+
     return render_template("media.html",\
     resMedia = web_presentation.getMediaHTML(DBHandler, debug),\
     DBName = web_functions.getDBName(DBHandler))
@@ -814,6 +884,9 @@ def webGrafoBee_post():
 #GRAFOS LOCALES, los creo con la clase GraphMaker en graph_maker.py
 @app.route("/grafo")
 def createGraph():
+    #Obtengo el manejador de la BD a 
+    #utilizar según la cookie del usuario.
+    DBHandler = getCookieDB(request)
     
     #Las urls pueden tener las dos siguientes formas:
     #http://0.0.0.0:5000/grafo
@@ -914,6 +987,7 @@ if __name__ == "__main__":
    MongoHandler,120, debug) 
    
    #prueba de las funcionalidades
+   """
    if debug:
        r1 = web_functions.umbral(uploader.getSQLHandler(), 50, True) 
        r2 = web_functions.umbral(uploader.getBeeHandler(), 50, True) 
@@ -931,7 +1005,7 @@ if __name__ == "__main__":
        print media1
        print "media Bee: "
        print media2
-   
+   """
    
    #Arrancar el el servidor
    app.run(host='0.0.0.0')
