@@ -84,6 +84,41 @@ insertarán su código al heredar de topbar_base.html*/
     margin: 10px 25px;
 }
 
+/* TABLAS */
+
+/*Tabla*/
+.cuerpo table {
+    border-collapse: collapse;
+    width: 50%;
+}
+
+/*Celdas individales y cabeera*/
+.cuerpo th, td {
+    text-align: left;
+    padding: 5px;
+}
+
+/*Filas*/
+.cuerpo tr
+{
+    background-color: black;
+    color: white;
+}
+
+/*Filas pares*/
+.cuerpo tr:nth-child(even)
+{
+    background-color: white;
+    color: black;
+}
+
+/*Cabecera*/
+.cuerpo th {
+    background-color: #4CAF50;
+    color: white;
+}
+
+
 /*accountInfo.html*/
 
 .cuerpo div.userInfoBlock {

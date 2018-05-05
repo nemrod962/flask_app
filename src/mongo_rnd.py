@@ -34,7 +34,7 @@ class MongoHandler(MongoBasic):
     
     #Constructor
     #Inicializo las variables.
-    def __init__(self, coleccion="NumberList", limite=1024, debug=True):
+    def __init__(self, coleccion="NumberList", limite=1024, debug=False):
         MongoBasic.__init__(self,coleccion,limite,debug)
         #para mensajes de debug
         self.debug=debug

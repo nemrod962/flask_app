@@ -34,7 +34,7 @@ from mongo_base import MongoBasic
 class UserManager(MongoBasic):
     
     #Contructor
-    def __init__(self, coleccionUsuarios="usuariosFlask", debug=True):
+    def __init__(self, coleccionUsuarios="usuariosFlask", debug=False):
         MongoBasic.__init__(self, coleccionUsuarios, 1024, debug)
 
         self.campoUsername="username"

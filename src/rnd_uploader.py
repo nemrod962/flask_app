@@ -110,6 +110,12 @@ class RndUploader:
             #BORRA ESTO!-----------------------------
             #"""
 
+            if self.__debug:
+                print "rnd_uploader - Las listas en rnd_uploader: "
+                print "BeeHandler : " + str(self.__BeeHand.listaGlobalNumero)
+                print "SQLHandler : " + str(self.__SQLHand.listaGlobalNumero)
+                print "MongoHandler : " + str(self.__MongoHand.listaGlobalNumero)
+
             #Escribir
             if(self.__enable.value):
                 

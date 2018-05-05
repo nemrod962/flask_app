@@ -226,22 +226,38 @@ def getCookieDB(request):
         #retorno la instancia del manejador
         #de la base de datos de MySQL
         print "MySQL"
+        #Actualizo las listas locales
+        #para que contengan los números 
+        #y las fechas actualizadas
+        SQLHandler.reload()
         return SQLHandler
     elif db == "Beebotte":
         #retorno la instancia del manejador
         #de la base de datos de MySQL
         print "Beebotte"
+        #Actualizo las listas locales
+        #para que contengan los números 
+        #y las fechas actualizadas
+        BeeHandler.reload()
         return BeeHandler
     elif db == "MongoDB":
         #retorno la instancia del manejador
         #de la base de datos de MySQL
         print "MongoDB"
+        #Actualizo las listas locales
+        #para que contengan los números 
+        #y las fechas actualizadas
+        MongoHandler.reload()
         return MongoHandler
     #Valor por defecto: MongoDB (puede ser cualquiera)
     else:
         #retorno la instancia del manejador
         #de la base de datos de MySQL
         print "Desconocida"
+        #Actualizo las listas locales
+        #para que contengan los números 
+        #y las fechas actualizadas
+        MongoHandler.reload()
         return MongoHandler
 
 """
@@ -819,7 +835,7 @@ def webTabla():
     #Si no tiene ninguna, se empleara MongoDB
     DBHandler = getCookieDB(request)
 
-    return render_template("tablas.html",\
+    return render_template("tablas.html.old",\
     tablaHTML = web_presentation.getTableHTML(DBHandler, debug),\
     DBName = web_functions.getDBName(DBHandler))
 
@@ -968,6 +984,19 @@ def createGraph_post():
     #redirigimos al menú principal.
     return redirect(url_for('webMain'))
 
+
+@app.route('/prueba')
+@no_cookie_check
+def pruebajs():
+    DBHandler = getCookieDB(request)
+    listaNum = DBHandler.listaGlobalNumero
+    listaDate = DBHandler.listaGlobalFecha
+    DBName = web_functions.getDBSimpleName(DBHandler)
+    print "lista en pruebajs: " + str(listaNum)
+    return render_template("tablas.html", listaNum=listaNum,
+    listaDate=listaDate, DBName=DBName)
+
+
 if __name__ == "__main__":
 
    #Pregunto si se quiere activar al modo debug
@@ -986,8 +1015,14 @@ if __name__ == "__main__":
    uploader = rnd_uploader.RndUploader(app, SQLHandler, BeeHandler,\
    MongoHandler,120, debug) 
    
-   #prueba de las funcionalidades
+   if debug:
+       print "Las listas en main_flask: "
+       print "BeeHandler : " + str(BeeHandler.listaGlobalNumero)
+       print "SQLHandler : " + str(SQLHandler.listaGlobalNumero)
+       print "MongoHandler : " + str(MongoHandler.listaGlobalNumero)
+
    """
+   #prueba de las funcionalidades
    if debug:
        r1 = web_functions.umbral(uploader.getSQLHandler(), 50, True) 
        r2 = web_functions.umbral(uploader.getBeeHandler(), 50, True) 

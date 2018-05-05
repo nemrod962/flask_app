@@ -32,7 +32,7 @@ class OAuthUserManager(UserManager):
     #de sesión locales, trabajaré con las de la instancia de UserManager
     #recibida como parámetro, de forma que tendré toda la información de las
     #sesiones unificada.
-    def __init__(self, coleccionUsuariosOauth="usuariosOauth", mongoUserManager=None, debug=True):
+    def __init__(self, coleccionUsuariosOauth="usuariosOauth", mongoUserManager=None, debug=False):
     #def __init__(self, coleccionUsuariosOauth):
         #Igual que el de el padre pero cambiando la coleccion empleada
         #UserManager.__init__(self,coleccionUsuariosOauth,debug)
