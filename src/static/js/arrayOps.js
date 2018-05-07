@@ -173,6 +173,19 @@ function crearTabla(elem, listaCabeceras, listaListas) {
     //Empiezo en -1, ya que cuando i==-1 en lugar
     //de añadir una fila añadiré las cabeceras
     var numFilas = listaListas[0].length
+    
+    //Si listaListas solo es una lista con datos, 
+    //listaListas[0].length dará null, pues
+    //listaListas[0] será un elemento (string, number...)
+    //no un array. Si esto es así el siguiente bucle for
+    //no se ejecutará.
+    if(numFilas==null)
+    {
+        console.log("crearTabla() - el array de datos no contiene listas!");
+        console.log("ATENCION: no se puede crear la tabla.");
+        console.log("Formato de la lista de datos incorrecto.");
+    }
+
     for(var i=-1;i<numFilas;i++)
     {
         //console.log('i' + i);
@@ -219,35 +232,3 @@ function crearTabla(elem, listaCabeceras, listaListas) {
 }
 
 //---------------------------------------------------------------------------
-function crearTablaRandom(elem, listaCabeceras, listaListas)
-{
-    //Dar formato a las "listas" recibidas
-    listaCabeceras = flaskToArray(listaCabeceras)
-    for(indice in listaListas)
-    {
-        listaListas[indice] = flaskToArray(listaListas[indice])
-    }
-
-    //DEBUG
-    console.log('tras conversion: ')
-    console.log('CAB: ' + listaCabeceras)
-    console.log('primer elem: ' + listaCabeceras[0])
-    for(indice in listaListas)
-    {
-        console.log('DATOS[' +indice+']: ' + listaListas[indice])
-        console.log('primer elem: ' + listaListas[indice][0])
-    }
-    
-    //Crear lista con las fechas en formato
-    var listaFechaFormato = [];
-    if(typeof listaDatos[1][0] == 'number')
-    {
-        listaFechaFormato = parseDateArrayToDatetime(listaDatos[1]);
-        console.log('fechFOrmato: ' + listaFechaFormato);
-        listaCabeceras.push("fecha formato");
-        listaDatos.push(listaFechaFormato);
-    }
-
-    crearTabla(elem, listaCabeceras, listaDatos)
-
-}

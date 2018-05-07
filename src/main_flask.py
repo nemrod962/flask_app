@@ -860,7 +860,7 @@ def webUmbral(umb):
     if debug:
         print "str: " + umb
         print "float: " + str(trueUmbral)
-    return render_template("umbral.html",\
+    return render_template("umbral.html.old",\
     umbralHTML = umb,\
     resUmbral = web_presentation.getUmbralHTML(DBHandler, trueUmbral , debug),\
     DBName = web_functions.getDBName(DBHandler))
@@ -984,7 +984,7 @@ def createGraph_post():
     #redirigimos al menú principal.
     return redirect(url_for('webMain'))
 
-
+#TABLAS_JS
 @app.route('/prueba')
 @no_cookie_check
 def pruebajs():
@@ -996,6 +996,33 @@ def pruebajs():
     return render_template("tablas.html", listaNum=listaNum,
     listaDate=listaDate, DBName=DBName)
 
+#UMBRAL_JS
+@app.route("/prueba2/<umb>")
+@no_cookie_check
+def pruebajs2(umb):
+    #Obtengo el manejador de la BD a 
+    #utilizar según la cookie del usuario.
+    DBHandler = getCookieDB(request)
+    listaNum = DBHandler.listaGlobalNumero
+    listaDate = DBHandler.listaGlobalFecha
+    DBName = web_functions.getDBSimpleName(DBHandler)
+    #Obtengo el umbral
+    try:
+        trueUmbral = float(umb)
+    except ValueError:
+        if debug:
+            print "NO SE HA INTRODUCIDO NUMERO COMO UMBRAL!"
+        umb = "Debe introducirse un numero. Usando valor por defecto: 50."
+        trueUmbral = 50
+    if debug:
+        print "str: " + umb
+        print "float: " + str(trueUmbral)
+    return render_template("umbral.html",\
+    listaNum=listaNum,
+    listaDate=listaDate, 
+    DBName=DBName,
+    umbral= umb)
+    #resUmbral = "<div>HOLA</div>")
 
 if __name__ == "__main__":
 

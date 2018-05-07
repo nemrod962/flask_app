@@ -2,6 +2,10 @@
 <html lang="es">
 <head>
     {# <meta name="viewport" content="width=device-width, initial-scale=1"> #}
+    {# Import jQuery #}
+    <script type= "text/javascript" 
+    src="{{ url_for('static',filename='jquery.js') }}">
+    </script>
     {# Enlace al archivo de estilo #}
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/style.css') }}">
     {# Codificación de caracteres para poder poner acentos #}

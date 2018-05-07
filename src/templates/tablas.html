@@ -14,12 +14,21 @@ para que Flask la interprete como código HTML-->
 <br>
 <div>Base de datos empleada: {{DBName}} </div>
 
-{#Importo script#}
-<script src='{{ url_for('static', filename='js/crearTablas.js') }}'>
+{#Importo scripts#}
+{# Operaciones basicas con listas para convertir las mismas
+de el formato en que las recibo desde flask a array en javascript.
+Dependencia de crearTablas.js#}
+<script src='{{ url_for('static', filename='js/arrayOps.js') }}'>
+</script>
+{# Crea tabla con los datos recibidos de flask. Emplea #}
+<script src='{{ url_for('static', filename='js/crearTablaNumRnd.js') }}'>
 </script>
 
 {#Llamo funciones del script importado#}
 <script>
+{#Recibo listas con los datos de flask.
+Estas listas recibidas no se reconocerán como arrays sino
+como strings, por lo que habrá que convertirlas.#}
 var listaNum = '{{listaNum}}'
 var listaDate = '{{listaDate}}'
 
