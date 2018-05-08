@@ -5,6 +5,21 @@
 datos a tratar.*/
 function crearTablaUmbral(elem, listasDatos, umbral)
 {
+    //TRATAMIENTO ARGUMENTOS RECIBIDOS
+    
+    //No hace falta parsearlo, pues se parsea
+    //en las funciones getResUmbralSuperior() y
+    //getResUmbralInferior().
+    //umbral=parseFloat(umbral);
+
+    //Compruebo si umbral es un numero
+    if(isNaN(umbral))
+    {
+        window.alert("El umbral introducido: " + umbral + " NO es válido.");
+        window.alert("Cambiando a valor por defecto: 50");
+        umbral=50;
+    }
+
     //Damos formato a listasDatos
     //listaDatos = [ listaNumeros, listaFechasMS]
     for(indice in listasDatos)
@@ -128,7 +143,13 @@ function getResUmbralSuperior(listasDatos, umbral)
     //la variable anterior.
     var resDateSup = 0;
     var resDateSupFormat = "placeholder";
-    //DEBIG
+    //Indica se se ha encontrado un resultado.
+    //Si por ejemplo se especifica como umbral
+    //500, no se va a encontrar ningún resultado.
+    //Si no se encuentra ningún resultado, deberá
+    //indicarse.
+    var resFound=false;
+    //DEBUG
     console.log('longitud listas: ');
     console.log('numeros: ' + longNumeros);
     console.log('fechas: ' + longFechas);
@@ -150,9 +171,21 @@ function getResUmbralSuperior(listasDatos, umbral)
                 resNumSup=listasDatos[0][index]
                 resDateSup=listasDatos[1][index]
                 resDateSupFormat=listasDatos[2][index]
+                //He encontrado al menos un resultado
+                resFound=true;
             }
         }
     }
+
+    //Si no se ha encontrado ningun resultado, 
+    //lo indico.
+    if(!resFound)
+    {
+        resNumSup=" - "
+        resDateSup=" - "
+        resDateSupFormat=" - "
+    }
+
     console.log("Umbral Superior:");
     console.log("Numero: " + resNumSup);
     console.log("Fecha: " + resDateSup);
@@ -180,7 +213,13 @@ function getResUmbralInferior(listasDatos, umbral)
     //la variable anterior.
     var resDateInf = 0;
     var resDateInfFormat = "placeholder";
-    //DEBIG
+    //Indica se se ha encontrado un resultado.
+    //Si por ejemplo se especifica como umbral
+    //500, no se va a encontrar ningún resultado.
+    //Si no se encuentra ningún resultado, deberá
+    //indicarse.
+    var resFound=false;
+    //DEBUG
     console.log('longitud listas: ');
     console.log('numeros: ' + longNumeros);
     console.log('fechas: ' + longFechas);
@@ -202,8 +241,19 @@ function getResUmbralInferior(listasDatos, umbral)
                 resNumInf=listasDatos[0][index]
                 resDateInf=listasDatos[1][index]
                 resDateInfFormat=listasDatos[2][index]
+                //He encontrado al menos un resultado
+                resFound=true;
             }
         }
+    }
+
+    //Si no se ha encontrado ningun resultado, 
+    //lo indico.
+    if(!resFound)
+    {
+        resNumInf=" - "
+        resDateInf=" - "
+        resDateInfFormat=" - "
     }
     console.log("Umbral Inferior:");
     console.log("Numero: " + resNumInf);

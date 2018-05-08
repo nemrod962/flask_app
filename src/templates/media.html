@@ -4,12 +4,46 @@
 <title>Media</title>
 <div>Media:  </div>
 <br>
-<!--Hay que poner el '| safe' detrás de la variable para que Flask la interprete como código HTML-->
-{{ resMedia | safe}}
+{#Se creará una tabla con el umbral en este elemento#}
+<div id="myTableDiv">
+</div>
 <br>
     <div>Base de datos empleada: {{DBName}} </div>
-<br>
-    <form action="{{ url_for('webMedia_post') }}" method="POST">
-        <input type="submit" name="volver" value="Menú Principal"><br>
-    </form>
+
+{#Importo scripts#}
+{# Operaciones basicas con listas para convertir las mismas
+de el formato en que las recibo desde flask a array en javascript.
+Dependencia de crearTablas.js#}
+<script src='{{ url_for('static', filename='js/arrayOps.js') }}'>
+</script>
+{# Crea tabla con los datos recibidos de flask. Emplea #}
+<script src='{{ url_for('static', filename='js/crearTablaMedia.js') }}'>
+</script>
+
+{#Llamo funciones del script importado#}
+<script>
+    {#Recibo listas con los datos de flask.
+    Estas listas recibidas no se reconocerán como arrays sino
+    como strings, por lo que habrá que convertirlas.#}
+    var listaNum = '{{listaNum}}'
+    var listaDate = '{{listaDate}}'
+
+    var listaCab = ["numeros", "fechas"]
+
+    var listaDatos = [listaNum, listaDate]
+
+    console.log("***")
+    console.log('antes funcion: cab - ' + listaCab)
+    console.log('antes funcion: dat - ' + listaDatos)
+
+    window.onload =
+    crearTablaMedia(document.getElementById('myTableDiv'),listaDatos);
+    {#window.onload =
+    crearTablaRandom(document.getElementById('myTableDiv'),listaCab,listaDatos)
+    #}
+</script>
+
 {% endblock %}
+                                                                                                     47,14
+                                                                                                     Final
+

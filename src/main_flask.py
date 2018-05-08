@@ -878,7 +878,7 @@ def webMedia():
     #utilizar según la cookie del usuario.
     DBHandler = getCookieDB(request)
 
-    return render_template("media.html",\
+    return render_template("media.html.old",\
     resMedia = web_presentation.getMediaHTML(DBHandler, debug),\
     DBName = web_functions.getDBName(DBHandler))
 
@@ -1012,7 +1012,7 @@ def pruebajs2(umb):
     except ValueError:
         if debug:
             print "NO SE HA INTRODUCIDO NUMERO COMO UMBRAL!"
-        umb = "Debe introducirse un numero. Usando valor por defecto: 50."
+        #umb = "Debe introducirse un numero. Usando valor por defecto: 50."
         trueUmbral = 50
     if debug:
         print "str: " + umb
@@ -1024,6 +1024,19 @@ def pruebajs2(umb):
     umbral= umb)
     #resUmbral = "<div>HOLA</div>")
 
+#Media
+@app.route('/prueba3')
+@no_cookie_check
+def pruebajs3():
+    DBHandler = getCookieDB(request)
+    listaNum = DBHandler.listaGlobalNumero
+    listaDate = DBHandler.listaGlobalFecha
+    DBName = web_functions.getDBSimpleName(DBHandler)
+    print "lista en pruebajs: " + str(listaNum)
+    return render_template("media.html", listaNum=listaNum,
+    listaDate=listaDate, DBName=DBName)
+
+    
 if __name__ == "__main__":
 
    #Pregunto si se quiere activar al modo debug
