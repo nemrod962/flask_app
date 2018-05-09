@@ -84,6 +84,25 @@ insertarán su código al heredar de topbar_base.html*/
     margin: 10px 25px;
 }
 
+/* TEXTO (<span>) */
+
+.cuerpo span {
+    color: white;
+}
+
+/*Enlaces (<a>)*/
+.cuerpo a{
+    color:red;
+}
+
+.cuerpo a:visited{
+    color:red;
+}
+
+.cuerpo a:hover{
+    color:yellow;
+}
+
 /* TABLAS */
 
 /*Tabla*/
@@ -129,3 +148,9 @@ insertarán su código al heredar de topbar_base.html*/
     color:red;
 }
 
+/* index.html (menú principal) */
+
+.cuerpo input[type="checkbox"]{
+    color: blue;
+    background: blue;
+}

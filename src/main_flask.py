@@ -178,7 +178,7 @@ def check_cookies(*args, **kwargs):
     #You can handle 404s difeerently here if u want.
     else:
         #404
-        print "La pagina no existe. Redirigiendo..."
+        print "La pagina "+ request.path +" no existe. Redirigiendo..."
         return redirect(url_for('webMain'))
 
 """
@@ -890,7 +890,7 @@ def webMedia_post():
 @app.route("/grafoBee")
 def webGrafoBee():
     #return "Grafo: PLACEHOLDER"
-    return render_template("grafoBee.html",\
+    return render_template("grafoBee.html.old",\
     resGrafo = web_presentation.getGrafoHTML(debug))
 
 @app.route("/grafoBee", methods=['POST'])
@@ -1035,6 +1035,12 @@ def pruebajs3():
     print "lista en pruebajs: " + str(listaNum)
     return render_template("media.html", listaNum=listaNum,
     listaDate=listaDate, DBName=DBName)
+
+#Extaccion
+@app.route('/prueba4')
+@no_cookie_check
+def pruebajs4():
+    return render_template("grafoBee.html")
 
     
 if __name__ == "__main__":
