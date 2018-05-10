@@ -1036,11 +1036,23 @@ def pruebajs3():
     return render_template("media.html", listaNum=listaNum,
     listaDate=listaDate, DBName=DBName)
 
-#Extaccion
+#Graficas Beebotte
 @app.route('/prueba4')
 @no_cookie_check
 def pruebajs4():
     return render_template("grafoBee.html")
+
+#Graficas Plotly
+@app.route('/prueba5')
+@no_cookie_check
+def pruebajs5():
+    DBHandler = getCookieDB(request)
+    listaNum = DBHandler.listaGlobalNumero
+    listaDate = DBHandler.listaGlobalFecha
+    DBName = web_functions.getDBSimpleName(DBHandler)
+    
+    return render_template("grafoJs.html", listaNum=listaNum,
+    listaDate=listaDate, DBName=DBName);
 
     
 if __name__ == "__main__":
