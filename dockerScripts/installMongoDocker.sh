@@ -20,7 +20,7 @@ sudo docker pull mongo
 sudo docker run --name $CNAME -p $NPORT:27017 -d mongo --auth
 # add initial admin user. Default is 'root' as user and password
 # to change them. Modify the mongoAddAdminConfig file
-sudo docker exec -it $CNAME mongo admin < mongoAddAdminConfig
+sudo docker exec -i $CNAME mongo admin < mongoAddAdminConfig
 
 
 #-------------------------
