@@ -1,0 +1,8 @@
+El orden de las pruebas consiste en el siguiente:
+1.- main-sse.py: código base de la prueba. Obtenido de internet. Hay que cambiar
+un import (gevent.wsgi -> gevent.pywsgi).
+2.- mod-main-sse: Se han añadido comentarios y algún mensaje de debug para
+entender mejor el código.
+3.- light-main.py, sse_handler.py: Se ha separado funcionalidades. sse_handler
+se encarga de generar y entregar los SSE. light_main es simplemente una interfaz
+flask para probar estas funcionalidades.
