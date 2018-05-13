@@ -21,6 +21,13 @@ from mongo_oauth import OAuthUserManager
 import graph_maker
 #Graficas plot.ly
 import plotly_manager
+#gevent. Para lanzar la aplicación
+#en varios procesos. Uno de ellos se 
+#encargará de manejar y enviar los
+#sse (server side events).
+#En lugar de emplear app.run(),
+#se usará la clase WSGIServer
+from gevent.pywsgi import WSGIServer
 
 #Creo instancia de Flask
 app = Flask(__name__) 
@@ -165,6 +172,9 @@ def check_cookies(*args, **kwargs):
                 print "Ha caducado: " + str(sehaborrado)
             except UnboundLocalError:
                 print "no hay cookies"
+            #TEMP
+            print "Sesiones Locales: " + str(UserHandler.listaSesiones)
+            print "Sesiones OAUTH: " + str(OAuthHandler.listaSesiones)
             print "---------------------------"
 
             #Si el nombre de usuario es None, significa que la sesion ha
@@ -206,7 +216,7 @@ def getCookieUserName(request):
         idUsuario = OAuthHandler.getCookieUserName(idSesion)
         nombreUsuario = OAuthHandler.getUserName(idUsuario)
     #DEBUG. Muesto info
-    print "------getSessionUser()----------"
+    print "------getCookieUserName()----------"
     print "Tipo Sesion: " + str(idTipo)
     print "SESION: " + str(idSesion)
     print "Usuario: " + str(nombreUsuario)
@@ -220,7 +230,7 @@ def getCookieUserName(request):
 def getCookieDB(request):
     db = str(request.cookies.get('db'))
 
-    print "------getCookieUser()----------"
+    print "------getCookieDB()----------"
     print "DB del cliente: "
     if db == "MySQL":
         #retorno la instancia del manejador
@@ -233,7 +243,7 @@ def getCookieDB(request):
         return SQLHandler
     elif db == "Beebotte":
         #retorno la instancia del manejador
-        #de la base de datos de MySQL
+        #de la base de datos de Beebotte
         print "Beebotte"
         #Actualizo las listas locales
         #para que contengan los números 
@@ -242,7 +252,7 @@ def getCookieDB(request):
         return BeeHandler
     elif db == "MongoDB":
         #retorno la instancia del manejador
-        #de la base de datos de MySQL
+        #de la base de datos de MongoDB
         print "MongoDB"
         #Actualizo las listas locales
         #para que contengan los números 
@@ -252,7 +262,7 @@ def getCookieDB(request):
     #Valor por defecto: MongoDB (puede ser cualquiera)
     else:
         #retorno la instancia del manejador
-        #de la base de datos de MySQL
+        #de la base de datos por defecto.
         print "Desconocida"
         #Actualizo las listas locales
         #para que contengan los números 
@@ -1057,31 +1067,31 @@ def pruebajs5():
     
 if __name__ == "__main__":
 
-   #Pregunto si se quiere activar al modo debug
-   global debug
-   
-   debug_str = raw_input("Activar Modo Debug?[Y\N]: ")
-   
-   if debug_str == "Y" or debug_str == "y":
+    #Pregunto si se quiere activar al modo debug
+    global debug
+
+    debug_str = raw_input("Activar Modo Debug?[Y\N]: ")
+
+    if debug_str == "Y" or debug_str == "y":
        debug = True
-   else:
+    else:
        debug = False
 
 
-   #Iniciar y lanzar proceso de carga de datos en las BBDD
-   #LOS MANEJADORES DE LAS DBs SE INICIALIZAN EN SU CONSTRUCTOR
-   uploader = rnd_uploader.RndUploader(app, SQLHandler, BeeHandler,\
-   MongoHandler,120, debug) 
-   
-   if debug:
+    #Iniciar y lanzar proceso de carga de datos en las BBDD
+    #LOS MANEJADORES DE LAS DBs SE INICIALIZAN EN SU CONSTRUCTOR
+    uploader = rnd_uploader.RndUploader(app, SQLHandler, BeeHandler,\
+    MongoHandler,120, debug) 
+
+    if debug:
        print "Las listas en main_flask: "
        print "BeeHandler : " + str(BeeHandler.listaGlobalNumero)
        print "SQLHandler : " + str(SQLHandler.listaGlobalNumero)
        print "MongoHandler : " + str(MongoHandler.listaGlobalNumero)
 
-   """
-   #prueba de las funcionalidades
-   if debug:
+    """
+    #prueba de las funcionalidades
+    if debug:
        r1 = web_functions.umbral(uploader.getSQLHandler(), 50, True) 
        r2 = web_functions.umbral(uploader.getBeeHandler(), 50, True) 
        r3 = web_functions.umbral(None, 50) 
@@ -1098,14 +1108,28 @@ if __name__ == "__main__":
        print media1
        print "media Bee: "
        print media2
-   """
-   
-   #Arrancar el el servidor
-   app.run(host='0.0.0.0')
+    """
 
-    
-   #señal de finalizar al proceso de subida de datos
-   #uploader.enable = False
-   uploader.finalizar()
+    #Arrancar el el servidor
+    #app.run(host='0.0.0.0')
 
-   print "FIN"
+    #IMPORTANTE. ES NECESARIO EMPLEAR WGSISserver de gevent
+    #para lanzar la aplicación.
+    #Al emplear SSE, vamos a necesitar un proceso que se encargue
+    #de estar trabajando con la cola de SSEs todo el tiempo.
+    #SI no ejecutamos la aplicación mediante varios procesos (usando
+    #gevent.WGSIServer), el único proceso de la aplicación se quedará 
+    #trabajando con esta cola de SSE y no podrá atender al cliente.
+    server = WSGIServer(("0.0.0.0", 5000), app)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print "Terminado por el usuario"
+
+
+
+    #señal de finalizar al proceso de subida de datos
+    #uploader.enable = False
+    uploader.finalizar()
+
+    print "FIN"
