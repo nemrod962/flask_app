@@ -28,6 +28,11 @@ import plotly_manager
 #En lugar de emplear app.run(),
 #se usará la clase WSGIServer
 from gevent.pywsgi import WSGIServer
+#Clase encargada de crear SSE y
+#enviarlos a los suscriptores.
+from sse_handler import SSEHandler
+#Threading
+from threading import Thread
 
 #Creo instancia de Flask
 app = Flask(__name__) 
@@ -45,6 +50,8 @@ UserHandler = UserManager()
 #Usuarios OAuth
 OAuthHandler = OAuthUserManager()
 
+#Encargado de manejar los SSE
+sseHandler = SSEHandler()
 
 #DEPRECATED - Guardar Manejador preferido en cookies de cliente.
 #Manejador a emplear. Será elegido en el
@@ -269,6 +276,32 @@ def getCookieDB(request):
         #y las fechas actualizadas
         MongoHandler.reload()
         return MongoHandler
+
+"""
+  ____                             ____             _     _____                 _       
+ / ___|  ___ _ ____   _____ _ __  / ___|  ___ _ __ | |_  | ____|_   _____ _ __ | |_ ___ 
+ \___ \ / _ \ '__\ \ / / _ \ '__| \___ \ / _ \ '_ \| __| |  _| \ \ / / _ \ '_ \| __/ __|
+  ___) |  __/ |   \ V /  __/ |     ___) |  __/ | | | |_  | |___ \ V /  __/ | | | |_\__ \
+ |____/ \___|_|    \_/ \___|_|    |____/ \___|_| |_|\__| |_____| \_/ \___|_| |_|\__|___/
+                                                                                        
+"""
+#El cliente se conectará a esta ruta para registrarse y que 
+#el servidor le envíe los SSE.
+@app.route('/sse')
+@no_cookie_check
+def webSSE():
+    return sseHandler.sendSSE()
+
+#test
+@app.route('/send')
+@no_cookie_check
+def sendTest():
+    return sseHandler.createSSE()
+
+@app.route('/send/<msg>')
+@no_cookie_check
+def sendTest2(msg):
+    return sseHandler.createSSE(msg)
 
 """
    ___    _         _   _     
@@ -1081,13 +1114,7 @@ if __name__ == "__main__":
     #Iniciar y lanzar proceso de carga de datos en las BBDD
     #LOS MANEJADORES DE LAS DBs SE INICIALIZAN EN SU CONSTRUCTOR
     uploader = rnd_uploader.RndUploader(app, SQLHandler, BeeHandler,\
-    MongoHandler,120, debug) 
-
-    if debug:
-       print "Las listas en main_flask: "
-       print "BeeHandler : " + str(BeeHandler.listaGlobalNumero)
-       print "SQLHandler : " + str(SQLHandler.listaGlobalNumero)
-       print "MongoHandler : " + str(MongoHandler.listaGlobalNumero)
+    MongoHandler,10, debug, sseHandler) 
 
     """
     #prueba de las funcionalidades
@@ -1120,16 +1147,27 @@ if __name__ == "__main__":
     #SI no ejecutamos la aplicación mediante varios procesos (usando
     #gevent.WGSIServer), el único proceso de la aplicación se quedará 
     #trabajando con esta cola de SSE y no podrá atender al cliente.
+    #
+    #UPDATE: es necesario emplear threaded=True en app.run en vez de
+    #WSGIServer, ya que este último no ofrece el rendimiento apropiado
+    #(se traba si hay más de dos conexiones por parte del cliente).
+    """
     server = WSGIServer(("0.0.0.0", 5000), app)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
         print "Terminado por el usuario"
-
-
+    """
+    app.run(host='0.0.0.0', threaded=True)
 
     #señal de finalizar al proceso de subida de datos
     #uploader.enable = False
     uploader.finalizar()
+
+    if True:
+       print "Las listas en main_flask: "
+       print "BeeHandler : " + str(BeeHandler.listaGlobalNumero)
+       print "SQLHandler : " + str(SQLHandler.listaGlobalNumero)
+       print "MongoHandler : " + str(MongoHandler.listaGlobalNumero)
 
     print "FIN"

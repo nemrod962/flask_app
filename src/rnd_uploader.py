@@ -10,6 +10,8 @@ como a Beebotte cada dos minutos
 #Process para crear procesos. la variable enable deberá ser
 #del tipo Value para que su valor se comparta entre procesos
 from multiprocessing import Process, Value
+#Hilos en vez de procesos
+from threading import Thread
 #para esperar los dos minutos
 import time
 #librerias propias para trabajar con las bases de datos
@@ -20,6 +22,10 @@ import mongo_rnd
 import web_fetcher.rnd_fetcher
 #libreria propia para trabajar con las fechas
 import date_handler
+#Clase encargada de crear SSE y
+#enviarlos a los suscriptores.
+from sse_handler import SSEHandler
+
 
 class RndUploader:
 
@@ -28,7 +34,7 @@ class RndUploader:
     #se seguiran subiendo datos cada 2 minutos.
     #cuando se cambie su valor a Flase parara.
     def __init__(self, flaskApp, handSQL, handBee, handMongo,\
-    tiempoSleep = 120, debug = False):
+    tiempoSleep = 120, debug = False,handSSE=None):
         #self.__enable -> __enable es privado gracias a '__'
         #para acceder al valor de enable utilizaremos
         #self.__enable.value
@@ -57,8 +63,15 @@ class RndUploader:
         #
         #Debo crearla una vez dentro del subproceso creado, es decir,
         #dentro de la función upload que es la que ejecuta el proceso.
-        #self.__MongoHand= handMongo
+        #UPDATE: ya no es necesario, ya que ahora rnd_uploader crea un hilo 
+        #en vez de un proceso, por lo que comparten memoria y no hace fork()
+        #de esta instancia recibida de MongoHandler.
+        self.__MongoHand= handMongo
         #self.__MongoHand= mongo_rnd.MongoHandler()
+
+        #Manejador de SSE
+        self.__SSEHand = handSSE
+
         #inicio proceso para subir los datos a las BBDD
         self.lanzar()
     
@@ -88,7 +101,10 @@ class RndUploader:
         #
         #Debo crearla una vez dentro del subproceso creado, es decir,
         #dentro de la función upload que es la que ejecuta el proceso.
-        self.__MongoHand= mongo_rnd.MongoHandler()
+        #UPDATE: Ya no es necesario, porque la funcion upload() se 
+        #lanza mediante un hilo  y no un proceso, por lo que ya no
+        #se realiza ningún fork() que es sobre lo que va este aviso.
+        #self.__MongoHand= mongo_rnd.MongoHandler()
 
         while self.__enable.value:
 
@@ -98,7 +114,7 @@ class RndUploader:
             if self.__debug:
                 print "num aleatorio a escribir: " + str(rnd)
 
-            #"""
+            """
             #BORRA ESTO!-----------------------------
             #Este trozo de codigo sirve para que esta
             #clase no suba numeros.
@@ -108,7 +124,7 @@ class RndUploader:
             self.__BeeHand.readRandom()
             self.__MongoHand.readRandom()
             #BORRA ESTO!-----------------------------
-            #"""
+            """
 
             if self.__debug:
                 print "rnd_uploader - Las listas en rnd_uploader: "
@@ -126,14 +142,22 @@ class RndUploader:
                 #este valor en las BDs.
                 if rnd > -1:
                     #escribo en Beebotte
-                    self.__BeeHand.writeRandom(rnd, self.__debug)
+                    #self.__BeeHand.writeRandom(rnd, self.__debug)
                     #solo necesario para la BD local, ya que Beebotte
                     #almacena automaticamente la fecha
                     fecha = str(date_handler.getDatetimeMs())
                     #escribo en MongoDB
-                    self.__MongoHand.writeRandom(rnd, fecha)
+                    #self.__MongoHand.writeRandom(rnd, fecha)
                     #escribo en MySQL
-                    self.__SQLHand.writeDataDB(rnd, fecha, self.__debug)
+                    #self.__SQLHand.writeDataDB(rnd, fecha, self.__debug)
+                    #---
+                    #envio SSE (notificación a los clientes con
+                    #el número obtenido)
+                    res = self.__SSEHand.createSSE("NUM.ALE. : " + str(rnd))
+                    #if self.__debug:
+                    if True:
+                        print "rnd_uploader - ENVIANDO SSE: " + str(rnd)
+                        print res
                 
                 #ACTUALIZO LOS DATOS EN LAS LISTAS LOCALES 
                 #DE LOS MANEJADORES
@@ -171,8 +195,10 @@ class RndUploader:
         #forma de decir que es una tupla de un solo elemento.
         #Sin esta coma (',') la creación del proceso falla
         #self.proceso = Process(target=self.upload, args=(self.__debug,) )
-        self.proceso = Process(target=self.upload)
+        #self.proceso = Process(target=self.upload)
+        self.proceso = Thread(target=self.upload)
         #inicio proceso
+        print "Soy un hilo (RndUploader.upload())."
         self.proceso.start()
         #proceso.join()
 

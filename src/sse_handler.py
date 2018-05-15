@@ -1,70 +1,120 @@
 # -*- coding: UTF-8 -*-
-import gevent
-from gevent.pywsgi import WSGIServer
-from gevent.queue import Queue
+import gevent #para gevent.spawn
+from Queue import Queue #Cola bloqueante
+from threading import Thread #Hilos en vez de procesos
 
 from flask import Flask, Response
 
 import time
 
 class SSEHandler(object):
-	
-	#lista con las colas que contendran los mensajes a enviar
-	#Es un atributo de clase, no de instancia, por
-	#eso va fuera del __init__()
-	#listaSuscripciones = []
-	#INIT
-	def __init__(self):
-		self.listaSuscripciones = []
+    
+    #INIT
+    def __init__(self):
+        #lista con las colas que contendran los mensajes a enviar
+        #Habrá una cola por suscriptor.
+        self.listaSuscripciones = []
 
-	def createSSE(self, msg="*empty message*"):
-		#Creo ~hilo que anadira el mensaje recibido a la lista
-		#de los SSE a enviar
-		gevent.spawn(self.__addEvent(msg))
-		return "OK"
+    #Añade SSE a las colas de los diferentes
+    #suscriptores para que la funcion
+    ##sendSSE se los envie
+    def createSSE(self, msg=None):
+        #Creo ~hilo que anadira el mensaje recibido a la lista
+        #de los SSE a enviar
+        if msg != None:
+            gevent.spawn(self.__addEvent(msg))
+        else:
+            gevent.spawn(self.__addEvent())
+        return "OK"
+    
 
-	def sendSSE(self):
-		return Response(self.__sendEvent(), mimetype="text/event-stream")
+    #Cuando un cliente se suscriba, ejecutará esta función.
+    def sendSSE(self):
+        #Envio el SSE como respuesta. 
+        return Response(self.__sendEvent(), mimetype="text/event-stream")
 
-	
-	#Privado. No puede llamarse desde fuera de la clase.
-	def __addEvent(self, data="placeholder"):
-		msg=data
-		#for sub in SSEHandler.listaSuscripciones:
-		for sub in self.listaSuscripciones:
-			sub.put(msg)
-		
+    #Devuelve el numero de suscriptores
+    def getNumSuscriptores(self):
+        return len(self.listaSuscripciones)
+    
+    #Privado. No puede llamarse desde fuera de la clase.
+    def __addEvent(self, data="*empty message*"):
+        msg=data
+        print "SSEHANDLER - __addEvent: num suscriptores: " +\
+            str(self.getNumSuscriptores())
+        for sub in self.listaSuscripciones:
+            sub.put(msg)
+        
 
-	#Privado. No puede llamarse desde fuera de la clase.
-	def __sendEvent(self):
-			q = Queue()
-			#SSEHandler.listaSuscripciones.append(q)
-			self.listaSuscripciones.append(q)
-			print "q: " + str(q)
-			#print "listaSuscripciones: " + str(SSEHandler.listaSuscripciones)
-			print "listaSuscripciones: " + str(self.listaSuscripciones)
-			try:
-				while True:
-					#q.get() espera hasta que haya elemento en q
-					#gevent.queue implementa colas sincronizadas 
-					#(se comparten entre procesos).
-					#CLAVE DEL FUNCIONAMIENTO. q.get() bloquea al
-					#proceso hasta que la cola q contiene algun 
-					#elemento.
-					print "Obteniendo elemento de la cola..."
-					result = q.get()
-					#result = "placeholder"
-					ev = ServerSentEvent("SSE: "+str(result))
-					yield ev.encode()
-			#Se produce este error cuando se envía un SSE a un cliente que no está
-			#disponible (no está escuvhando).
-			except GeneratorExit:
-				print "No se pudo entregar a un cliente suscrito."
-				#SSEHandler.listaSuscripciones.remove(q)
-				self.listaSuscripciones.remove(q)
+    #Privado. No puede llamarse desde fuera de la clase.
+    #Esta función es ejecutada cuando un cliente se suscribe.
+    #Crea una cola, que será la cola de mensajes de ese cliente.
+    #Contendrá los diferentes mensajes a enviarle.
+    def __sendEvent(self):
+        q = Queue()
+        self.listaSuscripciones.append(q)
+        print "SSEHandler - sendEvent():"
+        print "listaSuscripciones: " + str(self.listaSuscripciones)
+        try:
+            while True:
+                #q.get() espera hasta que haya elemento en q
+                #CLAVE DEL FUNCIONAMIENTO. q.get() bloquea al
+                #proceso hasta que la cola q contiene algun 
+                #elemento.
+                print "SSEHandler - Obteniendo SSE de la cola de suscriptores..."
+                result = q.get()
+                #result = "placeholder"
+                ev = ServerSentEvent(str(result))
+                yield ev.encode()
+        #Se produce este error cuando se envía un SSE a un cliente que no está
+        #disponible (no está escuvhando).
+        #Cuando esto suceda, por la consola aparecerá el siguiente mensaje de 
+        #error: 
+		#----------------------------------------
+		# SSEHandler - Obteniendo SSE de la cola de suscriptores...Exception happened during processing of request from
+		# Conectando a Beebotte...SSEHandler - Obteniendo SSE de la cola de suscriptores...
+		# 
+		#('127.0.0.1', 46562)
+		#Traceback (most recent call last):
+		#  File "/usr/lib/python2.7/SocketServer.py", line 596, in process_request_thread
+		#	self.finish_request(request, client_address)
+		#  File "/usr/lib/python2.7/SocketServer.py", line 331, in finish_request
+		#	self.RequestHandlerClass(request, client_address, self)
+		#  File "/usr/lib/python2.7/SocketServer.py", line 654, in __init__
+		#	self.finish()
+		#  File "/usr/lib/python2.7/SocketServer.py", line 713, in finish
+		#	self.wfile.close()
+		#  File "/usr/lib/python2.7/socket.py", line 283, in close
+		#	self.flush()
+		#  File "/usr/lib/python2.7/socket.py", line 307, in flush
+		#	self._sock.sendall(view[write_offset:write_offset+buffer_size])
+		#error: [Errno 32] Broken pipe
+		#----------------------------------------
+		#Esto es un error conocido de Django, el cual no va a ser arreglado.
+		#Informacion en el siguiente enlace: 
+		#https://stackoverflow.com/questions/7912672/django-broken-pipe-in-debug-mode
+		#Aunque se capture la excepcion, el mensaje descrito anteriormente seguirá saliendo en consola.
+		#También se ha intentado ignorar la señal SIGPIPE con:
+		#from signal import signal, SIGPIPE, SIG_DFL, SIG_IGN
+		#signal(SIGPIPE,SIG_IGN) 
+		#pero no ha dado resultado.
+		#
+		#FINALMENTE:
+		#capturaremos esta excepción con 'except GeneratorExit'
+        except GeneratorExit:
+            print "*** Cliente desconectado."
+            self.listaSuscripciones.remove(q)
+        except socket.error as e:
+            print "socket error: " + str(e)
+        except IOError as e:
+            print "IO error: " + str(e)
+        except:
+            print "EXCEPTION UNKNOWN"
 
 
 #Clase empleada para enviar los mensajes.
+#En nuestro caso, simplemente rellenaremos el campo 'data' 
+#y enviaremos el SSE.
 # SSE "protocol" is described here: http://mzl.la/UPFyxY
 class ServerSentEvent(object):
 

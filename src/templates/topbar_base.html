@@ -9,6 +9,9 @@
     {# CDN #}
     {# <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js">
     </script>  #}
+    {# Importo notificaciones gráficas #}
+    <script src= "{{ url_for('static',filename='js/graphicalNotification.js') }}">
+    </script>
     {# Enlace al archivo de estilo #}
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/style.css') }}">
     {# Codificación de caracteres para poder poner acentos #}
@@ -30,6 +33,23 @@
         {# Bloque de texto que implementaran los otros templates #}
         {% block cuerpo %}{% endblock %}
     </div>
+    
+    {# SSE #}
+    <script>
+        {# Suscribirse a los SSE #}
+		var evtSrc = new EventSource("/sse");
+		console.log("SUSCRITO! (creo)");
+
+		evtSrc.onmessage = function(e) {
+			console.log('SSE: ' + e.data);
+            {# notifyMe(); #}
+            notifyMe();
+		}; 
+        {# Cerrar conexión con SSE cuando se cierre la ventana#}
+        window.onbeforeunload=function(){
+                evtSrc.close();
+        };
+    </script>
 
 </body>
 </html>
