@@ -36,7 +36,7 @@ class OAuthUserManager(UserManager):
     #def __init__(self, coleccionUsuariosOauth):
         #Igual que el de el padre pero cambiando la coleccion empleada
         #UserManager.__init__(self,coleccionUsuariosOauth,debug)
-        UserManager.__init__(self,coleccionUsuariosOauth,True)
+        UserManager.__init__(self,coleccionUsuariosOauth,debug)
         #Añadimos los campos que no tenia el padre
         #En el dicc recibido, puede ser la entrada ['iss']
         # The ID Token contains a set of claims about the authentication

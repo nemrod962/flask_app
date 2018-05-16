@@ -14,20 +14,21 @@ function requestNotificationPermission()
 
 console.log("hello there!");
 
-function notifyMe() {
+function notifyMe(msg, title = "Rnd - Lender", image) {
   requestNotificationPermission();
   if (Notification.permission !== "granted")
     Notification.requestPermission();
   else {
-    var notification = new Notification('Notification title', {
+    var notification = new Notification(title, {
       icon: 'http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png',
-      body: "Hey there! You've been notified!",
+      body: msg,
     });
-
+    
+    /*
     notification.onclick = function () {
       window.open("http://stackoverflow.com/a/13328397/1269037");      
     };
-
+    */
   }
 
 }

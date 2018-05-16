@@ -121,6 +121,7 @@ class SQLHandler:
     #Normalmente se especificara el numero a
     #insertar junto con su fecha.
     #Si no es asi, se generará uno.
+    #DEVULVE 0 SI BIEN. SI NO 1.
     def writeDataDB(self, numRnd, fecha, debug = False):
         
         #Solo ejecuto realmente esta funcion si he
@@ -164,12 +165,17 @@ class SQLHandler:
                 conn.commit()
                 if debug:
                     print 'Query success!'
+                #OK
+                result =  0
             else:
                 print 'SQL_rnd.py error: ' + str(res[0])
-            
+                #NO OK
+                result = 1
             cursor.close()
             conn.close()
-
+            return result
+        else:
+            return 1
 
 
 

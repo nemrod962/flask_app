@@ -349,7 +349,14 @@ def jsOAuthData():
         print "data: " + str(idinfo)
         print "tipo: " + str(type(idinfo))
     except ValueError as e:
-        print "ERROR TOKEN: " + e
+        print "ERROR TOKEN: " + str(e)
+        #Error con el token recibido, no
+        #es valido. Redirigo a la pagina login
+        return redirect(url_for('webLogin'))
+        #Puede enviarse un idtoken arbitrario con
+        #curl --data "idtoken=value1" dominioppr.com:5000/jsoauthdata/
+        #Esto será manjado mediante este error.
+
 
     #-----
     #Trabajando con usuario
@@ -368,16 +375,22 @@ def jsOAuthData():
         print "ATENCION:"
         print "db: " + str(OAuthHandler.client)
         print "res " + str(r)
-        print "res>0 : " + str(r>0)
+        #print "res>0 : " + str(r>0)
         if r > 0:
             print "Usuario " + username + " creado!"
         else:
             print "Error al crear usuario: " + username
-            #Error 1 -> Mal formato argumentos de createUser().
-            #Error 2 -> Usuario ya existe.
-            print "Error: " + r
+            #Error -2 -> Mal formato argumentos de createUser().
+            #Error -1 -> Usuario ya existe.
+            print "Error: " + str(r)
             #Que hago en este caso? Nada?
-        
+            mensajeError= "Error al crear usuario (ERROR: "+str(r)+ "): "
+            if r == -2:
+                mensajeError += "Mal formato argumentos de createUser()."
+            if r == -1:
+                mensajeError += "Usuario ya existe."
+            return make_response(mensajeError)
+    
     #CREAR COOKIE, independientemenste de si existia el usuario o no.
     #Llegados a este punto, tendremos el usuario creado en la
     #base de datos de MongoDB.
@@ -400,6 +413,11 @@ def jsOAuthData():
         #Asignamos los datos de la cookie creada a la respuesta
         response.set_cookie('SessionId', cookieVal)
         response.set_cookie('tipoLogin', 'oauth')
+        #también pongo umbral en la cookie, para notificaciones
+        nombreUsuario = OAuthHandler.getCookieUserName(cookieVal)
+        umbralUsuario = OAuthHandler.getUmbral(nombreUsuario)
+        print ">>>>>>>>>>>>UMBRAL USUSARIO: " + str(umbralUsuario)
+        response.set_cookie('umbral', str(umbralUsuario))
     else:
         #Si ha habido error al hacer login, redirigimos a la pagina de 
         #login
@@ -510,7 +528,12 @@ def webLogin():
         if cookieVal >= 0:
             resp.set_cookie('SessionId', cookieVal)
             resp.set_cookie('tipoLogin', 'local')
-        
+            #también pongo umbral en la cookie, para notificaciones
+            nombreUsuario = UserHandler.getCookieUserName(cookieVal)
+            umbralUsuario = UserHandler.getUmbral(nombreUsuario)
+            print ">>>>>>>>>>>>UMBRAL USUSARIO: " + str(umbralUsuario)
+            resp.set_cookie('umbral', str(umbralUsuario))
+            
         #return redirect(url_for('webMain'))
         return resp
 
@@ -611,10 +634,14 @@ def cambiarUmbral():
         #CAMBIO UMBRAL DEL USUARIO.
         if idTipo=="oauth":
             OAuthHandler.modUmbral(nombreUser, umbral)
-            response=make_response("UMB:"+str(OAuthHandler.getUmbral(nombreUser)))
+            #response=make_response("UMB:"+str(OAuthHandler.getUmbral(nombreUser)))
+            umbralDef = OAuthHandler.getUmbral(nombreUser)
+            response=make_response("UMB:"+str(umbralDef))
         elif idTipo=="local":
             UserHandler.modUmbral(nombreUser, umbral)
-            response=make_response("UMB:"+str(UserHandler.getUmbral(nombreUser)))
+            #response=make_response("UMB:"+str(UserHandler.getUmbral(nombreUser)))
+            umbralDef = UserHandler.getUmbral(nombreUser)
+            response=make_response("UMB:"+str(umbralDef))
         else:
             #EL usuario no ha hecho login.
             #
@@ -630,9 +657,13 @@ def cambiarUmbral():
             #es error que es que no se ha iniciado sesión, utilizaremos el
             #código 105.
             #response=make_response("Inicia sesión antes de cambiar umbral.")
-            response=make_response("UMB:"+str(105))
+            umbralDef = 105
+            response=make_response("UMB:"+str(umbralDef))
             #Los códigos de error los interpretaremos en el cliente 
         #response=make_response(str(umbral))
+        #Almaceno informacion del umbral en las cookies
+        print ">>>>>>>>>>>>UMBRAL USUARIO: " + str(umbralDef)
+        response.set_cookie('umbral', str(umbralDef))
     return response
 
 

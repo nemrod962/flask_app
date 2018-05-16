@@ -3,23 +3,30 @@
 
 {% block cabeza %}
     <meta name="google-signin-client_id" content="933060102795-0hf4m6v3cuq4ocvubaide7ouqui2l4lg.apps.googleusercontent.com">
+    {# Cargo Scripts Google Oauth2 para utilizar con los botones #}
+    <script type=text/javascript src="{{ url_for('static', filename='js/oauth_functions.js') }}"></script>
 {% endblock %}
 
 {% block cuerpo %}
+    <script>
+    window.onbeforeunload = function(e){
+          gapi.auth2.getAuthInstance().signOut();
+          auth2.disconnect();
+              };
+    console.log('onbeforeunload');
+    </script>
     <p>Google OAuth2 Sign in</p>
-    {# Load the Google Platform Library #}
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
     
-    <H1>
+    <h1>
+    {# Load the Google Platform Library #}
+    {#<script src="https://apis.google.com/js/platform.js" async defer></script>#}
+    <script src="https://apis.google.com/js/platform.js?onload=signOut()" async defer></script>
     {# Google Sign in Button #}
     <div class="g-signin2" data-onsuccess="onSignIn"></div>
 
-
+    {#-----------------------#}
     {# Boton Sign out #}
     <button type="button" onclick="signOut();">Sign Out</button>
-    </H1>
-    {# Cargo Scripts Google Oauth2 para utilizar con los botones #}
-    <script type=text/javascript src="{{ url_for('static', 
-    filename='oauth_functions.js') }}"></script>
+    </h1>
 
 {% endblock %}

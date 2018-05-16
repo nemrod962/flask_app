@@ -141,22 +141,32 @@ class RndUploader:
                 #En este caso, rnd sera = a -1, por lo que no guardaremos
                 #este valor en las BDs.
                 if rnd > -1:
-                    #escribo en Beebotte
-                    #self.__BeeHand.writeRandom(rnd, self.__debug)
+                    #escribo en Beebotte. 0 si bien. 1 si mal.
+                    #resBee = self.__BeeHand.writeRandom(rnd, self.__debug)
                     #solo necesario para la BD local, ya que Beebotte
                     #almacena automaticamente la fecha
                     fecha = str(date_handler.getDatetimeMs())
-                    #escribo en MongoDB
-                    #self.__MongoHand.writeRandom(rnd, fecha)
-                    #escribo en MySQL
-                    #self.__SQLHand.writeDataDB(rnd, fecha, self.__debug)
+                    #escribo en MongoDB. 0 si bien. 1 si mal.
+                    #resMongo = self.__MongoHand.writeRandom(rnd, fecha)
+                    #escribo en MySQL. 0 si bien. 1 si mal.
+                    #resSQL = self.__SQLHand.writeDataDB(rnd, fecha, self.__debug)
                     #---
                     #envio SSE (notificación a los clientes con
                     #el número obtenido)
-                    res = self.__SSEHand.createSSE("NUM.ALE. : " + str(rnd))
+                    resBee=0
+                    resMongo=1
+                    resSQL=0
+                    msg = "NUM.ALE. : " + str(rnd)
+                    if resBee == 0:
+                        msg += "#BD. : Beebotte"
+                    if resMongo == 0:
+                        msg += "#BD. : MongoDB"
+                    if resSQL == 0:
+                        msg += "#BD. : MySQL"
+                    res = self.__SSEHand.createSSE(str(msg))
                     #if self.__debug:
                     if True:
-                        print "rnd_uploader - ENVIANDO SSE: " + str(rnd)
+                        print "rnd_uploader - ENVIANDO SSE: " + str(msg)
                         print res
                 
                 #ACTUALIZO LOS DATOS EN LAS LISTAS LOCALES 

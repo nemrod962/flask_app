@@ -274,6 +274,9 @@ class BeeHandler:
                 if debug:
                     print "ERROR: no se pudo escribir el numero "+str(rndNumber)
                 return 1
+        else:
+            #No hay conexion
+            return 1
 
 
     #ACTUALIZO LAS LISTAS LOCALES CON LOS DATOS DE LA BD
