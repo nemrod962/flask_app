@@ -16,6 +16,10 @@
     {# Importo notificaciones gráficas #}
     <script src= "{{ url_for('static',filename='js/graphicalNotification.js') }}">
     </script>
+    {# Importo librería para evaluar los SSE y mostrar notificaciones si se
+    sobrepasa umbral #}
+    <script src= "{{ url_for('static',filename='js/evaluarUmbralSSE.js') }}">
+    </script>
     {# Enlace al archivo de estilo #}
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/style.css') }}">
     {# Codificación de caracteres para poder poner acentos #}
@@ -49,46 +53,14 @@
             {# notifyMe(); #}
             {# parsedData será el texto a mostrar en
             la notificación#}
-            var parsedData = String(e.data).replace(/#/g , "\n");
-            notifyMe(parsedData);
+            //var parsedData = String(e.data).replace(/#/g , "\n");
+            //notifyMe(parsedData);
 
-            {#Obtengo numero aleatorio de el SSE#}
-            var num0 = String(e.data).replace(/ /g,"");
-            console.log('num0: ' + num0)
-            var num1 = num0.split("#",1);
-            console.log('num1: ' + num1)
-            var num2 = num1[0].split(":");
-            console.log('num2: ' + num2)
-            var num = parseFloat(num2[1]);
-            console.log("Numero:" + num);
-            {#Obtengo umbral de las cookies#}
-            {#Empleo la libraria de cookies#}
-            var umbral = parseFloat(Cookies.get('umbral'));
-            console.log("Mi umbral:" + umbral);
-            {#Miro si el umbral del usuario es para ser superado
-            o rebajado#}
-            var umbralSuperior=true;
-            if(umbral < 0 )
-            {
-                umbral *= -1
-                umbralSuperior=false
-            }
-            {#compruebo si el numero supera a el umbral a ser superado#}
-            if(umbralSuperior)
-            {
-                if(num > umbral)
-                {
-                    notifyMe("UMBRAL SUPERADO\nnum: " + num + "\numb: " + umbral);
-                }
-            }
-            {#compruebo si el numero no supera a el umbral a no ser superado#}
-            else
-            {
-                if(num < umbral)
-                {
-                    notifyMe("UMBRAL INFERIOR\nnum: " + num + "\numb: " + umbral);
-                }
-            }
+            //Evaluo los datos del SSE recibido
+            //Si se ha escrito un numero que sobrepasa mi umbral
+            //la funcion evaluarUmbralSSE() mostrará una notificación
+            evaluarUmbralSSE(e.data)
+
 		}; 
         {# Cerrar conexión con SSE cuando se cierre la ventana#}
         window.onbeforeunload=function(){

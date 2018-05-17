@@ -156,13 +156,17 @@ class RndUploader:
                     resBee=0
                     resMongo=1
                     resSQL=0
-                    msg = "NUM.ALE. : " + str(rnd)
+                    #msg = "NUM.ALE. : " + str(rnd)
+                    msg = str(rnd) + "#"
                     if resBee == 0:
-                        msg += "#BD. : Beebotte"
+                        #msg += "#BD. : Beebotte"
+                        msg += "Beebotte,"
                     if resMongo == 0:
-                        msg += "#BD. : MongoDB"
+                        #msg += "#BD. : MongoDB"
+                        msg += "MongoDB,"
                     if resSQL == 0:
-                        msg += "#BD. : MySQL"
+                        #msg += "#BD. : MySQL"
+                        msg += "MySQL,"
                     res = self.__SSEHand.createSSE(str(msg))
                     #if self.__debug:
                     if True:
