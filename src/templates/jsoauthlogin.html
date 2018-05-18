@@ -8,13 +8,6 @@
 {% endblock %}
 
 {% block cuerpo %}
-    <script>
-    window.onbeforeunload = function(e){
-          gapi.auth2.getAuthInstance().signOut();
-          auth2.disconnect();
-              };
-    console.log('onbeforeunload');
-    </script>
     <p>Google OAuth2 Sign in</p>
     
     <h1>
@@ -22,7 +15,9 @@
     {#<script src="https://apis.google.com/js/platform.js" async defer></script>#}
     <script src="https://apis.google.com/js/platform.js?onload=signOut()" async defer></script>
     {# Google Sign in Button #}
-    <div class="g-signin2" data-onsuccess="onSignIn"></div>
+    <div class="g-signin2" data-onsuccess="onSignIn"
+    onclick="validarSignIn()"></div>
+
 
     {#-----------------------#}
     {# Boton Sign out #}

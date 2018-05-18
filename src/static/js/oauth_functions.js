@@ -5,19 +5,20 @@ console.log('inicio script jsoauth')
 
 /*El boton de google ejecuta la funcion onSignIn según carga, por
 lo que no da tiempo al usuario a pulsar el boton.
-Empleamos la variable 'espera' de forma que la primera vez
-que se ejecute la funcion onSignIn (carga de la página) haga
-logout y asi cuando se haga vlivk en el boton pida al usuario
-que seleccione su cuenta.*/
+Empleamos la variable 'espera' de forma que cuando se ejecute la funcion 
+onSignIn, no se produzca el login (no envia datos al aservidor)
+Si no se ha hecho click en el botón.*/
 var espera=true;
 
+function validarSignIn() {
+    espera=false;
+}
 
 function onSignIn(googleUser) {
     if(espera)
     {
         signOut();
         console.log('espera');
-        espera=false;
     }
     else
     {
@@ -61,6 +62,7 @@ function signOut()
 {
     googleAuth=gapi.auth2.getAuthInstance();
     console.log('success?')
+    googleAuth.signOut();
     googleAuth.disconnect();
 }
 
