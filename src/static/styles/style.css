@@ -43,6 +43,12 @@ button:hover {
   background-color: #0099cc;
 }
 
+.topnav img {
+    height: 44px;
+    width: auto;
+    margin-left: 10px;
+}
+
 /*Estilo elemntos 'a' en la barra superior*/
 .topnav a {
   float: right;

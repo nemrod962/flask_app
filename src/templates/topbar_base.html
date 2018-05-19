@@ -31,7 +31,9 @@
     
     {# Barra superior #}
     <div class="topnav">
-      <div class="titulo">Random-Lender</div>
+      {# <div class="titulo">Random-Lender</div> #}
+      <img src="{{ url_for('static',filename='logo_rndlender.png') }}"
+      alt = "logo"></img>
       <a href="{{ url_for('webMain') }}">Home</a>
       <a href="{{ url_for('webAccount') }}">Account</a>
       <a href="#">About</a>
