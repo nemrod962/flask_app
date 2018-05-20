@@ -160,3 +160,14 @@ insertarán su código al heredar de topbar_base.html*/
     color: blue;
     background: blue;
 }
+/* FIELDSET */
+
+.cuerpo fieldset {
+    border: 1px solid rgb(255,255,255);
+    width: 500px;
+    margin:auto;
+}
+
+.cuerpo fieldset h2 {
+    text-align: center;
+}

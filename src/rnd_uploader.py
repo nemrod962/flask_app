@@ -114,7 +114,7 @@ class RndUploader:
             if self.__debug:
                 print "num aleatorio a escribir: " + str(rnd)
 
-            """
+            #"""
             #BORRA ESTO!-----------------------------
             #Este trozo de codigo sirve para que esta
             #clase no suba numeros.
@@ -124,7 +124,7 @@ class RndUploader:
             self.__BeeHand.readRandom()
             self.__MongoHand.readRandom()
             #BORRA ESTO!-----------------------------
-            """
+            #"""
 
             if self.__debug:
                 print "rnd_uploader - Las listas en rnd_uploader: "

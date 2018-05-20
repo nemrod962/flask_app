@@ -796,14 +796,102 @@ def webMain():
 #Procesamos la opción elegida en la pagina inicial
 @app.route("/", methods=['POST'])
 def webMain_post():
-    opcion = request.form['option']
+    print "MAIN POST"
+    opcion = request.form.get('opcion', "elegir")
+    #opcion = request.form['option']
     #opcion=request.args.get('option','default',type=str)
 
-    umbraltxt = request.form['umbralTxt']
+    umbraltxt = request.form.get('umbralTxt',"error")
+    #umbraltxt = request.form['umbralTxt']
     #umbraltxt=request.args.get('umbralTxt','50',type=str)
-    if debug:
-        print "--->"+umbraltxt
+    print "OPCION: " + opcion    
+    print "umbraltxt: " + umbraltxt
+    
+    #Dependiendo de la direccion seleccionada en
+    #la pantalla inicial redirigiremos a una dirección 
+    #o a otra.
+    if opcion == "elegir":
+        return url_for('webDBSelect')
+
+    if opcion == "tablas":
+        #return redirect(url_for('show_type', sensor="s1"))
+        return url_for('pruebajs')
+
+    if opcion == "umbral":
+        #Evitar cadena vacia
+        if umbraltxt == "":
+            umbraltxt = "error"
+        return url_for('pruebajs2', umb = umbraltxt)
+
+    if opcion == "media":
+        return url_for('pruebajs3')
+
+    if opcion == "grafoBee":
+        return url_for('pruebajs4')
+
+    if opcion == "grafo":
+        return url_for('pruebajs5')
+
+    else:
+        return "ERROR: Opción Desconocida"
+
+#menú principal VIEJO
+#Mostramos la pagina inicial VIEJA
+@app.route("/old") 
+def oldWebMain():
+
+    """
+    #Cookies
+    #Obtengo tipo de Cookie : local o OAuth
+    idTipo=request.cookies.get('tipoLogin')
+    #Obtengo valor Cookie
+    idSesion=request.cookies.get('SessionId')
+    #Inicializo nombreUsuario
+    nombreUsuario=None
+    if idTipo=="local":
+        #CADUCIDAD - BORRO Y ACTUALIZO
+        sehaborrado=UserHandler.checkCookieStatus(idSesion)
+        #Si la cookie ha caducado, me mostrara None como Usuario
+        nombreUsuario = UserHandler.getCookieUserName(idSesion)
+    elif idTipo=="oauth":
+        #CADUCIDAD - BORRO Y ACTUALIZO
+        sehaborrado=OAuthHandler.checkCookieStatus(idSesion)
+        #Si la cookie ha caducado, me mostrara None como Usuario
+        idUsuario = OAuthHandler.getCookieUserName(idSesion)
+        nombreUsuario = OAuthHandler.getUserName(idUsuario)
         
+    #Muesto info
+    print "Tipo Sesion: " + str(idTipo)
+    print "SESION: " + str(idSesion)
+    print "Usuario: " + str(nombreUsuario)
+    """
+    nombreUsuario = getCookieUserName(request)
+    #Obtengo el manejador de la BD a 
+    #utilizar según la cookie del usuario.
+    DBHandler = getCookieDB(request)
+    print "MAIN: Usuario - " + str(nombreUsuario)
+    #---
+    response = make_response(render_template("index.html",\
+    DBName = web_functions.getDBName(DBHandler),\
+    username=nombreUsuario))
+
+    #if sehaborrado:
+    #    response.set_cookie('expired','1')
+    return response
+
+#Procesamos la opción elegida en la pagina inicial Vieja
+@app.route("/old", methods=['POST'])
+def oldWebMain_post():
+    print "MAIN POST"
+    opcion = request.form.get('opcion', "elegir")
+    #opcion = request.form['option']
+    #opcion=request.args.get('option','default',type=str)
+
+    umbraltxt = request.form.get('umbralTxt',"error")
+    #umbraltxt = request.form['umbralTxt']
+    #umbraltxt=request.args.get('umbralTxt','50',type=str)
+    print "OPCION: " + opcion    
+    print "umbraltxt: " + umbraltxt
     
     #Dependiendo de la direccion seleccionada en
     #la pantalla inicial redirigiremos a una dirección 
@@ -849,7 +937,6 @@ def webMain_post():
 
     else:
         return "ERROR: Opción Desconocida"
-
 #ELEGIR DB
 @app.route("/seleccDB")
 def webDBSelect():
