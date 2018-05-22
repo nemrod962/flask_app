@@ -142,30 +142,23 @@ class RndUploader:
                 #este valor en las BDs.
                 if rnd > -1:
                     #escribo en Beebotte. 0 si bien. 1 si mal.
-                    #resBee = self.__BeeHand.writeRandom(rnd, self.__debug)
+                    resBee = self.__BeeHand.writeRandom(rnd, self.__debug)
                     #solo necesario para la BD local, ya que Beebotte
                     #almacena automaticamente la fecha
                     fecha = str(date_handler.getDatetimeMs())
                     #escribo en MongoDB. 0 si bien. 1 si mal.
-                    #resMongo = self.__MongoHand.writeRandom(rnd, fecha)
+                    resMongo = self.__MongoHand.writeRandom(rnd, fecha)
                     #escribo en MySQL. 0 si bien. 1 si mal.
-                    #resSQL = self.__SQLHand.writeDataDB(rnd, fecha, self.__debug)
+                    resSQL = self.__SQLHand.writeDataDB(rnd, fecha, self.__debug)
                     #---
                     #envio SSE (notificación a los clientes con
                     #el número obtenido)
-                    resBee=0
-                    resMongo=1
-                    resSQL=0
-                    #msg = "NUM.ALE. : " + str(rnd)
                     msg = str(rnd) + "#"
                     if resBee == 0:
-                        #msg += "#BD. : Beebotte"
                         msg += "Beebotte,"
                     if resMongo == 0:
-                        #msg += "#BD. : MongoDB"
                         msg += "MongoDB,"
                     if resSQL == 0:
-                        #msg += "#BD. : MySQL"
                         msg += "MySQL,"
                     res = self.__SSEHand.createSSE(str(msg))
                     #if self.__debug:
@@ -214,7 +207,6 @@ class RndUploader:
         #inicio proceso
         print "Soy un hilo (RndUploader.upload())."
         self.proceso.start()
-        #proceso.join()
 
     #Marca y espera que los procesos en segundo plano terminen su ejecución.
     def finalizar(self):

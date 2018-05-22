@@ -1,5 +1,15 @@
 {# index.html #}
 {% extends "topbar_base.html" %}
+{% block cabeza %}
+{# Importo script para hacer post
+de la opcion elegida del menú principal
+y para redireccionar a la url recibida
+del servidor como respuesta.#}
+<script 
+src= "{{ url_for('static',filename='js/enviarOpcionBoton.js') }}">
+</script>
+{% endblock %}
+
 {% block cuerpo %}
 <title>Bienvenido!</title>
 <h1>Aplicación Flask</h1>
@@ -23,37 +33,7 @@
     </fieldset>
 
 <script>
-{#Envío petición POST a flask mediante jQuery#}
-$('.botonMenu').map(function()
-    {
-        $(this).click(function()
-        {
-            var opcion = $(this).attr('value');
-            var datosEnviar = 'opcion='+opcion ;
-            var umbralTxt;
-            if(opcion == "umbral")
-            {
-                umbralTxt = $('.textoMenu').val();
-            }
-            console.log('soy el boton:' + opcion);
-            if(umbralTxt != undefined)
-            {
-                datosEnviar += '&umbralTxt='+umbralTxt;
-                console.log('Umbral:' + umbralTxt);
-            }
-            console.log('param: ' + datosEnviar);
-            //Enviamos POST
-            //url actual
-            var url = window.location.href;
-            $.post(url, datosEnviar, function(e)
-            {
-                console.log(' resp. server: ' + e)
-                window.location=e;
-            });
-        });
-    }
-);
-
+    enviarOpcionBotones();
 </script>
 {% endblock %}
 

@@ -271,6 +271,9 @@ function comprobarRegistro(name,pass,passRep,umbral)
     }
     
     res3=comprobarUmbral(umbral);
+    //Actualizo umbral, ya que comprobarUmbral() parsea
+    //el umbral.P.ej: 12,12 -> 12.12
+    umbral=res3
     if(res3==101)
     {
         window.alert("Introduce un número válido como umbral.")

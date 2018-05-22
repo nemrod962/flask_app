@@ -67,15 +67,15 @@ sseHandler = SSEHandler()
 #DBHandler.reload()
 
 #***************************************************************************
-#	               .-')      ('-.  _  .-')    .-')    
-#	              ( OO ).  _(  OO)( \( -O )  ( OO ).  
-#	 ,--. ,--.   (_)---\_)(,------.,------. (_)---\_) 
-#	 |  | |  |   /    _ |  |  .---'|   /`. '/    _ |  
-#	 |  | | .-') \  :` `.  |  |    |  /  | |\  :` `.  
-#	 |  |_|( OO ) '..`''.)(|  '--. |  |_.' | '..`''.) 
-#	 |  | | `-' /.-._)   \ |  .--' |  .  '.'.-._)   \ 
-#	('  '-'(_.-' \       / |  `---.|  |\  \ \       / 
-#	  `-----'     `-----'  `------'`--' '--' `-----'  
+#                  .-')      ('-.  _  .-')    .-')    
+#                 ( OO ).  _(  OO)( \( -O )  ( OO ).  
+#    ,--. ,--.   (_)---\_)(,------.,------. (_)---\_) 
+#    |  | |  |   /    _ |  |  .---'|   /`. '/    _ |  
+#    |  | | .-') \  :` `.  |  |    |  /  | |\  :` `.  
+#    |  |_|( OO ) '..`''.)(|  '--. |  |_.' | '..`''.) 
+#    |  | | `-' /.-._)   \ |  .--' |  .  '.'.-._)   \ 
+#   ('  '-'(_.-' \       / |  `---.|  |\  \ \       / 
+#     `-----'     `-----'  `------'`--' '--' `-----'  
 #***************************************************************************
 
 """
@@ -646,11 +646,11 @@ def cambiarUmbral():
             #EL usuario no ha hecho login.
             #
             #Los codigos de error de getUmbral() son:
-			#-> 102: El usuario es 'None'. Es el valor que se obtiene cuando no se ha
-			#iniciado sesión
-			#-> 103: Indica que el nombre de usuario recibido no es válido, ya sea por tipo
-			#(no string) o longitud.
-			#-> 104: El usuario indicado no se ha encontrado en la base de datos.
+            #-> 102: El usuario es 'None'. Es el valor que se obtiene cuando no se ha
+            #iniciado sesión
+            #-> 103: Indica que el nombre de usuario recibido no es válido, ya sea por tipo
+            #(no string) o longitud.
+            #-> 104: El usuario indicado no se ha encontrado en la base de datos.
             #
             #Los respuestas que se pueden obtener de modUmbral() van de -100
             #a 104, invluyendo todos los códigos de error. Para indicar
@@ -730,15 +730,15 @@ def webAccount():
     
 
 #***************************************************************************
-#					   ('-.      _ (`-.    _ (`-.  
-#					  ( OO ).-. ( (OO  )  ( (OO  ) 
-#					  / . --. /_.`     \ _.`     \ 
-#					  | \-.  \(__...--''(__...--'' 
-#					.-'-'  |  ||  /  | | |  /  | | 
-#					 \| |_.'  ||  |_.' | |  |_.' | 
-#					  |  .-.  ||  .___.' |  .___.' 
-#					  |  | |  ||  |      |  |      
-#					  `--' `--'`--'      `--'      
+#                      ('-.      _ (`-.    _ (`-.  
+#                     ( OO ).-. ( (OO  )  ( (OO  ) 
+#                     / . --. /_.`     \ _.`     \ 
+#                     | \-.  \(__...--''(__...--'' 
+#                   .-'-'  |  ||  /  | | |  /  | | 
+#                    \| |_.'  ||  |_.' | |  |_.' | 
+#                     |  .-.  ||  .___.' |  .___.' 
+#                     |  | |  ||  |      |  |      
+#                     `--' `--'`--'      `--'      
 #***************************************************************************
 """
   __  __                    ____       _            _             _ 
@@ -751,90 +751,178 @@ def webAccount():
 #PAGINA INICIAL
 #menú principal
 #Mostramos la pagina inicial
-@app.route("/") 
+@app.route("/", methods=['GET','POST'])
 def webMain():
+    if request.method == 'GET':
+        nombreUsuario = getCookieUserName(request)
+        #Obtengo el manejador de la BD a 
+        #utilizar según la cookie del usuario.
+        DBHandler = getCookieDB(request)
+        print "MAIN: Usuario - " + str(nombreUsuario)
+        #---
+        response = make_response(render_template("index.html",\
+        DBName = web_functions.getDBName(DBHandler),\
+        username=nombreUsuario))
 
-    """
-    #Cookies
-    #Obtengo tipo de Cookie : local o OAuth
-    idTipo=request.cookies.get('tipoLogin')
-    #Obtengo valor Cookie
-    idSesion=request.cookies.get('SessionId')
-    #Inicializo nombreUsuario
-    nombreUsuario=None
-    if idTipo=="local":
-        #CADUCIDAD - BORRO Y ACTUALIZO
-        sehaborrado=UserHandler.checkCookieStatus(idSesion)
-        #Si la cookie ha caducado, me mostrara None como Usuario
-        nombreUsuario = UserHandler.getCookieUserName(idSesion)
-    elif idTipo=="oauth":
-        #CADUCIDAD - BORRO Y ACTUALIZO
-        sehaborrado=OAuthHandler.checkCookieStatus(idSesion)
-        #Si la cookie ha caducado, me mostrara None como Usuario
-        idUsuario = OAuthHandler.getCookieUserName(idSesion)
-        nombreUsuario = OAuthHandler.getUserName(idUsuario)
-        
-    #Muesto info
-    print "Tipo Sesion: " + str(idTipo)
-    print "SESION: " + str(idSesion)
-    print "Usuario: " + str(nombreUsuario)
-    """
-    nombreUsuario = getCookieUserName(request)
+        #if sehaborrado:
+        #    response.set_cookie('expired','1')
+        return response
+    elif request.method == 'POST':
+        print "MAIN POST"
+        opcion = request.form.get('opcion', "elegir")
+        #opcion = request.form['option']
+        #opcion=request.args.get('option','default',type=str)
+
+        umbraltxt = request.form.get('umbralTxt',"error")
+        #umbraltxt = request.form['umbralTxt']
+        #umbraltxt=request.args.get('umbralTxt','50',type=str)
+        print "OPCION: " + opcion    
+        print "umbraltxt: " + umbraltxt
+        #Dependiendo de la direccion seleccionada en
+        #la pantalla inicial redirigiremos a una dirección 
+        #o a otra.
+        if opcion == "elegir":
+            return url_for('pruebajs0')
+        if opcion == "tablas":
+            #return redirect(url_for('show_type', sensor="s1"))
+            return url_for('pruebajs1')
+        if opcion == "umbral":
+            #Evitar cadena vacia
+            if umbraltxt == "":
+                umbraltxt = "error"
+            return url_for('pruebajs2', umb = umbraltxt)
+        if opcion == "media":
+            return url_for('pruebajs3')
+        if opcion == "grafoBee":
+            return url_for('pruebajs4')
+        if opcion == "grafo":
+            return url_for('pruebajs5')
+        else:
+            return "ERROR: Opción Desconocida"
+    
+
+"""
+    JavaScript
+"""
+
+#ELEGIR DB
+@app.route("/prueba0", methods=['GET','POST'])
+def pruebajs0():
+    if request.method == 'GET':
+        return render_template("DBselect.html")
+    elif request.method == 'POST':
+        #opcion = request.form.get('chosenDB',"default")
+        opcion = request.form.get('opcion',"default")
+        #Para permitir realmente la concurrencia de usuarios, 
+        #haremos que la base de datos a emplear se almacene 
+        #en las cookies del usuario, de forma que
+        #cada uno tenga su valor.
+        #
+        #Creo la respuesta a la que asignaré las cookies
+        response = make_response(redirect(url_for('webMain')))
+        #DEBUG
+        if debug:
+            print "---"+opcion+"---"
+        #Asigno la base de datos seleccionada al cliente
+        if opcion == "MySQL":
+            #DBHandler = SQLHandler
+            pass
+        elif opcion == "Beebotte":
+            #DBHandler = BeeHandler
+            pass
+        elif opcion == "MongoDB":
+            #DBHandler = MongoHandler
+            pass
+        else:
+            print "DB seleccionada descon."
+            #base de datos mongoDB por defecto
+            opcion="MongoDB"
+        #Guardo la base de datos seleccionada en la cookie
+        #del cliente.
+        #Utilizare la funcion getCookieDB() para, dada
+        #la peticion, obtener la cookie del cliente y
+        #de alli la base de datos a emplear
+        response.set_cookie('db',opcion)
+        return response
+
+#TABLAS_JS
+@app.route('/prueba')
+@no_cookie_check
+def pruebajs1():
+    DBHandler = getCookieDB(request)
+    listaNum = DBHandler.listaGlobalNumero
+    listaDate = DBHandler.listaGlobalFecha
+    DBName = web_functions.getDBSimpleName(DBHandler)
+    print "lista en pruebajs: " + str(listaNum)
+    return render_template("tablas.html", listaNum=listaNum,
+    listaDate=listaDate, DBName=DBName)
+
+#UMBRAL_JS
+@app.route("/prueba2/<umb>")
+@no_cookie_check
+def pruebajs2(umb):
     #Obtengo el manejador de la BD a 
     #utilizar según la cookie del usuario.
     DBHandler = getCookieDB(request)
-    print "MAIN: Usuario - " + str(nombreUsuario)
-    #---
-    response = make_response(render_template("index.html",\
-    DBName = web_functions.getDBName(DBHandler),\
-    username=nombreUsuario))
+    listaNum = DBHandler.listaGlobalNumero
+    listaDate = DBHandler.listaGlobalFecha
+    DBName = web_functions.getDBSimpleName(DBHandler)
+    #Obtengo el umbral
+    try:
+        trueUmbral = float(umb)
+    except ValueError:
+        if debug:
+            print "NO SE HA INTRODUCIDO NUMERO COMO UMBRAL!"
+        #umb = "Debe introducirse un numero. Usando valor por defecto: 50."
+        trueUmbral = 50
+    if debug:
+        print "str: " + umb
+        print "float: " + str(trueUmbral)
+    return render_template("umbral.html",\
+    listaNum=listaNum,
+    listaDate=listaDate, 
+    DBName=DBName,
+    umbral= umb)
+    #resUmbral = "<div>HOLA</div>")
 
-    #if sehaborrado:
-    #    response.set_cookie('expired','1')
-    return response
+#Media
+@app.route('/prueba3')
+@no_cookie_check
+def pruebajs3():
+    DBHandler = getCookieDB(request)
+    listaNum = DBHandler.listaGlobalNumero
+    listaDate = DBHandler.listaGlobalFecha
+    DBName = web_functions.getDBSimpleName(DBHandler)
+    print "lista en pruebajs: " + str(listaNum)
+    return render_template("media.html", listaNum=listaNum,
+    listaDate=listaDate, DBName=DBName)
 
-#Procesamos la opción elegida en la pagina inicial
-@app.route("/", methods=['POST'])
-def webMain_post():
-    print "MAIN POST"
-    opcion = request.form.get('opcion', "elegir")
-    #opcion = request.form['option']
-    #opcion=request.args.get('option','default',type=str)
+#Graficas Beebotte
+@app.route('/prueba4')
+@no_cookie_check
+def pruebajs4():
+    return render_template("grafoBee.html")
 
-    umbraltxt = request.form.get('umbralTxt',"error")
-    #umbraltxt = request.form['umbralTxt']
-    #umbraltxt=request.args.get('umbralTxt','50',type=str)
-    print "OPCION: " + opcion    
-    print "umbraltxt: " + umbraltxt
+#Graficas Plotly
+@app.route('/prueba5')
+@no_cookie_check
+def pruebajs5():
+    DBHandler = getCookieDB(request)
+    listaNum = DBHandler.listaGlobalNumero
+    listaDate = DBHandler.listaGlobalFecha
+    DBName = web_functions.getDBSimpleName(DBHandler)
     
-    #Dependiendo de la direccion seleccionada en
-    #la pantalla inicial redirigiremos a una dirección 
-    #o a otra.
-    if opcion == "elegir":
-        return url_for('webDBSelect')
+    return render_template("grafoJs.html", listaNum=listaNum,
+    listaDate=listaDate, DBName=DBName);
 
-    if opcion == "tablas":
-        #return redirect(url_for('show_type', sensor="s1"))
-        return url_for('pruebajs')
-
-    if opcion == "umbral":
-        #Evitar cadena vacia
-        if umbraltxt == "":
-            umbraltxt = "error"
-        return url_for('pruebajs2', umb = umbraltxt)
-
-    if opcion == "media":
-        return url_for('pruebajs3')
-
-    if opcion == "grafoBee":
-        return url_for('pruebajs4')
-
-    if opcion == "grafo":
-        return url_for('pruebajs5')
-
-    else:
-        return "ERROR: Opción Desconocida"
-
+"""
+  _                                  ____             _            
+ | |    ___  __ _  __ _  ___ _   _  |  _ \ ___  _   _| |_ ___  ___ 
+ | |   / _ \/ _` |/ _` |/ __| | | | | |_) / _ \| | | | __/ _ \/ __|
+ | |__|  __/ (_| | (_| | (__| |_| | |  _ < (_) | |_| | ||  __/\__ \
+ |_____\___|\__, |\__,_|\___|\__, | |_| \_\___/ \__,_|\__\___||___/
+            |___/            |___/                                 
+"""
 #menú principal VIEJO
 #Mostramos la pagina inicial VIEJA
 @app.route("/old") 
@@ -940,7 +1028,7 @@ def oldWebMain_post():
 #ELEGIR DB
 @app.route("/seleccDB")
 def webDBSelect():
-    return render_template("DBselect.html")
+    return render_template("DBselect.html.old")
 
 @app.route("/seleccDB", methods=['POST'])
 def webDBSelect_post():
@@ -1145,76 +1233,6 @@ def createGraph_post():
     #redirigimos al menú principal.
     return redirect(url_for('webMain'))
 
-#TABLAS_JS
-@app.route('/prueba')
-@no_cookie_check
-def pruebajs():
-    DBHandler = getCookieDB(request)
-    listaNum = DBHandler.listaGlobalNumero
-    listaDate = DBHandler.listaGlobalFecha
-    DBName = web_functions.getDBSimpleName(DBHandler)
-    print "lista en pruebajs: " + str(listaNum)
-    return render_template("tablas.html", listaNum=listaNum,
-    listaDate=listaDate, DBName=DBName)
-
-#UMBRAL_JS
-@app.route("/prueba2/<umb>")
-@no_cookie_check
-def pruebajs2(umb):
-    #Obtengo el manejador de la BD a 
-    #utilizar según la cookie del usuario.
-    DBHandler = getCookieDB(request)
-    listaNum = DBHandler.listaGlobalNumero
-    listaDate = DBHandler.listaGlobalFecha
-    DBName = web_functions.getDBSimpleName(DBHandler)
-    #Obtengo el umbral
-    try:
-        trueUmbral = float(umb)
-    except ValueError:
-        if debug:
-            print "NO SE HA INTRODUCIDO NUMERO COMO UMBRAL!"
-        #umb = "Debe introducirse un numero. Usando valor por defecto: 50."
-        trueUmbral = 50
-    if debug:
-        print "str: " + umb
-        print "float: " + str(trueUmbral)
-    return render_template("umbral.html",\
-    listaNum=listaNum,
-    listaDate=listaDate, 
-    DBName=DBName,
-    umbral= umb)
-    #resUmbral = "<div>HOLA</div>")
-
-#Media
-@app.route('/prueba3')
-@no_cookie_check
-def pruebajs3():
-    DBHandler = getCookieDB(request)
-    listaNum = DBHandler.listaGlobalNumero
-    listaDate = DBHandler.listaGlobalFecha
-    DBName = web_functions.getDBSimpleName(DBHandler)
-    print "lista en pruebajs: " + str(listaNum)
-    return render_template("media.html", listaNum=listaNum,
-    listaDate=listaDate, DBName=DBName)
-
-#Graficas Beebotte
-@app.route('/prueba4')
-@no_cookie_check
-def pruebajs4():
-    return render_template("grafoBee.html")
-
-#Graficas Plotly
-@app.route('/prueba5')
-@no_cookie_check
-def pruebajs5():
-    DBHandler = getCookieDB(request)
-    listaNum = DBHandler.listaGlobalNumero
-    listaDate = DBHandler.listaGlobalFecha
-    DBName = web_functions.getDBSimpleName(DBHandler)
-    
-    return render_template("grafoJs.html", listaNum=listaNum,
-    listaDate=listaDate, DBName=DBName);
-
     
 if __name__ == "__main__":
 
@@ -1232,28 +1250,7 @@ if __name__ == "__main__":
     #Iniciar y lanzar proceso de carga de datos en las BBDD
     #LOS MANEJADORES DE LAS DBs SE INICIALIZAN EN SU CONSTRUCTOR
     uploader = rnd_uploader.RndUploader(app, SQLHandler, BeeHandler,\
-    MongoHandler,10, debug, sseHandler) 
-
-    """
-    #prueba de las funcionalidades
-    if debug:
-       r1 = web_functions.umbral(uploader.getSQLHandler(), 50, True) 
-       r2 = web_functions.umbral(uploader.getBeeHandler(), 50, True) 
-       r3 = web_functions.umbral(None, 50) 
-       media1 = web_functions.media(uploader.getSQLHandler(), True)
-       media2 = web_functions.media(uploader.getBeeHandler(), True)
-       print "---"
-       print "r1: "
-       print r1
-       print "r2: "
-       print r2
-       print "r3: "
-       print r3
-       print "media SQL: "
-       print media1
-       print "media Bee: "
-       print media2
-    """
+    MongoHandler,30, debug, sseHandler) 
 
     #Arrancar el el servidor
     #app.run(host='0.0.0.0')

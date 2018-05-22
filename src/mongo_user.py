@@ -614,7 +614,7 @@ if __name__ == "__main__":
             except ValueError:
                 return None
     #----------------------------------------------
-    u = UserManager()
+    u = UserManager(debug=True)
     #u.deleteUser("test", "test")
     """
     print "Crear:"

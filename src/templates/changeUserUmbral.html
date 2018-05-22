@@ -1,19 +1,17 @@
 {# changeUserUmbral.html #}
 {% extends "topbar_base.html" %}
+{% block cabeza %}
+    {# Cargo Script para la comprobación de datos#}
+    <script 
+    src="{{ url_for('static', filename='js/comprobaciones.js') }}">
+    </script>
+{% endblock %}
+
 {% block cuerpo %}
-
-{#    <form action="/cambiarUmbral" method="POST"> #}
-
     <p>Elige tu umbral: {{ username }}</p>
     <input type="text" id="umbral" name="umbral">
     <input type="submit" name="boton" 
     onclick="enviarUmbral(document.getElementById('umbral').value);" 
     value="Enviar">
     <br>
-
-{#    </form> #}
-
-    {# Cargo Script #}
-    <script src="{{ url_for('static', filename='comprobaciones.js') }}"></script>
-
 {% endblock %}

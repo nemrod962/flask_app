@@ -1,17 +1,27 @@
 {# DBselect.html #}
 {% extends "topbar_base.html" %}
+{% block cabeza %}
+{# Importo script para hacer post
+de la opcion elegida como base de datos
+a utilizar y para redireccionar a la url recibida
+del servidor como respuesta (que será el menú principal).#}
+<script
+src= "{{ url_for('static',filename='js/enviarOpcionBoton.js') }}">
+</script>
+{% endblock %}
+
 {% block cuerpo %}
 <title>Selección DB</title>
 <div>Selecciona base de datos:  </div>
 <br>
-<!--Hay que poner el '| safe' detrás de la variable para que Flask la interprete como código HTML-->
 <br>
-<br>
-    <form action="{{ url_for('webDBSelect_post') }}" method="POST">
-        <select name="chosenDB">
-            <option value="MySQL">MySQL</option>
-            <option value="MongoDB">MongoDB</option>
-            <option value="Beebotte">Beebotte</option>
-        <input type="submit" name="volver" value="Seleccionar"><br>
-    </form>
+    <button class="botonMenu" value="MySQL">MySQL</button>
+    <br>
+    <button class="botonMenu" value="MongoDB">MongoDB</button>
+    <br>
+    <button class="botonMenu" value="Beebotte">Beebotte</button>
+
+<script>
+    enviarOpcionBotones();
+</script>
 {% endblock %}

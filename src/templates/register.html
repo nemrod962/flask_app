@@ -1,5 +1,11 @@
 {# register.html #}
 {% extends "topbar_base.html" %}
+{% block cabeza%}
+    {# Cargo Script para la comprobación de datos#}
+    <script 
+    src="{{ url_for('static', filename='js/comprobaciones.js') }}">
+    </script>
+{% endblock %}
 {% block cuerpo %}
     <h1>Register</h1>
     <p>Username:</p>
@@ -23,6 +29,4 @@
     Register
     </button>
     
-    <script src="{{ url_for('static', filename='comprobaciones.js') }}">
-    </script>
 {% endblock %}
