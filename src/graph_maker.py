@@ -1,4 +1,8 @@
 # -*- coding: UTF-8 -*-
+"""
+LEGACY
+GRAFICAS CON PYGAL, PRODUCIDAS POR EL SERVIDOR
+"""
 #graficas
 import pygal
 from pygal.style import DarkSolarizedStyle
@@ -74,14 +78,14 @@ class GraphMaker:
         #SELECCIONO TIPO DE GRAFO
 
         if str(tipo).lower() == "bar":
-            #print "TIPO: BARRAS"
+            #logging.debug("TIPO: BARRAS")
             graph = pygal.Bar()
         #Si la string recibida definiendo el tipo no es 'bar',
         #supongo que el tipo deseado es 'line'. Si recibimos una
         #cadena diferente a cualquiera de las opciones, utilizaremos
         #el grafo de líneas por defecto.
         else:
-            #print "TIPO: LINEAS"
+            #logging.debug("TIPO: LINEAS")
             graph = pygal.Line()
 
         #Obtengo que DB estoy empleando
@@ -93,7 +97,7 @@ class GraphMaker:
         #pueda insertar adecuadamente el grafo en el html template.
         graph_data = graph.render(is_unicode=True) 
 
-        #print graph_data
+        #logging.debug(graph_data)
 
         return graph_data
 

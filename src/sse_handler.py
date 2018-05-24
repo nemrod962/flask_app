@@ -6,6 +6,10 @@ from threading import Thread #Hilos en vez de procesos
 from flask import Flask, Response
 
 import time
+#logging
+import logging
+from log_handler import setup_log
+
 
 class SSEHandler(object):
     
@@ -40,8 +44,8 @@ class SSEHandler(object):
     #Privado. No puede llamarse desde fuera de la clase.
     def __addEvent(self, data="*empty message*"):
         msg=data
-        print "SSEHANDLER - __addEvent: num suscriptores: " +\
-            str(self.getNumSuscriptores())
+        logging.info("num suscriptores: " +\
+            str(self.getNumSuscriptores()))
         for sub in self.listaSuscripciones:
             sub.put(msg)
         
@@ -53,15 +57,15 @@ class SSEHandler(object):
     def __sendEvent(self):
         q = Queue()
         self.listaSuscripciones.append(q)
-        print "SSEHandler - sendEvent():"
-        print "listaSuscripciones: " + str(self.listaSuscripciones)
+        logging.debug("SSEHandler - sendEvent():")
+        logging.debug("listaSuscripciones: " + str(self.listaSuscripciones))
         try:
             while True:
                 #q.get() espera hasta que haya elemento en q
                 #CLAVE DEL FUNCIONAMIENTO. q.get() bloquea al
                 #proceso hasta que la cola q contiene algun 
                 #elemento.
-                print "SSEHandler - Obteniendo SSE de la cola de suscriptores..."
+                logging.debug("SSEHandler - Obteniendo SSE de la cola de suscriptores...")
                 result = q.get()
                 #result = "placeholder"
                 ev = ServerSentEvent(str(result))
@@ -102,14 +106,14 @@ class SSEHandler(object):
 		#FINALMENTE:
 		#capturaremos esta excepción con 'except GeneratorExit'
         except GeneratorExit:
-            print "*** Cliente desconectado."
+            logging.debug("*** Cliente desconectado.")
             self.listaSuscripciones.remove(q)
         except socket.error as e:
-            print "socket error: " + str(e)
+            logging.warning("socket error: " + str(e))
         except IOError as e:
-            print "IO error: " + str(e)
+            logging.warning("IO error: " + str(e))
         except:
-            print "EXCEPTION UNKNOWN"
+            logging.warning("EXCEPTION UNKNOWN")
 
 
 #Clase empleada para enviar los mensajes.

@@ -17,12 +17,12 @@ import urllib2
 #Retornamos el código html de las gráficas
 def getGraphHTML(debug=False):
     if debug:
-        print "GO!"
+        logging.debug("GO!")
     url = "https://beebotte.com/dash/"
     tablaID = "09db3e70-df3a-11e7-bfef-6f68fef5ca14"
     fullurl = url+tablaID
     if debug:
-        print fullurl
+        logging.debug(fullurl)
 
     driver = webdriver.PhantomJS()
     driver.get(fullurl)
@@ -30,10 +30,10 @@ def getGraphHTML(debug=False):
     soup = BeautifulSoup(driver.page_source, "html.parser")
     widgetsID = tablaID+"_body"
     if debug:
-        print widgetsID
+        logging.debug(widgetsID)
     res = soup.find_all(id=widgetsID)
     if debug:
-        print res
+        logging.debug(res)
     driver.save_screenshot('screen.png') # save a screenshot to disk
     #Finalizo el driver
     driver.quit()

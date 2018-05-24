@@ -27,7 +27,7 @@ class PlotlyHandler:
             myUsername=credentialsFile.readline().rstrip()
             myApiKey=credentialsFile.readline().rstrip()
         except IOError as e:
-            print "PlotlyHandler - " + str(e)
+            logging.debug("PlotlyHandler - " + str(e))
             #Inicializo credenciles
             myUsername="placeholder"
             myApiKey="placeholder"
@@ -101,7 +101,7 @@ class PlotlyHandler:
         try:
             py.plot(datos, filename="Num. aleatorios")
         except:
-            print "plot.ly OFFLINE"
+            logging.info("plot.ly OFFLINE")
             #Obtengo que DB estoy empleando
             dbname = web_functions.getDBSimpleName(DBHandler)
             plotly.offline.plot({

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+#PATRON PARA SUSTITUIR LOS print "" por logging.debug
+#:%s/print \(.*\)/logging.debug(\1)/gc
 """
 Clase encargada de guardar y consultar los usuarios registrados
 mediante OAuht almacenados en MongoDB.
@@ -24,6 +26,10 @@ datos de usuarios en el mismo sitio.
 from numbers import Number
 from mongo_user import UserManager
 import date_handler
+#logging
+import logging
+from log_handler import setup_log
+
 
 class OAuthUserManager(UserManager):
     
@@ -68,7 +74,7 @@ class OAuthUserManager(UserManager):
         self.mongoUserManager=mongoUserManager
 
         #debug
-        self.debug=debug
+        self.debug=True
 
 
     """
@@ -92,7 +98,7 @@ class OAuthUserManager(UserManager):
         #COMPROBACION DE DATOS
         if not isinstance(userId, str):
             if self.debug:
-                print "El usuario debe ser una cadena!"
+                logging.debug("El usuario debe ser una cadena!")
             return -2
     
         #LOGIN
@@ -115,21 +121,21 @@ class OAuthUserManager(UserManager):
             entrada2={cookie : caducidad}
             self.listaCaducidad.update(entrada2)
             if self.debug:
-                print "MONGO_OAUTH: "
-                print "Sesion iniciada. Id: " + str(cookie)
-                print "Caducidad Sesion:"
+                logging.debug("MONGO_OAUTH: ")
+                logging.debug("Sesion iniciada. Id: " + str(cookie))
+                logging.debug("Caducidad Sesion:")
                 fechaAct=date_handler.getDatetimeMs()
-                print "Tiempo Actual: " + str(fechaAct)
-                print "conversion: " + \
-                str(date_handler.msToDatetime(fechaAct))
+                logging.debug("Tiempo Actual: " + str(fechaAct))
+                logging.debug("conversion: " + \
+                str(date_handler.msToDatetime(fechaAct)))
                 cadcook=self.listaCaducidad[cookie]
-                print "Caducidad Cookie: " + str(cadcook)
-                print "conversion: " + \
-                str(date_handler.msToDatetime(cadcook))
+                logging.debug("Caducidad Cookie: " + str(cadcook))
+                logging.debug("conversion: " + \
+                str(date_handler.msToDatetime(cadcook)))
             return cookie
         else:
-            print "MONGO_OAUTH:"
-            print "No existe el usuario con el que se ha intentado iniciar sesión."
+            logging.debug("MONGO_OAUTH:")
+            logging.info("No existe el usuario con el que se ha intentado iniciar sesión.")
             return -1
 
 
@@ -159,28 +165,28 @@ class OAuthUserManager(UserManager):
         #Compruebo Datos
         if not isinstance(userProvider, str):
             if self.debug:
-                print "MONGOOAUTH - createUser():"
-                print "El proveedor debe ser tipo string!"
+                logging.debug("MONGOOAUTH - createUser():")
+                logging.debug("El proveedor debe ser tipo string!")
             return -2
         if not isinstance(userId, str):
             if self.debug:
-                print "MONGOOAUTH - createUser():"
-                print "La id del usuario debe ser tipo string!"
+                logging.debug("MONGOOAUTH - createUser():")
+                logging.debug("La id del usuario debe ser tipo string!")
             return -2
         if not isinstance(userMail, str):
             if self.debug:
-                print "MONGOOAUTH - createUser():"
-                print "El email del usuario debe ser tipo string!"
+                logging.debug("MONGOOAUTH - createUser():")
+                logging.debug("El email del usuario debe ser tipo string!")
             return -2
         if not isinstance(userName, str):
             if self.debug:
-                print "MONGOOAUTH - createUser():"
-                print "El nombre del usuario debe ser tipo string!"
+                logging.debug("MONGOOAUTH - createUser():")
+                logging.debug("El nombre del usuario debe ser tipo string!")
             return -2
         if not isinstance(userUmbral, Number):
             if self.debug:
-                print "MONGOOAUTH - createUser():"
-                print "El umbral debe ser tipo Number !"
+                logging.debug("MONGOOAUTH - createUser():")
+                logging.debug("El umbral debe ser tipo Number !")
             return -2
 
         #Crear usuario
@@ -188,8 +194,8 @@ class OAuthUserManager(UserManager):
         if res:
             #Usuario ya registrado
             if self.debug:
-                print "MONGOOAUTH - createUser():"
-                print "El usuario ya existe!"
+                logging.debug("MONGOOAUTH - createUser():")
+                logging.info("El usuario ya existe!")
             return -1
         else:
             #Usuario no existe, lo creamos
@@ -202,9 +208,9 @@ class OAuthUserManager(UserManager):
             res=self.escribir(datos)
             #---
             if self.debug:
-                print "MONGOOAUTH- createuser()"
-                print "created:"
-                print res
+                logging.debug("MONGOOAUTH- createuser()")
+                logging.debug("created:")
+                logging.debug(res)
             #---
             #return res
             return userId
@@ -241,16 +247,16 @@ class OAuthUserManager(UserManager):
         condicion={self.campoUsername : userId}
         """
         if self.debug:
-            print condicion
+            logging.debug(condicion)
         """
         res=self.leerCondicion(condicion)
         #DEBUG
         if self.debug:
-            print "MongoOauth - Con Id: " + str(userId)
-            print "Se ha encontrado el usuario: "
-            print "COLECCION: " +str(self.coleccion)
+            logging.debug("MongoOauth - Con Id: " + str(userId))
+            logging.debug("Se ha encontrado el usuario: ")
+            logging.debug("COLECCION: " +str(self.coleccion))
             for doc in res:
-                print doc
+                logging.debug(doc)
             #muy importante
             res.rewind()
         #Si se ha encontrado usuario. res.count() sera > 0.
@@ -277,9 +283,9 @@ class OAuthUserManager(UserManager):
 
                 #DEBUG
                 if self.debug:
-                    print "MONGOOAUTH - getUserData"
-                    print "CAMPO: " + str(data)
-                    print "VALOR: " + str(val)
+                    logging.debug("MONGOOAUTH - getUserData")
+                    logging.debug("CAMPO: " + str(data))
+                    logging.debug("VALOR: " + str(val))
 
                 return val
         else:
@@ -300,9 +306,11 @@ class OAuthUserManager(UserManager):
     
                                                  
 if __name__ == "__main__":
+    setup_log()
+
     u = OAuthUserManager()
-    print "db: " + str(u.client)
-    print "coleccion: " + u.coleccion
+    logging.debug("db: " + str(u.client))
+    logging.debug("coleccion: " + u.coleccion)
     u.leer()
     yes=raw_input("Borrar todo?")
     if yes == "Y":

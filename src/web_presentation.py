@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 """
+LEGACY
 Esta librería se encarga de insertar
 los resultados obtenidos por web_functions
 en código html y pasárselo a Flask para que
@@ -22,9 +23,9 @@ def getTableHTML(DBHandler, debug = False):
         #ACTUALIZO LAS LISTAS EN DBHANDLER
         DBHandler.reload()
         if debug:
-            print "Usando " + str(DBHandler.__class__.__name__)
-            print DBHandler.listaGlobalFecha
-            print DBHandler.listaGlobalNumero
+            logging.debug("Usando " + str(DBHandler.__class__.__name__))
+            logging.debug(DBHandler.listaGlobalFecha)
+            logging.debug(DBHandler.listaGlobalNumero)
 
         #obtengo listas 
         listaNum = DBHandler.listaGlobalNumero
@@ -34,9 +35,9 @@ def getTableHTML(DBHandler, debug = False):
         l1 = len(listaNum)
         l2 = len(listaDate)
         if l1 != l2:
-            print "TableHTML(): LONGITUD DE LISTAS DIFERENTES!"
+            logging.debug("TableHTML(): LONGITUD DE LISTAS DIFERENTES!")
         if debug:
-            print "Longitud de la(s) lista(s): " + str(l1)
+            logging.debug("Longitud de la(s) lista(s): " + str(l1))
 
         #CREACION DE LA TABLA HTML  
         #Inicio de la tabla

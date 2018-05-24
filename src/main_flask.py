@@ -33,7 +33,12 @@ from gevent.pywsgi import WSGIServer
 from sse_handler import SSEHandler
 #Threading
 from threading import Thread
+#Log
+import logging
+from log_handler import setup_log, setStreamMode
 
+#Log
+setup_log()
 #Creo instancia de Flask
 app = Flask(__name__) 
 
@@ -144,7 +149,8 @@ def check_cookies(*args, **kwargs):
         run_check= not hasattr(view_func, '_exclude_from_checking') \
         and '/static/' not in request.path
         #DEBUG. Muestro datos
-        print '-~> Checkear cookies en {0}? {1}'.format(request.path, run_check)
+        logging.info('-~> Checkear cookies en %s? %s',str(request.path),
+        str(run_check))
         if run_check:
             #En la comprobación verifico que la sesión que indican
             #las cookies del usuario no está caducada. Si no existen se
@@ -171,31 +177,31 @@ def check_cookies(*args, **kwargs):
                 nombreUsuario = OAuthHandler.getUserName(idUsuario)
 
             #DEBUG. Muesto info
-            print "------CookieCheck----------"
-            print "Tipo Sesion: " + str(idTipo)
-            print "SESION: " + str(idSesion)
-            print "Usuario: " + str(nombreUsuario)
+            logging.debug("------CookieCheck----------")
+            logging.debug("Tipo Sesion: " + str(idTipo))
+            logging.debug("SESION: " + str(idSesion))
+            logging.debug("Usuario: " + str(nombreUsuario))
             try:
-                print "Ha caducado: " + str(sehaborrado)
+                logging.debug("Ha caducado: " + str(sehaborrado))
             except UnboundLocalError:
-                print "no hay cookies"
+                logging.debug("no hay cookies")
             #TEMP
-            print "Sesiones Locales: " + str(UserHandler.listaSesiones)
-            print "Sesiones OAUTH: " + str(OAuthHandler.listaSesiones)
-            print "---------------------------"
+            logging.debug("Sesiones Locales: " + str(UserHandler.listaSesiones))
+            logging.debug("Sesiones OAUTH: " + str(OAuthHandler.listaSesiones))
+            logging.debug("---------------------------")
 
             #Si el nombre de usuario es None, significa que la sesion ha
             #caducado o que no existe. Hay que hacer login.
             if nombreUsuario == None:
-                print "La sesión no existe o ha caducado."
-                print "Por favor, inicie sesión."
+                logging.debug("La sesión no existe o ha caducado.")
+                logging.debug("Por favor, inicie sesión.")
                 return redirect(url_for('webLogin'))
             else:
-                print "Sesión válida. Hola " + str(nombreUsuario)
+                logging.debug("Sesión válida. Hola " + str(nombreUsuario))
     #You can handle 404s difeerently here if u want.
     else:
         #404
-        print "La pagina "+ request.path +" no existe. Redirigiendo..."
+        logging.debug("La pagina "+ request.path +" no existe. Redirigiendo...")
         return redirect(url_for('webMain'))
 
 """
@@ -223,11 +229,11 @@ def getCookieUserName(request):
         idUsuario = OAuthHandler.getCookieUserName(idSesion)
         nombreUsuario = OAuthHandler.getUserName(idUsuario)
     #DEBUG. Muesto info
-    print "------getCookieUserName()----------"
-    print "Tipo Sesion: " + str(idTipo)
-    print "SESION: " + str(idSesion)
-    print "Usuario: " + str(nombreUsuario)
-    print "--------------------------------"
+    logging.debug("------getCookieUserName()----------")
+    logging.debug("Tipo Sesion: " + str(idTipo))
+    logging.debug("SESION: " + str(idSesion))
+    logging.debug("Usuario: " + str(nombreUsuario))
+    logging.debug("--------------------------------")
 
     return nombreUsuario
 
@@ -237,12 +243,12 @@ def getCookieUserName(request):
 def getCookieDB(request):
     db = str(request.cookies.get('db'))
 
-    print "------getCookieDB()----------"
-    print "DB del cliente: "
+    logging.debug("------getCookieDB()----------")
+    logging.debug("DB del cliente: ")
     if db == "MySQL":
         #retorno la instancia del manejador
         #de la base de datos de MySQL
-        print "MySQL"
+        logging.debug("MySQL")
         #Actualizo las listas locales
         #para que contengan los números 
         #y las fechas actualizadas
@@ -251,7 +257,7 @@ def getCookieDB(request):
     elif db == "Beebotte":
         #retorno la instancia del manejador
         #de la base de datos de Beebotte
-        print "Beebotte"
+        logging.debug("Beebotte")
         #Actualizo las listas locales
         #para que contengan los números 
         #y las fechas actualizadas
@@ -260,7 +266,7 @@ def getCookieDB(request):
     elif db == "MongoDB":
         #retorno la instancia del manejador
         #de la base de datos de MongoDB
-        print "MongoDB"
+        logging.debug("MongoDB")
         #Actualizo las listas locales
         #para que contengan los números 
         #y las fechas actualizadas
@@ -270,7 +276,7 @@ def getCookieDB(request):
     else:
         #retorno la instancia del manejador
         #de la base de datos por defecto.
-        print "Desconocida"
+        logging.debug("Desconocida")
         #Actualizo las listas locales
         #para que contengan los números 
         #y las fechas actualizadas
@@ -325,7 +331,7 @@ def jsOAuthData():
     #Obtener datos enviados por cliente.
     token=request.form['idtoken']
     #token=request.get.args('idtoken','placeholder',type=str)
-    print "RECIBIDO - token:" + str(token)
+    logging.info("RECIBIDO - token:" + str(token))
 
     #-----VALIDACION TOKEN
     from google.oauth2 import id_token
@@ -341,15 +347,15 @@ def jsOAuthData():
         username =  str(idinfo['name'])
         userprov = str(idinfo['iss'])
         #mostramos variables
-        print "USERID: " + userid
-        print "USERMAIL: " + idinfo['email']
-        print "NAME: " + idinfo['name']
-        print "PROVEEDOR" + idinfo['iss']
-        print "mas info?: "
-        print "data: " + str(idinfo)
-        print "tipo: " + str(type(idinfo))
+        logging.debug("USERID: " + userid)
+        logging.debug("USERMAIL: " + idinfo['email'])
+        logging.debug("NAME: " + idinfo['name'])
+        logging.debug("PROVEEDOR" + idinfo['iss'])
+        logging.debug("mas info?: ")
+        logging.debug("data: " + str(idinfo))
+        logging.debug("tipo: " + str(type(idinfo)))
     except ValueError as e:
-        print "ERROR TOKEN: " + str(e)
+        logging.warning("ERROR TOKEN: " + str(e))
         #Error con el token recibido, no
         #es valido. Redirigo a la pagina login
         return redirect(url_for('webLogin'))
@@ -364,25 +370,25 @@ def jsOAuthData():
     #EXISTE?
     existe=OAuthHandler.checkUserName(userid)
     if existe:
-        print "Usuario " + userid + " existe!"
+        logging.debug("Usuario " + userid + " existe!")
     else:
         #SI NO EXISTE -> LO CREAMOS
-        print "Usuario " + userid + " NO existe."
-        print "Creando..."
+        logging.info("Usuario " + userid + " NO existe.")
+        logging.info("Creando...")
         #umbral 101 por defecto
         userumbral=101
         r=OAuthHandler.createUser(userprov, userid, usermail, username, userumbral)
-        print "ATENCION:"
-        print "db: " + str(OAuthHandler.client)
-        print "res " + str(r)
+        logging.debug("ATENCION:")
+        logging.debug("db: " + str(OAuthHandler.client))
+        logging.debug("res " + str(r))
         #print "res>0 : " + str(r>0)
         if r > 0:
-            print "Usuario " + username + " creado!"
+            logging.debug("Usuario " + username + " creado!")
         else:
-            print "Error al crear usuario: " + username
+            logging.warning("Error al crear usuario: " + username)
             #Error -2 -> Mal formato argumentos de createUser().
             #Error -1 -> Usuario ya existe.
-            print "Error: " + str(r)
+            logging.warning("Error: " + str(r))
             #Que hago en este caso? Nada?
             mensajeError= "Error al crear usuario (ERROR: "+str(r)+ "): "
             if r == -2:
@@ -398,7 +404,7 @@ def jsOAuthData():
 
     #Obtengo valor de la cookies. 
     cookieVal = OAuthHandler.login(userid)
-    print "DEBUG - Cookie: " + str(cookieVal)
+    logging.debug("DEBUG - Cookie: " + str(cookieVal))
     #creo la cookie si el valor que me ha devuelto es válido (> 0).
     #login devolverá -1 si el usuario no existe o -2 si userid
     #no es del tipo 'string'.
@@ -416,13 +422,13 @@ def jsOAuthData():
         #también pongo umbral en la cookie, para notificaciones
         nombreUsuario = OAuthHandler.getCookieUserName(cookieVal)
         umbralUsuario = OAuthHandler.getUmbral(nombreUsuario)
-        print ">>>>>>>>>>>>UMBRAL USUSARIO: " + str(umbralUsuario)
+        logging.debug(">>>>>>>>>>>>UMBRAL USUSARIO: " + str(umbralUsuario))
         response.set_cookie('umbral', str(umbralUsuario))
     else:
         #Si ha habido error al hacer login, redirigimos a la pagina de 
         #login
         #response = make_response(url_for('webLogin'))
-        print "PELIGRO! ERROR AL HACER LOGIN en /jsoauthdata/"
+        logging.warning("PELIGRO! ERROR AL HACER LOGIN en /jsoauthdata/")
         response = make_response(url_for('webMain'))
 
     #Retornamos la respuesta creada.
@@ -452,7 +458,7 @@ def jsOAuthData():
 @app.route("/register", methods=['GET','POST'])
 @no_cookie_check
 def webRegister():
-    print "/register - METODO: " + str(request.method)
+    logging.debug("/register - METODO: " + str(request.method))
 
     #GET
     if request.method=='GET':
@@ -460,7 +466,7 @@ def webRegister():
 
     #POST
     if request.method=='POST':
-        print "/register - Estoy en POST"
+        logging.debug("/register - Estoy en POST")
         username=str(request.form['username'])
         #username=request.args.get('username','default',type=str)
         password=str(request.form['password'])
@@ -476,7 +482,7 @@ def webRegister():
         #Creacion usuario
         exito=UserHandler.createUser(username,password,umbral)
         cadena+='<br> RET: '+str(exito)+'</html>'
-        print cadena
+        logging.debug(cadena)
         #Le envio info sobre el resultado de la operacion y
         #la pagina web a donde hay que redirigir en caso de
         #craecion satisfactoria.
@@ -507,11 +513,11 @@ def webLogin():
         #passw=request.args.get('pass','default',type=str)
         
         #DEBUG
-        print "DEBUG - /login"
-        print "user - type: " + str(type(user))
-        print "user: " + str(user)
-        print "pass - type: " + str(type(passw))
-        print "pass: " + str(passw)
+        logging.debug("DEBUG - /login")
+        logging.debug("user - type: " + str(type(user)))
+        logging.info("user: " + str(user))
+        logging.debug("pass - type: " + str(type(passw)))
+        logging.info("pass: " + str(passw))
 
         #Creo la respuesta que devolveré al cliente.
         #Esta respuesta estrá compuesta por el resultado
@@ -524,14 +530,14 @@ def webLogin():
         cookieVal=UserHandler.login(user,passw)
         #Si se ha iniciado sesion, el valor de 
         #cookieVal será != -1
-        print "DEBUG - Cookie: " + str(cookieVal)
+        logging.debug("DEBUG - Cookie: " + str(cookieVal))
         if cookieVal >= 0:
             resp.set_cookie('SessionId', cookieVal)
             resp.set_cookie('tipoLogin', 'local')
             #también pongo umbral en la cookie, para notificaciones
             nombreUsuario = UserHandler.getCookieUserName(cookieVal)
             umbralUsuario = UserHandler.getUmbral(nombreUsuario)
-            print ">>>>>>>>>>>>UMBRAL USUSARIO: " + str(umbralUsuario)
+            logging.debug(">>>>>>>>>>>>UMBRAL USUSARIO: " + str(umbralUsuario))
             resp.set_cookie('umbral', str(umbralUsuario))
             
         #return redirect(url_for('webMain'))
@@ -556,11 +562,11 @@ def webLogout():
     #OAUTH
     if idTipo=="oauth":
         #Logout al usuario
-        print "(OAuth)logging out user: " + idSesion
+        logging.info("(OAuth)logging out user: " + idSesion)
         OAuthHandler.logout(idSesion)
     #LOCAL
     elif idTipo=="local":
-        print "(Local)logging out user: " + idSesion
+        logging.info("(Local)logging out user: " + idSesion)
         #Logout al usuario
         UserHandler.logout(idSesion)
 
@@ -581,7 +587,7 @@ def webLogout():
 #CAMBIAR umbral del usuario
 @app.route('/cambiarUmbral', methods=['GET','POST'])
 def cambiarUmbral():
-    print "/cambiarUmbral - METODO: " + str(request.method)
+    logging.debug("/cambiarUmbral - METODO: " + str(request.method))
     response = make_response("cambiarUmbral_placeholder")
     #Obtengo info de las cookies
     idSesion=request.cookies.get('SessionId')
@@ -607,7 +613,7 @@ def cambiarUmbral():
     #POST
     elif request.method == 'POST':
     #else:
-        print "Estoy en POST"
+        logging.debug("Estoy en POST")
         
         #umbral=request.form['umbral']
         umbral=request.form.get('umbral',101)
@@ -625,8 +631,8 @@ def cambiarUmbral():
         #esta forma, si no estan los parametros que intentamos
         #obtener, la funcion nos devolverá el valor por defecto
         #especificado en vez de 'None'.
-        print "UMBRAL RECIBIDO: " + str(umbral)
-        print "tipo: " + str(type(umbral))
+        logging.debug("UMBRAL RECIBIDO: " + str(umbral))
+        logging.debug("tipo: " + str(type(umbral)))
         try:
             umbral=float(umbral)
         except ValueError:
@@ -662,7 +668,7 @@ def cambiarUmbral():
             #Los códigos de error los interpretaremos en el cliente 
         #response=make_response(str(umbral))
         #Almaceno informacion del umbral en las cookies
-        print ">>>>>>>>>>>>UMBRAL USUARIO: " + str(umbralDef)
+        logging.debug(">>>>>>>>>>>>UMBRAL USUARIO: " + str(umbralDef))
         response.set_cookie('umbral', str(umbralDef))
     return response
 
@@ -758,7 +764,7 @@ def webMain():
         #Obtengo el manejador de la BD a 
         #utilizar según la cookie del usuario.
         DBHandler = getCookieDB(request)
-        print "MAIN: Usuario - " + str(nombreUsuario)
+        logging.debug("MAIN: Usuario - " + str(nombreUsuario))
         #---
         response = make_response(render_template("index.html",\
         DBName = web_functions.getDBName(DBHandler),\
@@ -768,7 +774,7 @@ def webMain():
         #    response.set_cookie('expired','1')
         return response
     elif request.method == 'POST':
-        print "MAIN POST"
+        logging.debug("MAIN POST")
         opcion = request.form.get('opcion', "elegir")
         #opcion = request.form['option']
         #opcion=request.args.get('option','default',type=str)
@@ -776,8 +782,8 @@ def webMain():
         umbraltxt = request.form.get('umbralTxt',"error")
         #umbraltxt = request.form['umbralTxt']
         #umbraltxt=request.args.get('umbralTxt','50',type=str)
-        print "OPCION: " + opcion    
-        print "umbraltxt: " + umbraltxt
+        logging.debug("OPCION: " + opcion    )
+        logging.debug("umbraltxt: " + umbraltxt)
         #Dependiendo de la direccion seleccionada en
         #la pantalla inicial redirigiremos a una dirección 
         #o a otra.
@@ -822,7 +828,7 @@ def pruebajs0():
         response = make_response(redirect(url_for('webMain')))
         #DEBUG
         if debug:
-            print "---"+opcion+"---"
+            logging.debug("---"+opcion+"---")
         #Asigno la base de datos seleccionada al cliente
         if opcion == "MySQL":
             #DBHandler = SQLHandler
@@ -834,7 +840,7 @@ def pruebajs0():
             #DBHandler = MongoHandler
             pass
         else:
-            print "DB seleccionada descon."
+            logging.info("DB seleccionada descon.")
             #base de datos mongoDB por defecto
             opcion="MongoDB"
         #Guardo la base de datos seleccionada en la cookie
@@ -853,7 +859,7 @@ def pruebajs1():
     listaNum = DBHandler.listaGlobalNumero
     listaDate = DBHandler.listaGlobalFecha
     DBName = web_functions.getDBSimpleName(DBHandler)
-    print "lista en pruebajs: " + str(listaNum)
+    logging.debug("lista en pruebajs: " + str(listaNum))
     return render_template("tablas.html", listaNum=listaNum,
     listaDate=listaDate, DBName=DBName)
 
@@ -872,12 +878,12 @@ def pruebajs2(umb):
         trueUmbral = float(umb)
     except ValueError:
         if debug:
-            print "NO SE HA INTRODUCIDO NUMERO COMO UMBRAL!"
+            logging.info("NO SE HA INTRODUCIDO NUMERO COMO UMBRAL!")
         #umb = "Debe introducirse un numero. Usando valor por defecto: 50."
         trueUmbral = 50
     if debug:
-        print "str: " + umb
-        print "float: " + str(trueUmbral)
+        logging.debug("str: " + umb)
+        logging.debug("float: " + str(trueUmbral))
     return render_template("umbral.html",\
     listaNum=listaNum,
     listaDate=listaDate, 
@@ -893,7 +899,7 @@ def pruebajs3():
     listaNum = DBHandler.listaGlobalNumero
     listaDate = DBHandler.listaGlobalFecha
     DBName = web_functions.getDBSimpleName(DBHandler)
-    print "lista en pruebajs: " + str(listaNum)
+    logging.debug("lista en pruebajs: " + str(listaNum))
     return render_template("media.html", listaNum=listaNum,
     listaDate=listaDate, DBName=DBName)
 
@@ -949,15 +955,15 @@ def oldWebMain():
         nombreUsuario = OAuthHandler.getUserName(idUsuario)
         
     #Muesto info
-    print "Tipo Sesion: " + str(idTipo)
-    print "SESION: " + str(idSesion)
-    print "Usuario: " + str(nombreUsuario)
+    logging.debug("Tipo Sesion: " + str(idTipo))
+    logging.debug("SESION: " + str(idSesion))
+    logging.debug("Usuario: " + str(nombreUsuario))
     """
     nombreUsuario = getCookieUserName(request)
     #Obtengo el manejador de la BD a 
     #utilizar según la cookie del usuario.
     DBHandler = getCookieDB(request)
-    print "MAIN: Usuario - " + str(nombreUsuario)
+    logging.debug("MAIN: Usuario - " + str(nombreUsuario))
     #---
     response = make_response(render_template("index.html",\
     DBName = web_functions.getDBName(DBHandler),\
@@ -970,7 +976,7 @@ def oldWebMain():
 #Procesamos la opción elegida en la pagina inicial Vieja
 @app.route("/old", methods=['POST'])
 def oldWebMain_post():
-    print "MAIN POST"
+    logging.debug("MAIN POST")
     opcion = request.form.get('opcion', "elegir")
     #opcion = request.form['option']
     #opcion=request.args.get('option','default',type=str)
@@ -978,8 +984,8 @@ def oldWebMain_post():
     umbraltxt = request.form.get('umbralTxt',"error")
     #umbraltxt = request.form['umbralTxt']
     #umbraltxt=request.args.get('umbralTxt','50',type=str)
-    print "OPCION: " + opcion    
-    print "umbraltxt: " + umbraltxt
+    logging.debug("OPCION: " + opcion    )
+    logging.debug("umbraltxt: " + umbraltxt)
     
     #Dependiendo de la direccion seleccionada en
     #la pantalla inicial redirigiremos a una dirección 
@@ -1013,7 +1019,7 @@ def oldWebMain_post():
         #Obtengo el manejador de la BD a 
         #utilizar según la cookie del usuario.
         DBHandler = getCookieDB(request)
-        print "pltly - DBHANDLER: " + str(DBHandler)
+        logging.debug("pltly - DBHANDLER: " + str(DBHandler))
         #return redirect(url_for('plotly'))
         plotlyHandler=plotly_manager.PlotlyHandler()
         plotlyHandler.crearGrafo(DBHandler)
@@ -1048,7 +1054,7 @@ def webDBSelect_post():
     response = make_response(redirect(url_for('webMain')))
     #DEBUG
     if debug:
-        print "---"+opcion+"---"
+        logging.debug("---"+opcion+"---")
     #Asigno la base de datos seleccionada al cliente
     if opcion == "MySQL":
         #DBHandler = SQLHandler
@@ -1060,7 +1066,7 @@ def webDBSelect_post():
         #DBHandler = MongoHandler
         pass
     else:
-        print "DB seleccionada descon."
+        logging.warning("DB seleccionada descon.")
     #Una vez seleccionada la base de datos,
     #utilizo la funcion reload() para que 
     #pueble las listas globales con los numeros
@@ -1103,12 +1109,12 @@ def webUmbral(umb):
         trueUmbral = float(umb)
     except ValueError:
         if debug:
-            print "NO SE HA INTRODUCIDO NUMERO COMO UMBRAL!"
+            logging.warning("NO SE HA INTRODUCIDO NUMERO COMO UMBRAL!")
         umb = "Debe introducirse un numero. Usando valor por defecto: 50."
         trueUmbral = 50
     if debug:
-        print "str: " + umb
-        print "float: " + str(trueUmbral)
+        logging.debug("str: " + umb)
+        logging.debug("float: " + str(trueUmbral))
     return render_template("umbral.html.old",\
     umbralHTML = umb,\
     resUmbral = web_presentation.getUmbralHTML(DBHandler, trueUmbral , debug),\
@@ -1161,7 +1167,7 @@ def createGraph():
     tipo = request.args.get('tipo')
     #En caso de que la url recibida sea del primer tipo
     #y no contenga parámetros, el valor de tipo será 'None'
-    #print "argumento URL: " + str(tipo)
+    #logging.debug("argumento URL: " + str(tipo))
 
     #creo instancia
     gm = graph_maker.GraphMaker()
@@ -1182,7 +1188,7 @@ def createGraph_post():
         tipoGrafo = request.form['graphType']
         #tipoGrafo=request.args.get('graphType','default',type=str)
     except:
-        #print "Has pulsado volver al menu principal."
+        #logging.debug("Has pulsado volver al menu principal.")
         #Este código se ejecuta cuando se selecciona volver
         #al menú principal en lugar de seleccionar el tipo
         #de lista. Supongo que esto es debido a que si
@@ -1197,7 +1203,7 @@ def createGraph_post():
         volver = request.form['volver']
         #volver =request.args.get('volver','default',type=str)
     except:
-        #print "Has pulsado Refresh."
+        #logging.debug("Has pulsado Refresh.")
         #Este código se ejecuta cuando se selecciona el tipo de
         #lista. Supongo que esto es debido a que si seleccionamos
         #el tipo de lista, estamos devolviendo el valor del formulario 
@@ -1215,7 +1221,7 @@ def createGraph_post():
         #@app.route("/grafo/")
         #@app.route("/grafo/<arg>")
         #def createGraph(arg=None):
-        #    print "argumento: " + str(arg)
+        #    logging.debug("argumento: " + str(arg))
         #
         #   2º -> Otra forma es incluir este argumento como un argumento
         #en la propia url. Dentro de la función podemos leer este argumento
@@ -1223,7 +1229,7 @@ def createGraph_post():
         #@app.route("/grafo")
         #def createGraph():
         #    arg = request.args.get('arg')
-        #    print "argumento URL: " + str(arg)
+        #    logging.debug("argumento URL: " + str(arg))
         #
         #La ventaja de este segundo metodo es que no tenemos que definir urls
         #opcionales para la función como en el caso anterior.
@@ -1246,11 +1252,15 @@ if __name__ == "__main__":
     else:
        debug = False
 
+    if debug:
+        setStreamMode(logging.DEBUG)
+
+    logging.debug("INIT")
 
     #Iniciar y lanzar proceso de carga de datos en las BBDD
     #LOS MANEJADORES DE LAS DBs SE INICIALIZAN EN SU CONSTRUCTOR
     uploader = rnd_uploader.RndUploader(app, SQLHandler, BeeHandler,\
-    MongoHandler,30, debug, sseHandler) 
+    MongoHandler,120, debug, sseHandler) 
 
     #Arrancar el el servidor
     #app.run(host='0.0.0.0')
@@ -1271,7 +1281,7 @@ if __name__ == "__main__":
     try:
         server.serve_forever()
     except KeyboardInterrupt:
-        print "Terminado por el usuario"
+        logging.info("Terminado por el usuario")
     """
     app.run(host='0.0.0.0', threaded=True)
 
@@ -1280,9 +1290,9 @@ if __name__ == "__main__":
     uploader.finalizar()
 
     if True:
-       print "Las listas en main_flask: "
-       print "BeeHandler : " + str(BeeHandler.listaGlobalNumero)
-       print "SQLHandler : " + str(SQLHandler.listaGlobalNumero)
-       print "MongoHandler : " + str(MongoHandler.listaGlobalNumero)
-
-    print "FIN"
+       logging.debug("Las listas en main_flask: ")
+       logging.debug("BeeHandler : " + str(BeeHandler.listaGlobalNumero))
+       logging.debug("SQLHandler : " + str(SQLHandler.listaGlobalNumero))
+       logging.debug("MongoHandler : " + str(MongoHandler.listaGlobalNumero))
+    
+    logging.debug("FIN")

@@ -21,6 +21,10 @@ serán "numero" para los números y
 from mongo_base import MongoBasic
 #Manejo de fechas
 import date_handler
+#logging
+import logging
+from log_handler import setup_log
+
 
 class MongoHandler(MongoBasic):
     """
@@ -37,7 +41,7 @@ class MongoHandler(MongoBasic):
     def __init__(self, coleccion="NumberList", limite=1024, debug=False):
         MongoBasic.__init__(self,coleccion,limite,debug)
         #para mensajes de debug
-        self.debug=debug
+        self.debug=True
         #Tendré dos listas globales donde almacenaré todos los números
         #y las fechas temporalmente, durante el tiempo de ejecución.
         self.listaGlobalNumero = list()
@@ -73,7 +77,7 @@ class MongoHandler(MongoBasic):
 
         if res==None:
             if self.debug:
-                print "No hay conexion con MongoDB."
+                logging.debug("No hay conexion con MongoDB.")
         else:
             #Limpio listas antes de almacenar los 
             #nuevos datos
@@ -98,7 +102,7 @@ class MongoHandler(MongoBasic):
                 #    fechaActual=fechaActual.replace("L","")
                 #PRUEBA
                 #temp = date_handler.msToDatetime(fechaActual)
-                #print "Prueba: " + str(temp)
+                #logging.debug("Prueba: " + str(temp))
 
                 #Añado a las listas 
                 self.listaGlobalNumero.append(numeroActual)
@@ -106,9 +110,9 @@ class MongoHandler(MongoBasic):
 
             if self.debug:
                 "MONGODB - Numeros:"
-                print self.listaGlobalNumero
+                logging.debug(self.listaGlobalNumero)
                 "MONGODB - Fechas:"
-                print self.listaGlobalFecha
+                logging.debug(self.listaGlobalFecha)
         
         try:
             return res.count()
@@ -179,8 +183,8 @@ class MongoHandler(MongoBasic):
     def deletePrevDate(self, date):
         if not isinstance(date, int) and not isinstance(date, long):
             if self.debug:
-                print "Fecha indicada no valida: no es de tipo int o long: "
-                print date
+                logging.debug("Fecha indicada no valida: no es de tipo int o long: ")
+                logging.debug(date)
             res = 1
         else:
             condicionBorrado = {self.campoFecha : {"$lte": date} }
@@ -195,6 +199,8 @@ class MongoHandler(MongoBasic):
         return res
 
 if __name__ == "__main__":
+    setup_log()
+
     c = MongoHandler()
     #c.debug=True
     #c.setColeccion("test")
@@ -204,26 +210,26 @@ if __name__ == "__main__":
     from web_fetcher.rnd_fetcher import Rnd_fetcher
     rndGen = Rnd_fetcher()
     numRand = rndGen.get_web_rnd()
-    print "numRand: " + str(numRand)
+    logging.debug("numRand: " + str(numRand))
     fechaObt = date_handler.getDatetimeMs()
-    print "fecha aprox: " + str(fechaObt)
+    logging.debug("fecha aprox: " + str(fechaObt))
 
     resw=c.writeRandom(numRand)
-    print "resw: " + str(resw)
+    logging.debug("resw: " + str(resw))
 
     resr=c.readRandom() 
-    print "resr: " + str(resr)
+    logging.debug("resr: " + str(resr))
 
-    print "ListaNumeros: "
-    print c.listaGlobalNumero
-    print "ListaFechas: "
-    print c.listaGlobalFecha
+    logging.debug("ListaNumeros: ")
+    logging.debug(c.listaGlobalNumero)
+    logging.debug("ListaFechas: ")
+    logging.debug(c.listaGlobalFecha)
     
     #fechaPrev=123,2131215654
     fechaPrev=1522581148056L
     resb=c.deletePrevDate(fechaPrev)
     #resb=c.deleteAll()
-    print "resb: " + str(resb)
+    logging.debug("resb: " + str(resb))
     
     #Cierro conexion
     c.close()

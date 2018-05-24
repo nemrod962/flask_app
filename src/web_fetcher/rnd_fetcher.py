@@ -26,12 +26,12 @@ class Rnd_fetcher:
         try:
             response = urllib2.urlopen(self.web_dir)
         except:
-            print "No se ha podido conectar a " + self.web_dir
+            logging.warning("No se ha podido conectar a " + self.web_dir)
             return -1
         page_source = response.read()
         if debug:
-            print page_source
-            print "\n\n----------------\nREGEXP\n---------------------------"
+            logging.debug(page_source)
+            logging.debug("\n\n----------------\nREGEXP\n---------------------------")
         #regexp
         #OBTENER TODOS LOS NUMERO ALEATORIOS. PRUEBA:
         searchObj = re.findall('<div class="container"  id="numeros_generados">(.*?)</div>', page_source, re.S)
@@ -44,8 +44,8 @@ class Rnd_fetcher:
 
         if debug:
             for line in searchObj:
-                print "iteration---"
-                print line
+                logging.debug("iteration---")
+                logging.debug(line)
 
         return searchObj
 
@@ -60,13 +60,13 @@ class Rnd_fetcher:
         try:
             response = urllib2.urlopen(self.web_dir)
         except:
-            print "No se ha podido conectar a " + self.web_dir
+            logging.warning("No se ha podido conectar a " + self.web_dir)
             return -1
         #----
         page_source = response.read()
         if debug:
-            print page_source
-            print "\n\n----------------\nREGEXP\n---------------------------"
+            logging.debug(page_source)
+            logging.debug("\n\n----------------\nREGEXP\n---------------------------")
         searchObj = re.findall('<h2>Números generados</h2>(.*?)<br>', page_source, re.S)
         """
         -> .* es GREEDY, intentará obtener el patron que conicida más largo. Esto no es lo que queremos, pues nos devolverá desde '<div class="conatiner... hasta el último </div> que encuentre en el código de la pag web. Para que nos devuelva la cadena que coindida hasta el primer </div> que encuentre tendremos que utilizar un patrón NON-GREEDY.
@@ -77,11 +77,11 @@ class Rnd_fetcher:
 
         for line in searchObj:
             if debug:
-                print "iteration---"
+                logging.debug("iteration---")
             numero = float(line)
             if debug:
-                print line
-                print "NUMERO: ", numero
+                logging.debug(line)
+                logging.debug("NUMERO: ", numero)
         return numero
 
 

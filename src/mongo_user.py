@@ -30,6 +30,9 @@ import date_handler
 from numbers import Number
 #Herencia de la clase base para trabajar con MongoDB
 from mongo_base import MongoBasic
+#logging
+import logging
+from log_handler import setup_log
 
 class UserManager(MongoBasic):
     
@@ -50,7 +53,7 @@ class UserManager(MongoBasic):
         self.tiempoCaducidad=date_handler.minToMs(1)
         self.listaCaducidad=dict()
         #Debug
-        self.debug=debug
+        self.debug=True
 
     """
      _                _          ___     _                            _   
@@ -72,13 +75,13 @@ class UserManager(MongoBasic):
         #compruebao tipos de datos
         if not isinstance(userId, str) or not isinstance(userPass, str):
             if self.debug:
-                print "El usuario y la contraseña deben ser strings!"
+                logging.debug("El usuario y la contraseña deben ser strings!")
             return -1
         #compruebo longitud nbombre y pass
         if len(userId) < 4 or len(userPass) < 4:
             if self.debug:
-                print "El usuario y la contraseña deben" + \
-                "ser de al menos 4 chars de longitud!"
+                logging.debug("El usuario y la contraseña deben" + \
+                "ser de al menos 4 chars de longitud!")
             return -1
 
         #REALIZO OPERACIONES PARA LOGIN
@@ -106,26 +109,26 @@ class UserManager(MongoBasic):
                 entrada2={cookie : caducidad}
                 self.listaCaducidad.update(entrada2)
                 if self.debug:
-                    print "MONGO_USER:"
-                    print "Sesion iniciada. Id: " + str(cookie)
-                    print "Caducidad Sesion:"
+                    logging.debug("MONGO_USER:")
+                    logging.debug("Sesion iniciada. Id: " + str(cookie))
+                    logging.debug("Caducidad Sesion:")
                     fechaAct=date_handler.getDatetimeMs()
-                    print "Tiempo Actual: " + str(fechaAct)
-                    print "conversion: " + \
-                    str(date_handler.msToDatetime(fechaAct))
+                    logging.debug("Tiempo Actual: " + str(fechaAct))
+                    logging.debug("conversion: " + \
+                    str(date_handler.msToDatetime(fechaAct)))
                     cadcook=self.listaCaducidad[cookie]
-                    print "Caducidad Cookie: " + str(cadcook)
-                    print "conversion: " + \
-                    str(date_handler.msToDatetime(cadcook))
+                    logging.debug("Caducidad Cookie: " + str(cadcook))
+                    logging.debug("conversion: " + \
+                    str(date_handler.msToDatetime(cadcook)))
                 return cookie
 
             else:
                 if self.debug:
-                    print "Contraseña incorrecta!"
+                    logging.debug("Contraseña incorrecta!")
                 return -1
         else:
             if self.debug:
-                print "No existe el usuario: " + userId
+                logging.debug("No existe el usuario: " + userId)
             return -1
     #Logout.
     #Devuelve 0 si se ha salido de la sesión correctamente
@@ -133,21 +136,21 @@ class UserManager(MongoBasic):
     #no existía.
     def logout(self, cookieVal):
         if self.debug:
-            print "MongoUser - logout()"
-            print "clase :" + str(self.__class__.__name__)
-            print "mostrando listas:"
-            print self.listaSesiones
-            print self.listaCaducidad
+            logging.debug("MongoUser - logout()")
+            logging.debug("clase :" + str(self.__class__.__name__))
+            logging.debug("mostrando listas:")
+            logging.debug(self.listaSesiones)
+            logging.debug(self.listaCaducidad)
         try:
             del self.listaSesiones[cookieVal]
             del self.listaCaducidad[cookieVal]
             if self.debug:
-                print "Se ha salido de la sesion " + cookieVal
+                logging.debug("Se ha salido de la sesion " + cookieVal)
             return 0
         except KeyError as e:
             if self.debug:
-                print "Se ha intentado salir de una sesion que no existe: "\
-                + str(cookieVal)
+                logging.info("Se ha intentado salir de una sesion que no existe: "\
+                + str(cookieVal))
             return -1
 
     """
@@ -182,34 +185,34 @@ class UserManager(MongoBasic):
         #compruebo tipos de datos
         if not isinstance(userId, str) or not isinstance(userPass, str):
             if self.debug:
-                print "El usuario y la contraseña deben ser strings!"
+                logging.debug("El usuario y la contraseña deben ser strings!")
             return -1
         if not isinstance(umbral, Number):
             if self.debug:
-                print "El umbral debe ser un número!"
+                logging.debug("El umbral debe ser un número!")
             return -2
         #CREAR USUARIO    
         #compruebo longitud nombre y pass
         if len(userId) < 4 or len(userPass) < 4:
             if self.debug:
-                print "El usuario y la contraseña deben" + \
-                "ser de al menos 4 chars de longitud!"
+                logging.debug("El usuario y la contraseña deben" + \
+                "ser de al menos 4 chars de longitud!")
             return -3
         #Nombre 'None' no permitido, ya que si accedemos a 
         #la aplicación sin haber hecho login, el nombre de 
         #usuario actual figurará como 'None'.
         if userId=="None":
             if self.debug:
-                print "MongoUser - createUser()"
-                print "El nombre de usuario 'None' no esta permitido."
+                logging.debug("MongoUser - createUser()")
+                logging.debug("El nombre de usuario 'None' no esta permitido.")
             return -4
                 
         #comprobamos que el nombre del usuario existe
         if self.checkUserName(userId):
             #Existe usuario. Aborto misión.
             if self.debug:
-                print "MongoUser - createUser()"
-                print "El usuario ya existe"
+                logging.debug("MongoUser - createUser()")
+                logging.debug("El usuario ya existe")
             #Salimos con código de error.
             return -5
         else:
@@ -224,9 +227,9 @@ class UserManager(MongoBasic):
             #Si no hay conexion con Mongo, res sera 'None'
             if res == None:
                 if self.debug:
-                    print "MongoUser - createUser() - escribir()"
-                    print "La escritura retorna None."
-                    print "No hay conexion?"
+                    logging.debug("MongoUser - createUser() - escribir()")
+                    logging.debug("La escritura retorna None.")
+                    logging.debug("No hay conexion?")
                 return -6
             #Retornamos 0 en caso de escciribir los datos satisfactoriamente
             return res
@@ -241,13 +244,13 @@ class UserManager(MongoBasic):
         #compruebo tipos de datos
         if not isinstance(userId, str) or not isinstance(userPass, str):
             if self.debug:
-                print "El usuario y la contraseña deben ser strings!"
+                logging.debug("El usuario y la contraseña deben ser strings!")
             return -1
         #compruebo longitud nombre y pass
         if len(userId) < 1 or len(userPass) < 1:
             if self.debug:
-                print "El usuario y la contraseña deben" + \
-                "ser de al menos 1 char de longitud!"
+                logging.debug("El usuario y la contraseña deben" + \
+                "ser de al menos 1 char de longitud!")
             return -1
 
         #BORRAR USUARIO
@@ -261,10 +264,6 @@ class UserManager(MongoBasic):
             #nos devolverá u'pass' en lugar de pass
             hashPass=None
             for doc in res:
-                if self.debug:
-                    #print "iteracion: " + str(doc)
-                    #print "iteracion pt2: " + str(doc[self.campoPassword])
-                    print ""
                 hashPass=doc[self.campoPassword]
             
             #Comparamos la contraseña introducida con el
@@ -273,9 +272,9 @@ class UserManager(MongoBasic):
 
             #DEBUG
             if self.debug:
-                print "hash pass buena: " + str(hashPass)
-                print "pass introducida: " + str(userPass)
-                print "Coinciden? : " + str(correctPass)
+                logging.debug("hash pass buena: " + str(hashPass))
+                logging.debug("pass introducida: " + str(userPass))
+                logging.debug("Coinciden? : " + str(correctPass))
 
             if correctPass:
                 #Usuario y contraseña correctos.
@@ -286,11 +285,11 @@ class UserManager(MongoBasic):
 
             else:
                 if self.debug:
-                    print "Contraseña incorrecta!"
+                    logging.debug("Contraseña incorrecta!")
                 return -1
         else:
             if self.debug:
-                print "No existe el usuario: " + userId
+                logging.debug("No existe el usuario: " + userId)
             return -1
 
     """
@@ -312,7 +311,7 @@ class UserManager(MongoBasic):
             cookiePre=str(userId)+str(sufijo)
             #DEBUG
             if self.debug:
-                print "Cookie sin codificar: " + str(cookiePre)
+                logging.debug("Cookie sin codificar: " + str(cookiePre))
             cookie=base64.b64encode(cookiePre)
             #HAY QUE COMPROBAR SI YA EXISTE ESE VALOR EN LISTASESIONES
             #Si ya existe, generop de nuevo la clave
@@ -341,9 +340,9 @@ class UserManager(MongoBasic):
     #fecha de caducidad.
     def refreshCookie(self, cookieVal):
         if self.debug:
-            print "MongoUser - refreshCookie()"
-            print "Actualizando caducidad cookie - " + str(cookieVal)
-            print "Antes: " + str(self.listaCaducidad)
+            logging.debug("MongoUser - refreshCookie()")
+            logging.debug("Actualizando caducidad cookie - " + str(cookieVal))
+            logging.debug("Antes: " + str(self.listaCaducidad))
 
         if cookieVal in self.listaCaducidad:
             #Actualiza la fecha para dentro de tiempoCaducidad minutos
@@ -351,7 +350,7 @@ class UserManager(MongoBasic):
             self.listaCaducidad[cookieVal]=caducidad
 
         if self.debug:
-            print "Despues: " + str(self.listaCaducidad)
+            logging.debug("Despues: " + str(self.listaCaducidad))
     
 
     #Recorre la lista de todas las cookies y borra las que hayan caducado
@@ -370,16 +369,16 @@ class UserManager(MongoBasic):
             cadTemp=self.listaCaducidad[value]
             #DEBUG
             if self.debug:
-                print "MongoUser - deleteExpiredCookies()"
-                print "Fecha act: " + str(fechaAct)
-                print "tipo: " + str(type(fechaAct))
-                print "Fecha cad: " + str(cadTemp)
-                print "tipo: " + str(type(cadTemp))
+                logging.debug("MongoUser - deleteExpiredCookies()")
+                logging.debug("Fecha act: " + str(fechaAct))
+                logging.debug("tipo: " + str(type(fechaAct)))
+                logging.debug("Fecha cad: " + str(cadTemp))
+                logging.debug("tipo: " + str(type(cadTemp)))
 
             if fechaAct >= cadTemp:
                 if self.debug:
-                    print "La cookie con valor " + str(value) \
-                    + " ha caducado."
+                    logging.debug("La cookie con valor " + str(value) \
+                    + " ha caducado.")
 
                 #Si ha caducado, realizo un logout().
                 #Esto borrará el valor de la cookie
@@ -402,16 +401,17 @@ class UserManager(MongoBasic):
         fechaAct=date_handler.getDatetimeMs()
         #DEBUG
         if self.debug:
-            print "MongoUser - deleteExpiredCookie()"
-            print "Fecha act: " + str(fechaAct)
-            print "Fecha cad: " + str(cadTemp)
+            logging.debug("MongoUser - deleteExpiredCookie()")
+            logging.debug("Fecha act: " + str(fechaAct))
+            logging.debug("Fecha cad: " + str(cadTemp))
 
         #Comparo fechas. Si la actual es mayor que la de caducidad, borro
         #la cookie de session.
         if fechaAct >= cadTemp:
             if self.debug:
                 nombre = self.getCookieUserName(sessionId)
-                print "La cookie del usuario " + nombre + " ha caducado."
+                logging.debug("La cookie del usuario " + nombre 
+                + " ha caducado.")
             #Elimino cookie
             self.logout(sessionId)
             #Devuelvo True si borro la cookie
@@ -425,13 +425,14 @@ class UserManager(MongoBasic):
     #ha caducado la cookie empleada, se prologará su fecha de caducidad.
     def checkCookieStatus(self, cookieVal):
         if self.debug:
-            print "Comprobando caducidad de cookie."
+            logging.debug("Comprobando caducidad de cookie.")
         #self.deleteExpiredCookies()
         sehaborrado = self.deleteExpiredCookie(cookieVal)
         #Si se ha borrado, no actualizo
         if not sehaborrado:
             if self.debug:
-                print "Actualizando caducidad de la cookie - " + str(cookieVal)
+                logging.debug("Actualizando caducidad de la cookie - " 
+                + str(cookieVal))
             self.refreshCookie(cookieVal)
 
         #Indico si se ha borrado la cookie o no
@@ -453,23 +454,23 @@ class UserManager(MongoBasic):
     def checkUserName(self, userId):
         condicion={self.campoUsername : userId}
         if self.debug:
-            print condicion
+            logging.debug(condicion)
         res=self.leerCondicion(condicion)
         #Si no hay conexion a la base de datos MongoDB,
         #leerCondicion retorna None. Por lo que si este es el
         #caso, retornamos None.
         if res==None:
             if self.debug:
-                print "MongoUser - checkuserName()"
-                print "La búsqueda retorna None."
-                print "No hay conexion?"
+                logging.debug("MongoUser - checkuserName()")
+                logging.debug("La búsqueda retorna None.")
+                logging.debug("No hay conexion?")
             return None
         #DEBUG
         if self.debug:
-            print "Con user: " + str(userId)
-            print "Se ha encontrado el usuario: "
+            logging.debug("Con user: " + str(userId))
+            logging.debug("Se ha encontrado el usuario: ")
             for doc in res:
-                print doc
+                logging.debug(doc)
             #muy importante
             res.rewind()
         #Si se ha encontrado usuario. res.count() sera > 0.
@@ -495,9 +496,9 @@ class UserManager(MongoBasic):
         #no sea correcta).
         if res==None:
             if self.debug:
-                print "MongoUser - checkPassword()"
-                print "La búsqueda retorna None."
-                print "No hay conexion?"
+                logging.debug("MongoUser - checkPassword()")
+                logging.debug("La búsqueda retorna None.")
+                logging.debug("No hay conexion?")
             return False
         #Si se ha encontrado usuario. res.count() sera > 0.
         if res.count() > 0:
@@ -507,10 +508,6 @@ class UserManager(MongoBasic):
             #nos devolverá u'pass' en lugar de pass
             hashPass=None
             for doc in res:
-                if self.debug:
-                    #print "iteracion: " + str(doc)
-                    #print "iteracion pt2: " + str(doc[self.campoPassword])
-                    print ""
                 hashPass=doc[self.campoPassword]
             
             #Comparamos la contraseña introducida con el
@@ -518,9 +515,9 @@ class UserManager(MongoBasic):
             correctPass = pbkdf2_sha256.verify(userPass , hashPass)
             #DEBUG
             if self.debug:
-                print "hash pass buena: " + str(hashPass)
-                print "pass introducida: " + str(userPass)
-                print "Coinciden? : " + str(correctPass)
+                logging.debug("hash pass buena: " + str(hashPass))
+                logging.debug("pass introducida: " + str(userPass))
+                logging.debug("Coinciden? : " + str(correctPass))
             return correctPass
         #Si no existe el usuario, retorno False
         else:
@@ -535,14 +532,15 @@ class UserManager(MongoBasic):
         #nombre usuario valido
         if not ( isinstance(userId, str) and len(userId)>0 ):
             if self.debug:
-                print "modUmbral : Tipo y/o longitud de usuario no válido."
+                logging.debug("modUmbral : Tipo y/o longitud"
+                + "de usuario no válido.")
             return -1
         #umbral valido
         if not ( isinstance(umbral, Number) and umbral >=-100 \
         and umbral <=100 ):
             if self.debug:
-                print "modUmbral : Tipo y/o valor de umbral no válido."+ \
-                "El valor del umbral debe estar comprendido entre -100 y 100."
+                logging.debug("modUmbral : Tipo y/o valor de umbral no válido."+ \
+                "El valor del umbral debe estar comprendido entre -100 y 100.")
             return -1
         
         #MODIFICACION UMBRAL
@@ -557,7 +555,7 @@ class UserManager(MongoBasic):
             return res
         else:
             if self.debug:
-                print "No se ha encontrado el usuario: " + str(userId)
+                logging.debug("No se ha encontrado el usuario: " + str(userId))
             return -1
             
 
@@ -575,12 +573,13 @@ class UserManager(MongoBasic):
         #nombre usuario valido
         if userId == None:
             if self.debug:
-                print "getUmbral() : Usuario 'None'. Inicia sesión."
+                logging.debug("getUmbral() : Usuario 'None'. Inicia sesión.")
             return 102
         #nombre usuario valido
         if not ( isinstance(userId, str) and len(userId)>0 ):
             if self.debug:
-                print "getUmbral() : Tipo y/o longitud de usuario no válido."
+                logging.debug("getUmbral() : Tipo y/o longitud" 
+                + "de usuario no válido.")
             return 103
 
         #DEVOLVER UMBRAL
@@ -598,7 +597,8 @@ class UserManager(MongoBasic):
             return umbral
         else:
             if self.debug:
-                print "getUmbral() : No se ha encontrado el usuario: " + str(userId)
+                logging.debug("getUmbral() : No se ha encontrado el usuario: "
+                + str(userId))
             return 104
 
             
@@ -614,21 +614,24 @@ if __name__ == "__main__":
             except ValueError:
                 return None
     #----------------------------------------------
+    #log
+    setup_log()
+
     u = UserManager(debug=True)
     #u.deleteUser("test", "test")
     """
-    print "Crear:"
+    logging.debug("Crear:")
     userr = raw_input("user: ")
     passs = raw_input("pass: ")
     u.createUser(userr, passs)
     umbrall = raw_input("umbral: ")
     umbrall=num(umbrall)
     res=u.modUmbral(userr, umbrall)
-    print "modUmbral : " + str(res)
+    logging.debug("modUmbral : " + str(res))
     """
     u.leer()
 
-    print "Login:"
+    logging.debug("Login:")
     userr = raw_input("user: ")
     passs = raw_input("pass: ")
     u.login(userr,passs)
@@ -641,6 +644,6 @@ if __name__ == "__main__":
     #userr = 123
     #umbrall = 12L
     res=u.modUmbral(userr, umbrall)
-    print "modUmbral : " + str(res)
+    logging.debug("modUmbral : " + str(res))
     """
     u.endConn()

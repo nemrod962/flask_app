@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """
+LEGACY
 ESCRIBE EL NUMERO ALEATORIO JUNTO
 CON LA FECHA Y HORA DE OBTENCION
 EN LA BASE DE DATOS LOCAL DE MYSQL
@@ -28,6 +29,10 @@ import re
 import web_fetcher.rnd_fetcher as rndF
 #para obtener hora y fecha
 import date_handler
+#logging
+import logging
+from log_handler import setup_log
+
 
 #-------------------------------------------------------------------------
 #CLASE
@@ -101,18 +106,18 @@ class SQLHandler:
             #cierro fichero
             sql_key_file.close()
         except IOError as e:
-            print "MySQL Handler: " + str(e)
+            logging.warning("MySQL Handler: " + str(e))
         #SQL INIT
        	mysql.init_app(self.app)
         try:
             conn = mysql.connect()
         except:
-            print "ATENCION: NO SE PUDO CONECTAR A MYSQL."
+            logging.warning("NO SE PUDO CONECTAR A MYSQL.")
             #Inicializamos conn
             conn = None
             #Activar modo a preba de fallos
             self.modoPruebaFallos=True
-            #print self.modoPruebaFallos
+            #logging.debug(self.modoPruebaFallos)
         return conn
 
 
@@ -129,7 +134,7 @@ class SQLHandler:
         #es decir, si el modo a prueba de fallos no esta
         #activado, es decir, si tengo conexion con la BD.
         if debug:
-            print "writeDataDb - MODO PRUEBA FALLOS: " + str(self.modoPruebaFallos)
+            logging.debug("writeDataDb - MODO PRUEBA FALLOS: " + str(self.modoPruebaFallos))
         if self.modoPruebaFallos==False:
             #obtenemos los datos a escribir
             #numero aleatorio. Lo convertimos a String
@@ -145,7 +150,7 @@ class SQLHandler:
             #FECHA Y RND LOS TOMO COMO PARAMETROS
             #debug:
             if debug:
-                print "Num: "+rnd+"\nfecha: "+fecha
+                logging.debug("Num: "+rnd+"\nfecha: "+fecha)
 
             #inciiamos conexion con BD
             conn = self.initDBConn()
@@ -157,18 +162,18 @@ class SQLHandler:
             if debug:
                 cursor.execute("select * from NumberList")
                 res = cursor.fetchall()
-                print "La tabla tras la insercion: "
-                print res
+                logging.debug("La tabla tras la insercion: ")
+                logging.debug(res)
             """
             #comprobación de errores
             if len(res) is 0:
                 conn.commit()
                 if debug:
-                    print 'Query success!'
+                    logging.debug('Query success!')
                 #OK
                 result =  0
             else:
-                print 'SQL_rnd.py error: ' + str(res[0])
+                logging.debug('SQL_rnd.py error: ' + str(res[0]))
                 #NO OK
                 result = 1
             cursor.close()
@@ -189,7 +194,7 @@ class SQLHandler:
         #es decir, si el modo a prueba de fallos no esta
         #activado.
         if debug:
-            print "readDataDB - MODO PRUEBA FALLOS: " + str(self.modoPruebaFallos)
+            logging.debug("readDataDB - MODO PRUEBA FALLOS: " + str(self.modoPruebaFallos))
         if self.modoPruebaFallos==False:
 
             #inciamos conexion con BD
@@ -201,8 +206,8 @@ class SQLHandler:
             #en forma de tuplas
             res = cursor.fetchall()
             if debug:
-                print "La tabla de la BD: "
-                print res
+                logging.debug("La tabla de la BD: ")
+                logging.debug(res)
             cursor.close()
             conn.close()
             #DEBUG. para tenerlo disponible desde la consola
@@ -251,7 +256,7 @@ class SQLHandler:
         #es decir, si el modo a prueba de fallos no esta
         #activado
         if debug:
-            print "cleanData - MODO PRUEBA FALLOS: " + str(self.modoPruebaFallos)
+            logging.debug("cleanData - MODO PRUEBA FALLOS: " + str(self.modoPruebaFallos))
         if self.modoPruebaFallos==False:
 
             #inciiamos conexion con BD
@@ -282,13 +287,13 @@ class SQLHandler:
                                 str(date_handler.getDatetimeMs()),
                                 debug)
             elif opcion == "3":
-                print "Lista fechas: "
-                print self.listaGlobalFecha
-                print "Lista numeros: "
-                print self.listaGlobalNumero
+                logging.debug("Lista fechas: ")
+                logging.debug(self.listaGlobalFecha)
+                logging.debug("Lista numeros: ")
+                logging.debug(self.listaGlobalNumero)
             #opcion no valida
             else:
-                print "opcion no valida"
+                logging.debug("opcion no valida")
 
             #continuamos con el bucle
             opcion2 = raw_input("Quiere realizar otra operacion? Y/N: ")
@@ -304,6 +309,7 @@ class SQLHandler:
 
 #LANZAMOS FLASK
 if __name__ == "__main__":
+    setup_log()
     clase = SQLHandler()
     clase.user_op()
     #app.run(host='0.0.0.0')

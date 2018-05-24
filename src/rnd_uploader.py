@@ -11,7 +11,7 @@ como a Beebotte cada dos minutos
 #del tipo Value para que su valor se comparta entre procesos
 from multiprocessing import Process, Value
 #Hilos en vez de procesos
-from threading import Thread
+from threading import Thread, Condition
 #para esperar los dos minutos
 import time
 #librerias propias para trabajar con las bases de datos
@@ -25,6 +25,9 @@ import date_handler
 #Clase encargada de crear SSE y
 #enviarlos a los suscriptores.
 from sse_handler import SSEHandler
+#logging
+import logging
+from log_handler import setup_log
 
 
 class RndUploader:
@@ -40,7 +43,7 @@ class RndUploader:
         #self.__enable.value
         self.__enable=Value('b', True)
         #modo debug
-        self.__debug=debug
+        self.__debug=True
         #tiempo a esperar entre inserciones
         self.__tiempo = tiempoSleep
         #Creo instancias PRIVADAS de las clases a utilizar
@@ -105,6 +108,10 @@ class RndUploader:
         #lanza mediante un hilo  y no un proceso, por lo que ya no
         #se realiza ningún fork() que es sobre lo que va este aviso.
         #self.__MongoHand= mongo_rnd.MongoHandler()
+        
+        #Obtengo la condición de forma que este hilo pueda utlizar
+        #cond.wait() para esperar.
+        self.cond.acquire()
 
         while self.__enable.value:
 
@@ -112,25 +119,25 @@ class RndUploader:
             rnd = self.__RndGen.get_web_rnd()
 
             if self.__debug:
-                print "num aleatorio a escribir: " + str(rnd)
+                logging.debug("num aleatorio a escribir: " + str(rnd))
 
-            #"""
+            """
             #BORRA ESTO!-----------------------------
             #Este trozo de codigo sirve para que esta
             #clase no suba numeros.
-            print "PELIGRO: BORRA ESTO!!! rnd-uploader.upload() line-70"
+            logging.warning("SUBIDA DE NUMEROS DESACTIVADA!!!")
             self.__enable.value = False
             self.__SQLHand.readDataDB()
             self.__BeeHand.readRandom()
             self.__MongoHand.readRandom()
             #BORRA ESTO!-----------------------------
-            #"""
+            """
 
             if self.__debug:
-                print "rnd_uploader - Las listas en rnd_uploader: "
-                print "BeeHandler : " + str(self.__BeeHand.listaGlobalNumero)
-                print "SQLHandler : " + str(self.__SQLHand.listaGlobalNumero)
-                print "MongoHandler : " + str(self.__MongoHand.listaGlobalNumero)
+                logging.debug("rnd_uploader - Las listas en rnd_uploader: ")
+                logging.debug("BeeHandler : " + str(self.__BeeHand.listaGlobalNumero))
+                logging.debug("SQLHandler : " + str(self.__SQLHand.listaGlobalNumero))
+                logging.debug("MongoHandler : " + str(self.__MongoHand.listaGlobalNumero))
 
             #Escribir
             if(self.__enable.value):
@@ -163,8 +170,8 @@ class RndUploader:
                     res = self.__SSEHand.createSSE(str(msg))
                     #if self.__debug:
                     if True:
-                        print "rnd_uploader - ENVIANDO SSE: " + str(msg)
-                        print res
+                        logging.info("ENVIANDO SSE: " + str(msg))
+                        logging.debug(res)
                 
                 #ACTUALIZO LOS DATOS EN LAS LISTAS LOCALES 
                 #DE LOS MANEJADORES
@@ -173,24 +180,34 @@ class RndUploader:
                 self.__MongoHand.readRandom()
                 
                 if self.__debug:
-                    print "Tablas MySQL:"
-                    print self.__SQLHand.listaGlobalFecha
-                    print self.__SQLHand.listaGlobalNumero
-                    print "Tablas Bee:"
-                    print self.__BeeHand.listaGlobalFecha
-                    print self.__BeeHand.listaGlobalNumero
-                    print "Tablas Mongo:"
-                    print self.__MongoHand.listaGlobalFecha
-                    print self.__MongoHand.listaGlobalNumero
+                    logging.debug("Tablas MySQL:")
+                    logging.debug(self.__SQLHand.listaGlobalFecha)
+                    logging.debug(self.__SQLHand.listaGlobalNumero)
+                    logging.debug("Tablas Bee:")
+                    logging.debug(self.__BeeHand.listaGlobalFecha)
+                    logging.debug(self.__BeeHand.listaGlobalNumero)
+                    logging.debug("Tablas Mongo:")
+                    logging.debug(self.__MongoHand.listaGlobalFecha)
+                    logging.debug(self.__MongoHand.listaGlobalNumero)
 
                 #esperar entre escrituras
                 try:
-                    time.sleep(self.__tiempo)
+                    #time.sleep(self.__tiempo)
+                    #Utilizo la condicion para esperar
+                    #el tiempo entre escrituras.
+                    #Si la funcion finalizar() llama
+                    #al método cond.notify() mientras
+                    #hago wait(), la espera se 
+                    #interrumpe, al contrario que con 
+                    #time.sleep.
+                    self.cond.wait(self.__tiempo)
                 except:
                     if self.__debug:
-                        print "Uploader.upload(): sleep interrumpido!"
+                        logging.debug("Uploader.upload(): sleep interrumpido!")
 
-        print "Uploader.upload(): saliendo..."
+        #Libero la condicion antes de salir.
+        self.cond.release()
+        logging.info("Uploader.upload(): saliendo...")
     
 
     #Función que genera un proceso que ejecuta la función
@@ -203,23 +220,39 @@ class RndUploader:
         #Sin esta coma (',') la creación del proceso falla
         #self.proceso = Process(target=self.upload, args=(self.__debug,) )
         #self.proceso = Process(target=self.upload)
+
+        #Lo utilizara el proceso para esperar en vez de time.sleep()
+        self.cond = Condition()
         self.proceso = Thread(target=self.upload)
         #inicio proceso
-        print "Soy un hilo (RndUploader.upload())."
+        logging.info("Soy un hilo (RndUploader.upload()).")
         self.proceso.start()
 
     #Marca y espera que los procesos en segundo plano terminen su ejecución.
     def finalizar(self):
+        logging.debug("PROCESO: " + str(self.proceso.isAlive()))
+        logging.debug("PARANDO")
+        #Obtengo la condicion de forma que 
+        #pueda utilizar el método notify()
+        self.cond.acquire()
+        #Hago notify de forma que si el hilo
+        #de lanzar() esta esperando con wait(), 
+        #interrumpa su espera para terminar
+        self.cond.notify()
+        #Libero la condicion
+        self.cond.release()
+
         self.__enable.value=False
         if self.__debug:
-            print "Bandera activada para finalizar: " + str(self.__enable.value)
-            print "Esperando para acabar"
+            logging.info("Bandera activada para finalizar: " + str(self.__enable.value))
+            logging.info("Esperando para acabar")
         self.proceso.join()
         if self.__debug:
-            print "el proceso ya ha acabado"
+            logging.debug("el proceso ya ha acabado")
 
 if __name__ == '__main__':
-    print "Has ejecutado rnd_uploader.py"
+    setup_log()
+    logging.debug("Has ejecutado rnd_uploader.py")
     #clase = RndUploader(10, True)
     #clase.__enable.value=False
     #clase.finalizar()

@@ -11,6 +11,10 @@ from beebotte import *
 #expresiones regulares para parsear los datos obtenidos
 import re
 
+#logging
+import logging
+from log_handler import setup_log
+
 #importamos la clase para obtener los numeros aleatorios
 import web_fetcher.rnd_fetcher
 
@@ -65,13 +69,14 @@ class BeeHandler:
             #cierro fichero
             bee_key_file.close()
         except IOError as e:
-            print "Beebotte Handler: " + str(e)
+            logging.debug("Beebotte Handler: " + str(e))
             self.sinConexion=True
-            print "Beebotte - Modo sin conexion: " + str(self.sinConexion)
+            logging.debug("Beebotte - Modo sin conexion: " +
+            str(self.sinConexion))
 
         _hostname = "api.beebotte.com"
         bclient = BBT(_accesskey, _secretkey, hostname = _hostname)
-        print "Conectando a Beebotte..."
+        logging.debug("Conectando a Beebotte...")
         
         #COMPROBACION DE LA CONECTIVIDAD CON BEEBOTTE
         #Intento leer un valor de beebotte
@@ -86,9 +91,10 @@ class BeeHandler:
             self.sinConexion=False
             bclient.read("NumberList", "numero", 1)
         except:
-            print "No se pudo conectar con Beebotte."
+            logging.warning("No se pudo conectar con Beebotte.")
             self.sinConexion=True
-            print "Beebotte - Modo sin conexion: " + str(self.sinConexion)
+            logging.debug("Beebotte - Modo sin conexion: " +
+            str(self.sinConexion))
 
         return bclient
 
@@ -110,7 +116,8 @@ class BeeHandler:
                     ):
         #Si no podemos conectar con la Beebotte, no hacemos nada.
         if debug:
-            print "createChannel - modo sin conexion : " + str(self.sinConexion)
+            logging.debug("createChannel - modo sin conexion : " +
+            str(self.sinConexion))
         if self.sinConexion == False:
             try:
                 if varType == "string":
@@ -149,7 +156,7 @@ class BeeHandler:
                     )
                 return 0
             except:
-                print "Error when creating channel "+channelName
+                logging.warning("Error when creating channel "+channelName)
                 return 1
 
         
@@ -161,7 +168,8 @@ class BeeHandler:
                         isSendOnSubscribe=False, debug=False):
         #Si no podemos conectar con la Beebotte, no hacemos nada.
         if debug:
-            print "createResource - modo sin conexion : " + str(self.sinConexion)
+            logging.debug("createResource - modo sin conexion : " +
+            str(self.sinConexion))
         if self.sinConexion == False:
             if varType == "string":
                 try:
@@ -175,7 +183,7 @@ class BeeHandler:
                     )
                     return 2
                 except:
-                    print "Error adding resource "+varName
+                    logging.warning("Error adding resource "+varName)
                     return 1
             else:
                 try:
@@ -189,7 +197,7 @@ class BeeHandler:
                     )
                     return 0
                 except :
-                    print "Error adding resource "+varName
+                    logging.warning("Error adding resource "+varName)
                     return 1
 
 #-------------------------------------------------------------------------
@@ -207,8 +215,8 @@ class BeeHandler:
             
         except:
             if debug:
-                print "Could not write value "+ str(value) +" into variable "\
-                + str(varName)
+                logging.warning("Could not write value "+ str(value) +
+                " into variable " + str(varName))
             return 1
         
 
@@ -217,9 +225,9 @@ class BeeHandler:
         #read resources
         records = bclient.read(channel, varName, myLimit)
         if debug:
-            print "Estoy leyendo."
+            logging.debug("Estoy leyendo.")
             for x in records:
-                print x
+                logging.debug(x)
         return records
 
     #sacar la fecha del tiempo obtenido de toda la string obtenida
@@ -228,18 +236,18 @@ class BeeHandler:
     #{u'_id': u'5a2fd04c0e4d72e331909666', u'data': 82.28, u'ts': 1513082955796L, u'wts': 1513082956160L}
     def parseDate(self, cadena):
         fechaMs = re.findall('u\'ts\': (.*?),', cadena)
-        #print "FECHA ANTES PARSE: " + fechaMs[0]
+        #logging.debug("FECHA ANTES PARSE: " + fechaMs[0])
         #Problemas al parsear. A veces la fecha incluye la L al final 
         #y otras no. Comprobaremos si tiene L, y si es asi la quitamos.
         if fechaMs[0].endswith("L"):
             fechaMs[0]=fechaMs[0].replace("L","")
-        #print "FECHA DESPUES PARSE: " + fechaMs[0]
+        #logging.debug("FECHA DESPUES PARSE: " + fechaMs[0])
         return fechaMs[0]
 
     #saca el numero de toda la string obtenida de beebotte
     def parseNumber(self, cadena):
         numero = re.findall('u\'data\': (.*?),', cadena)
-        #print numero[0]
+        #logging.debug(numero[0])
         return numero[0]
 
 #-------------------------------------------------------------------------
@@ -256,23 +264,25 @@ class BeeHandler:
         bclient = self.initConn()
         #Si no podemos conectar con la Beebotte, no hacemos nada.
         if debug:
-            print "writeRandom - ModoFallo : " + str(self.sinConexion)
+            logging.debug("writeRandom - ModoFallo : " + str(self.sinConexion))
         if self.sinConexion == False:
             #obtenemos numero aleatorio de internet
             #rndClass = web_fetcher.rnd_fetcher.Rnd_fetcher()
             #rndNumber = rndClass.get_web_rnd()
             if debug:
-                print "El numero aleatorio es: "+str(rndNumber)
+                logging.debug("El numero aleatorio es: "+str(rndNumber))
             #escribimos el numero random en la BBDD online
             #es necseraio convertirlo a string para pasarlo como parametro
             success=self.writeData(bclient,"NumberList","numero",rndNumber,debug)
             if success == 0:
                 if debug:
-                    print "Numero "+str(rndNumber)+" escrito satisfactoriamente en NumberList"
+                    logging.debug("Numero "+str(rndNumber)+
+                    " escrito satisfactoriamente en NumberList")
                 return 0
             else:
                 if debug:
-                    print "ERROR: no se pudo escribir el numero "+str(rndNumber)
+                    logging.warning("ERROR: no se pudo escribir el numero "+
+                    str(rndNumber))
                 return 1
         else:
             #No hay conexion
@@ -285,7 +295,7 @@ class BeeHandler:
         bclient = self.initConn()
         #Si no podemos conectar con la Beebotte, no hacemos nada.
         if debug:
-            print "readRandom - ModoFallo : " + str(self.sinConexion)
+            logging.debug("readRandom - ModoFallo : " + str(self.sinConexion))
         if self.sinConexion == False:
             #tengo una lista con los numeros aleatorios y su fecha en resultado
             #   #NumberList : canal (tabla de la BBDD) a utilizar
@@ -304,7 +314,7 @@ class BeeHandler:
             #lista temporal con todas las entradas de beebotte (numeros)
             self.listaGlobalNumero = [None] * l
             if debug:
-                print "LONGITUD RESULTADO: "+str(l)
+                logging.debug("LONGITUD RESULTADO: "+str(l))
             for index in xrange( l ):
                 #parseo fecha
                 fechaMs=self.parseDate(str(resultado[index]))
@@ -319,11 +329,12 @@ class BeeHandler:
                 #Numero sera un float pues tiene decimales
                 self.listaGlobalNumero[index] = float(numero)
                 if debug:
-                    print "Entada ["+str(index)+"] num: "+numero+" fecha: "+fechaMs
+                    logging.debug("Entada ["+str(index)+"] num: "+numero+
+                    " fecha: "+fechaMs)
             if debug:        
-                print "Todas las entradas de Beebotte"
-                print self.listaGlobalFecha
-                print self.listaGlobalNumero
+                logging.debug("Todas las entradas de Beebotte")
+                logging.debug(self.listaGlobalFecha)
+                logging.debug(self.listaGlobalNumero)
 
 #-------------------------------------------------------------------------
     #INTERFAZ DE USUARIO
@@ -336,6 +347,8 @@ class BeeHandler:
             debug = True
         else:
             debug = False
+
+
         #Bucle principal
         while repetir:
             opcion = raw_input("Selecciona operacion:\n1.Añadir canal.\n2.Añadir variable a canal ya existente.\n3.Borrar canal.\n4.Escribir numero aleatorio.\n5.Ver numeros aleatorios.\n6.Mostrar lista numeros y tiempo.\n")
@@ -348,7 +361,7 @@ class BeeHandler:
                 varType = raw_input("Tipo variable (\"string\" o \"number\": ")
                 isPublic = True
                 res = self.createChannel(bclient, nombre, varName, varType, label, descr, isPublic, debug)
-                print res
+                logging.debug(res)
             #Añadir variable
             elif opcion == "2":
                 canal = raw_input("Canal: ")
@@ -358,13 +371,13 @@ class BeeHandler:
                 descr= raw_input("descripcion: ")
                 sendOnSubs = False
                 res = self.createResource(bclient, canal, nombre,tipo,label, descr, sendOnSubs, debug)
-                print res
+                logging.debug(res)
             elif opcion == "3":
                 nombre = raw_input("Nombre canal: ")
                 try:
                     bclient.deleteChannel(nombre)
                 except:
-                    print "No se pudo borrar canal "+nombre
+                    logging.warning("No se pudo borrar canal "+nombre)
             elif opcion == "4":
                 #rndClass = web_fetcher.rnd_fetcher.Rnd_fetcher()
                 #rndNumber = rndClass.get_web_rnd()
@@ -373,13 +386,13 @@ class BeeHandler:
             elif opcion == "5":
                 self.readRandom(debug)
             elif opcion == "6":
-                print "Lista fechas: "
-                print self.listaGlobalFecha
-                print "Lista numeros: "
-                print self.listaGlobalNumero
+                logging.debug("Lista fechas: ")
+                logging.debug(self.listaGlobalFecha)
+                logging.debug("Lista numeros: ")
+                logging.debug(self.listaGlobalNumero)
             #opcion no valida
             else:
-                print "opcion no valida"
+                logging.debug("opcion no valida")
             
             #continuamos con el bucle
             opcion2 = raw_input("Quiere realizar otra operacion? Y/N: ")
@@ -394,5 +407,8 @@ class BeeHandler:
         self.readRandom()
 
 if __name__ == "__main__":
+    #Setup log
+    setup_log()
+    logging.warning("Iniciado!")
     clase = BeeHandler()
     clase.user_op()

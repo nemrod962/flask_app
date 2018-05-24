@@ -7,6 +7,10 @@ import pymongo
 import random
 #Para errores de conexion con MongoDB
 from pymongo.errors import ConnectionFailure, OperationFailure
+#logging
+import logging
+from log_handler import setup_log
+
 
 class MongoBasic:
 
@@ -32,13 +36,13 @@ class MongoBasic:
         #Limite de documentos maximos devueltos por consulta
         self.limite=limite
         #debug
-        self.__debug=debug
+        self.__debug=True
         #Damos valor al cliente y la conexion
         self.initConn()
         #...
         #Comprobamos valores
-        #print self.con
-        #print self.client
+        #logging.debug(self.con)
+        #logging.debug(self.client)
         #...
     """
       ____                            _   _             
@@ -63,7 +67,8 @@ class MongoBasic:
         #Si fallo en abrir fichero, utilizo credenciales por defecto
         except IOError:
             if self.__debug:
-                print "MongoBase - Fallo al abrir archivo credenciales!"
+                logging.debug("MongoBase - "
+                + "Fallo al abrir archivo credenciales!")
             host='localhost'
             port='8080'
             user='pablo'
@@ -93,11 +98,11 @@ class MongoBasic:
             #significara que hay conexion
             self.hayConexion=True
         except ConnectionFailure:
-            print("MongoDB server not available")
+            logging.warning("MongoDB server not available")
             #Si ha saltado la exception no hay conexion
             self.hayConexion=False
         except OperationFailure as e:
-            print("MongoDB - OperationFailure: " + str(e))
+            logging.warning("MongoDB - OperationFailure: " + str(e))
             #Si salta esta excepttion, lo más
             #probable es que las credenciales aportadas
             #no sean válidas
@@ -113,7 +118,8 @@ class MongoBasic:
             #significara que hay conexion
             self.hayConexion=True
         except ConnectionFailure:
-            print("MongoBase.checkConn() - MongoDB server not available")
+            logging.warning("MongoBase.checkConn() -"
+            +" MongoDB server not available")
             #Si ha saltado la exception no hay conexion
             self.hayConexion=False
         finally:
@@ -122,12 +128,12 @@ class MongoBasic:
     #Termino la conexion
     def endConn(self):
         if self.__debug:
-            print "Cerrando conexion MongoDB."
+            logging.debug("Cerrando conexion MongoDB.")
         #try:
             self.con.close()
         #Si con == None    
         #except AttributeError as e:
-        #    print "No habia conexion: "+ str(e)
+        #    logging.debug("No habia conexion: "+ str(e))
 
     #Funciones Misceláneas
 
@@ -160,7 +166,7 @@ class MongoBasic:
             #Si campo==None, entonces isinstance(campo, str) = False
             if not isinstance(campo, str):
                 if self.__debug and campo!=None:
-                    print "Nombre de campo introducido no válido!"
+                    logging.debug("Nombre de campo introducido no válido!")
                 #Obtengo cursor a la collecion
                 col=self.client[self.coleccion]
                 #Realizo la consulta a la coleecion
@@ -168,9 +174,9 @@ class MongoBasic:
                 #Muestro los resultados obtenidos
                 if self.__debug:
                     i=0
-                    print "Leyendo de MongoDB:"
+                    logging.debug("Leyendo de MongoDB:")
                     for doc in res:
-                        print str(i)+": " + str(doc)
+                        logging.debug(str(i)+": " + str(doc))
                         i=i+1
             else:
                 #Si se ha especificado un campo, solo devuelvo ese campo
@@ -180,13 +186,14 @@ class MongoBasic:
                 res=col.find({},{"_id":0,campo:1}).limit(self.limite)
                 if self.__debug:
                     i=0
-                    print "Leyendo de MongoDB:"
+                    logging.debug("Leyendo de MongoDB:")
                     for doc in res:
-                        print str(i)+": " + str(doc)
+                        logging.debug(str(i)+": " + str(doc))
                         try:
-                            print str(i)+": " + str(doc[campo])
+                            logging.debug(str(i)+": " + str(doc[campo]))
                         except:
-                            print "No se pudo leer campo: " + str(campo)
+                            logging.debug("No se pudo leer campo: " +
+                            str(campo))
                         i=i+1
 
             #Antes de salir
@@ -222,13 +229,13 @@ class MongoBasic:
                 res=col.find().sort(campo,orden).limit(self.limite)
                 if self.__debug:
                     i=0
-                    print "Leyendo (ordenadamente) de MongoDB:"
+                    logging.debug("Leyendo (ordenadamente) de MongoDB:")
                     for doc in res:
-                        print str(i)+": " + str(doc)
+                        logging.debug(str(i)+": " + str(doc))
                         i=i+1
             else:
                 if self.__debug:
-                    print "Nombre de campo introducido no válido!"
+                    logging.debug("Nombre de campo introducido no válido!")
                 res = self.leer()
             
             #Retornamos el puntero al inincio del cursor
@@ -260,17 +267,19 @@ class MongoBasic:
                     res=col.find(condicion).sort(campo,orden).limit(self.limite)
                 else:
                     if self.__debug:
-                        print "Sin ordenar, nombre de campo no valido."
+                        logging.debug("Sin ordenar, nombre de campo no valido.")
                     #Realizo consulta sin ordenar
                     res=col.find(condicion).limit(self.limite)
                 
                 if self.__debug:
-                    print "leerCondicion - Resultado: "
+                    logging.debug("leerCondicion - Resultado: ")
                     if res.count == 0:
-                        print "ATENCION: resultado de la consulta vacio."
-                        print "Es probable que la condición no sea valida."
+                        logging.debug("ATENCION: resultado de la"
+                        + "consulta vacio.")
+                        logging.debug("Es probable que la condición"
+                        + "no sea valida.")
                     for doc in res:
-                        print doc
+                        logging.debug(doc)
                     res.rewind()
                 #Devuelvo el resultado de la consulta
                 return res
@@ -280,7 +289,8 @@ class MongoBasic:
             #Devuelvo -1 para indicar error
             else:
                 if self.__debug:
-                    print "leerCondicion(): Condición no válida: "+str(condicion)
+                    logging.debug("leerCondicion(): Condición no válida:"
+                    +str(condicion))
                 return -1
 
         #Si no hay conexion retorno None
@@ -312,17 +322,18 @@ class MongoBasic:
                 try:
                     #res0 contendrá el _id que le ha asignado Mongo a los datos.
                     res0=col.insert(datos)
-                    #print res0
+                    #logging.debug(res0)
                     res=0
                 except Exception as e:
-                    print "MongoBasic.escribir() - ERROR: " + str(e)
+                    logging.debug("MongoBasic.escribir() - ERROR: " + str(e))
                     res=1
             else:
                 if self.__debug:
                     if not isinstance(datos, dict):
-                        print "Los datos proporcionados no son de tipo dict!"
+                        logging.debug("Los datos proporcionados no"
+                        + "son de tipo dict!")
                     elif not any(datos):
-                        print "Los datos proporcionados estan vacios!"
+                        logging.debug("Los datos proporcionados estan vacios!")
                 res=1
 
             return res
@@ -361,17 +372,19 @@ class MongoBasic:
                     res0=col.delete_many(condicion)
                     res=res0.deleted_count
                 except Exception as e:
-                    print "MongoBasic.borrar() - ERROR: " + str(e)
+                    logging.debug("MongoBasic.borrar() - ERROR: " + str(e))
                     res=-1
                     error=True
                 
                 #Debug
                 if self.__debug and not error :
-                    print "Se han borrado " +  str(res0.deleted_count) + " documentos."
+                    logging.debug("Se han borrado " +  str(res0.deleted_count) +
+                    " documentos.")
             else:
                 if self.__debug:
                     if not isinstance(condicion, dict):
-                        print "Los datos proporcionados no son de tipo dict!"
+                        logging.debug("Los datos proporcionados no"
+                        + "son de tipo dict!")
                 res=-1
 
             return res
@@ -409,19 +422,23 @@ class MongoBasic:
                     res0=col.update_many(condicion, {"$set": asignacion})
                     res=res0.modified_count
                 except Exception as e:
-                    print "MongoBasic.actualizar() - ERROR: " + str(e)
+                    logging.debug("MongoBasic.actualizar() - ERROR: " + str(e))
                     error=True
                     res = -1
                 #Debug
                 if self.__debug and not error:
-                    print "Cumplen la condición " +  str(res0.matched_count) + " documentos."
-                    print "Se han modificado " +  str(res0.modified_count) + " documentos."
+                    logging.debug("Cumplen la condición " +
+                    str(res0.matched_count) + " documentos.")
+                    logging.debug("Se han modificado " +
+                    str(res0.modified_count) + " documentos.")
             else:
                 if self.__debug:
                     if not isinstance(condicion, dict):
-                        print "Los datos de condicion proporcionados no son de tipo dict!"
+                        logging.debug("Los datos de condicion proporcionados"
+                        +" no son de tipo dict!")
                     if not isinstance(asignacion, dict):
-                        print "Lo datos de asignacion proporcionados no son de tipo dict!"
+                        logging.debug("Lo datos de asignacion proporcionados"+
+                        " no son de tipo dict!")
                 res=-1
 
             return res
@@ -431,6 +448,9 @@ class MongoBasic:
 
 #Al ejecutar como main
 if __name__ == "__main__":
+    #log
+    setup_log()
+
     m = MongoBasic("test",1024,True)
     #res3=m.leerOrden("tiempo",True)
 
@@ -443,7 +463,7 @@ if __name__ == "__main__":
     #borrar
     dato={"var":{"$regex": ".*"}}
     res3 = m.borrar(dato)
-    print "Borrados: " + str(res3)
+    logging.debug("Borrados: " + str(res3))
     """
     
     """
@@ -451,20 +471,20 @@ if __name__ == "__main__":
     con={"num": {"$gt":50}}
     asig={"tiempo": 777}
     res1=m.actualizar(con, asig)
-    print "Actualizados: " + str(res1)
+    logging.debug("Actualizados: " + str(res1))
     """
     #leer
     res2=m.leer()
     
     #dato="num"
-    #print "res1"
+    #logging.debug("res1")
     #for doc in res1:
-    #    print doc[dato]
-    #print res1
-    #print "res2"
+    #    logging.debug(doc[dato])
+    #logging.debug(res1)
+    #logging.debug("res2")
     #for doc in res2:
-    #    print doc
-    #print "res3"
-    #print res3
+    #    logging.debug(doc)
+    #logging.debug("res3")
+    #logging.debug(res3)
     m.endConn()
 

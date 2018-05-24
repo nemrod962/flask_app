@@ -1,6 +1,8 @@
 # -*- coding: UTF-8 -*-
 
 """
+LEGACY -> Requiere procesamiento por parte del servidor.
+
 Esta clase se encargara de realizar las funciones
 que se utilizarán en la pagina web a la hora de 
 ofrecer las funcionalidades al cliente.
@@ -31,23 +33,23 @@ def umbral(DBHandler, umbral, debug = False):
         #ACTUALIZO LAS LISTAS EN DBHANDLER
         DBHandler.reload()
         if debug:
-            print "Usando " + str(DBHandler.__class__.__name__)
-            print DBHandler.listaGlobalFecha
-            print DBHandler.listaGlobalNumero
+            logging.debug("Usando " + str(DBHandler.__class__.__name__))
+            logging.debug(DBHandler.listaGlobalFecha)
+            logging.debug(DBHandler.listaGlobalNumero)
         """
         if DBHandler.__class__.__name__ == "BeeHandler":
             DBHandler.readRandom()
             if debug:
-                print "Usando Beebotte"
-                print DBHandler.listaGlobalFecha
-                print DBHandler.listaGlobalNumero
+                logging.debug("Usando Beebotte")
+                logging.debug(DBHandler.listaGlobalFecha)
+                logging.debug(DBHandler.listaGlobalNumero)
 
         if DBHandler.__class__.__name__ == "SQLHandler":
             DBHandler.readDataDB()
             if debug:
-                print "Usando MySQL"
-                print DBHandler.listaGlobalFecha
-                print DBHandler.listaGlobalNumero
+                logging.debug("Usando MySQL")
+                logging.debug(DBHandler.listaGlobalFecha)
+                logging.debug(DBHandler.listaGlobalNumero)
         """
         #No puedo estar esperando a que se llenen. Hay casos
         #en los que no podremos conectarnos a la base de datos de 
@@ -56,12 +58,12 @@ def umbral(DBHandler, umbral, debug = False):
         #colgaremos el programa.
         """
         while len(DBHandler.listaGlobalNumero) <= 0 :
-            print "LISTAS VACIAS. ESPERANDO..."
+            logging.debug("LISTAS VACIAS. ESPERANDO...")
             time.sleep(1)
         """
         #Añado alerta en su lugar
         if len(DBHandler.listaGlobalNumero) <= 0 :
-            print "ATENCION: LISTAS VACIAS!"
+            logging.debug("ATENCION: LISTAS VACIAS!")
 
         #obtengo listas 
         listaNum = DBHandler.listaGlobalNumero
@@ -70,9 +72,9 @@ def umbral(DBHandler, umbral, debug = False):
         l1 = len(listaNum)
         l2 = len(listaDate)
         if l1 != l2:
-            print "umbral(): LONGITUD DE LISTAS (fecha y número) DIFERENTES!"
+            logging.debug("umbral(): LONGITUD DE LISTAS (fecha y número) DIFERENTES!")
         elif debug:
-            print "Longitud de la(s) lista(s): " + str(l1)
+            logging.debug("Longitud de la(s) lista(s): " + str(l1))
 
         #umbral superior
         resNumSup = umbral
@@ -107,21 +109,21 @@ def umbral(DBHandler, umbral, debug = False):
                     resDateInf = listaDate[index]
         
         if debug:
-            print "Resultado:"
+            logging.debug("Resultado:")
             if resNumSup == umbral:
-                print "No se ha superado el umbral como umbral superior"
+                logging.debug("No se ha superado el umbral como umbral superior")
             else:
-                print "Superior: " + str(resNumSup) + " - " + str(resDateSup)
+                logging.debug("Superior: " + str(resNumSup) + " - " + str(resDateSup))
             if resNumInf == umbral:
-                print "No se ha superado el umbral como umbral inferior"
+                logging.debug("No se ha superado el umbral como umbral inferior")
             else:
-                print "Inferior: " + str(resNumInf) + " - " + str(resDateInf)
+                logging.debug("Inferior: " + str(resNumInf) + " - " + str(resDateInf))
 
         return (resNumSup, resDateSup, resNumInf, resDateInf)
 
     #Base de datos desconocida
     else:
-        print "Base de datos desconocida"
+        logging.debug("Base de datos desconocida")
 
 
 
@@ -139,25 +141,25 @@ def media(DBHandler, debug = True):
         #ACTUALIZO LAS LISTAS EN DBHANDLER
         DBHandler.reload()
         if debug:
-            print "Usando " + str(DBHandler.__class__.__name__)
-            print DBHandler.listaGlobalFecha
-            print DBHandler.listaGlobalNumero
+            logging.debug("Usando " + str(DBHandler.__class__.__name__))
+            logging.debug(DBHandler.listaGlobalFecha)
+            logging.debug(DBHandler.listaGlobalNumero)
 
         """
         #ACTUALIZO LAS LISTAS EN DBHANDLER
         if DBHandler.__class__.__name__ == "BeeHandler":
             DBHandler.readRandom()
             if debug:
-                print "Usando Beebotte"
-                print DBHandler.listaGlobalFecha
-                print DBHandler.listaGlobalNumero
+                logging.debug("Usando Beebotte")
+                logging.debug(DBHandler.listaGlobalFecha)
+                logging.debug(DBHandler.listaGlobalNumero)
 
         if DBHandler.__class__.__name__ == "SQLHandler":
             DBHandler.readDataDB()
             if debug:
-                print "Usando MySQL"
-                print DBHandler.listaGlobalFecha
-                print DBHandler.listaGlobalNumero
+                logging.debug("Usando MySQL")
+                logging.debug(DBHandler.listaGlobalFecha)
+                logging.debug(DBHandler.listaGlobalNumero)
         
         """
         #No puedo estar esperando a que se llenen. Hay casos
@@ -167,12 +169,12 @@ def media(DBHandler, debug = True):
         #colgaremos el programa.
         """
         while len(DBHandler.listaGlobalNumero) <= 0 :
-            print "LISTAS VACIAS. ESPERANDO..."
+            logging.debug("LISTAS VACIAS. ESPERANDO...")
             time.sleep(1)
         """
         #Añado alerta en su lugar
         if len(DBHandler.listaGlobalNumero) <= 0 :
-            print "ATENCION: LISTAS VACIAS!"
+            logging.debug("ATENCION: LISTAS VACIAS!")
 
         #obtengo listas 
         listaNum = DBHandler.listaGlobalNumero
@@ -181,10 +183,10 @@ def media(DBHandler, debug = True):
         l1 = len(listaNum)
         l2 = len(listaDate)
         if l1 != l2:
-            print "umbral(): LONGITUD DE LISTAS DIFERENTES!"
+            logging.debug("umbral(): LONGITUD DE LISTAS DIFERENTES!")
         
         if debug:
-            print "Longitud de la(s) lista(s): " + str(l1)
+            logging.debug("Longitud de la(s) lista(s): " + str(l1))
 
         #calculo de la media
         sumatorio = 0.0
