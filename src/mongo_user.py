@@ -32,7 +32,7 @@ from numbers import Number
 from mongo_base import MongoBasic
 #logging
 import logging
-from log_handler import setup_log
+from log_handler import setup_log, setStreamMode
 
 class UserManager(MongoBasic):
     
@@ -92,7 +92,7 @@ class UserManager(MongoBasic):
         if self.checkUserName(userId):
             #Existe usuario.
             #Ahora comprobamos contraseña
-            correctPass = self.checkPassword(userPass, userPass)
+            correctPass = self.checkPassword(userId, userPass)
 
             if correctPass:
                 #Usuario y contraseña correctos.
@@ -204,7 +204,8 @@ class UserManager(MongoBasic):
         #Nombre 'None' no permitido, ya que si accedemos a 
         #la aplicación sin haber hecho login, el nombre de 
         #usuario actual figurará como 'None'.
-        if userId=="None":
+        #if userId=="None":
+        if userId.lower()=="none":
             if self.debug:
                 logging.debug("MongoUser - createUser()")
                 logging.debug("El nombre de usuario 'None' no esta permitido.")
@@ -262,23 +263,7 @@ class UserManager(MongoBasic):
         if res:
             #Existe usuario.
             #Ahora comprobamos contraseña
-            #Obtenemos el has de la contraseña iterando por el resultado.
-            #Si lo hacemos de otra manera, p.ej. res[0]["pass"]
-            #nos devolverá u'pass' en lugar de pass
-            hashPass=None
-            for doc in res:
-                hashPass=doc[self.campoPassword]
-            
-            #Comparamos la contraseña introducida con el
-            #hash de la contraseña verdadera
-            correctPass = pbkdf2_sha256.verify(userPass , hashPass)
-
-            #DEBUG
-            if self.debug:
-                logging.debug("hash pass buena: " + str(hashPass))
-                logging.debug("pass introducida: " + str(userPass))
-                logging.debug("Coinciden? : " + str(correctPass))
-
+            correctPass = self.checkPassword(userId, userPass)
             if correctPass:
                 #Usuario y contraseña correctos.
                 #Procedo a borrar el usuario
@@ -619,6 +604,7 @@ if __name__ == "__main__":
     #----------------------------------------------
     #log
     setup_log()
+    setStreamMode(logging.DEBUG)
 
     u = UserManager(debug=True)
     #u.deleteUser("test", "test")
@@ -638,6 +624,15 @@ if __name__ == "__main__":
     userr = raw_input("user: ")
     passs = raw_input("pass: ")
     u.login(userr,passs)
+    
+    debug_str = raw_input("Borrar cuenta?[Y\N]: ")
+
+    if debug_str == "Y" or debug_str == "y":
+        debug = True
+    else:
+        debug = False
+    if debug:
+        u.deleteUser(userr,passs)
     
     """
     u.leer()
