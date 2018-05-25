@@ -12,12 +12,10 @@ from log_handler import setup_log
 
 
 class SSEHandler(object):
-    
-    #INIT
-    def __init__(self):
-        #lista con las colas que contendran los mensajes a enviar
-        #Habrá una cola por suscriptor.
-        self.listaSuscripciones = []
+   
+    #Variable de clase (estatica)
+    #Compartida entre todas las instancias
+    listaSubs = []
 
     #Añade SSE a las colas de los diferentes
     #suscriptores para que la funcion
@@ -39,14 +37,14 @@ class SSEHandler(object):
 
     #Devuelve el numero de suscriptores
     def getNumSuscriptores(self):
-        return len(self.listaSuscripciones)
+        return len(SSEHandler.listaSubs)
     
     #Privado. No puede llamarse desde fuera de la clase.
     def __addEvent(self, data="*empty message*"):
         msg=data
         logging.info("num suscriptores: " +\
             str(self.getNumSuscriptores()))
-        for sub in self.listaSuscripciones:
+        for sub in SSEHandler.listaSubs:
             sub.put(msg)
         
 
@@ -56,9 +54,9 @@ class SSEHandler(object):
     #Contendrá los diferentes mensajes a enviarle.
     def __sendEvent(self):
         q = Queue()
-        self.listaSuscripciones.append(q)
+        SSEHandler.listaSubs.append(q)
         logging.debug("SSEHandler - sendEvent():")
-        logging.debug("listaSuscripciones: " + str(self.listaSuscripciones))
+        logging.debug("listaSuscripciones: " + str(SSEHandler.listaSubs))
         try:
             while True:
                 #q.get() espera hasta que haya elemento en q
@@ -107,7 +105,7 @@ class SSEHandler(object):
 		#capturaremos esta excepción con 'except GeneratorExit'
         except GeneratorExit:
             logging.debug("*** Cliente desconectado.")
-            self.listaSuscripciones.remove(q)
+            SSEHandler.listaSubs.remove(q)
         except socket.error as e:
             logging.warning("socket error: " + str(e))
         except IOError as e:

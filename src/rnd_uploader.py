@@ -36,7 +36,7 @@ class RndUploader:
     #se inicializa como True. Miestras tenga este valor
     #se seguiran subiendo datos cada 2 minutos.
     #cuando se cambie su valor a Flase parara.
-    def __init__(self, flaskApp, handSQL, handBee, handMongo,\
+    def __init__(self, flaskApp, handSQL=None, handBee=None, handMongo=None,\
     tiempoSleep = 120, debug = False,handSSE=None):
         #self.__enable -> __enable es privado gracias a '__'
         #para acceder al valor de enable utilizaremos
@@ -52,8 +52,16 @@ class RndUploader:
         #manejar BBDD
         #self.__SQLHand = sql_rnd.SQLHandler(flaskApp)
         #self.__BeeHand = beebotte_rnd.BeeHandler()
-        self.__SQLHand = handSQL
-        self.__BeeHand = handBee
+        if handSQL:
+            self.__SQLHand = handSQL
+        else:
+            logging.info("SQLHandler - Creando instancia Propia")
+            self.__SQLHand = sql_rnd.SQLHandler(flaskApp)
+        if handBee:
+            self.__BeeHand = handBee
+        else:
+            logging.info("BeeHandler - Creando instancia Propia")
+            self.__BeeHand = beebotte_rnd.BeeHandler()
         #MongoClient opened before fork. Create MongoClient only after forking.
         #See PyMongo's documentation for details:
         #http://api.mongodb.org/python/current/faq.html#is-pymongo-fork-safe
@@ -69,11 +77,21 @@ class RndUploader:
         #UPDATE: ya no es necesario, ya que ahora rnd_uploader crea un hilo 
         #en vez de un proceso, por lo que comparten memoria y no hace fork()
         #de esta instancia recibida de MongoHandler.
-        self.__MongoHand= handMongo
+        #self.__MongoHand= handMongo
+        if handMongo:
+            self.__MongoHand = handMongo
+        else:
+            logging.info("MongoHandler - Creando instancia Propia")
+            self.__MongoHand = mongo_rnd.MongoHandler()
         #self.__MongoHand= mongo_rnd.MongoHandler()
 
         #Manejador de SSE
         self.__SSEHand = handSSE
+        if handSSE:
+            self.__SSEHand = handSSE
+        else:
+            logging.info("SSEHandler - Creando instancia Propia")
+            self.__SSEHand = SSEHandler()
 
         #inicio proceso para subir los datos a las BBDD
         self.lanzar()
@@ -121,7 +139,7 @@ class RndUploader:
             if self.__debug:
                 logging.debug("num aleatorio a escribir: " + str(rnd))
 
-            """
+            #"""
             #BORRA ESTO!-----------------------------
             #Este trozo de codigo sirve para que esta
             #clase no suba numeros.
@@ -131,7 +149,7 @@ class RndUploader:
             self.__BeeHand.readRandom()
             self.__MongoHand.readRandom()
             #BORRA ESTO!-----------------------------
-            """
+            #"""
 
             if self.__debug:
                 logging.debug("rnd_uploader - Las listas en rnd_uploader: ")
@@ -149,15 +167,18 @@ class RndUploader:
                 #este valor en las BDs.
                 if rnd > -1:
                     #escribo en Beebotte. 0 si bien. 1 si mal.
-                    resBee = self.__BeeHand.writeRandom(rnd, self.__debug)
+                    #resBee = self.__BeeHand.writeRandom(rnd, self.__debug)
                     #solo necesario para la BD local, ya que Beebotte
                     #almacena automaticamente la fecha
                     fecha = str(date_handler.getDatetimeMs())
                     #escribo en MongoDB. 0 si bien. 1 si mal.
-                    resMongo = self.__MongoHand.writeRandom(rnd, fecha)
+                    #resMongo = self.__MongoHand.writeRandom(rnd, fecha)
                     #escribo en MySQL. 0 si bien. 1 si mal.
-                    resSQL = self.__SQLHand.writeDataDB(rnd, fecha, self.__debug)
+                    #resSQL = self.__SQLHand.writeDataDB(rnd, fecha, self.__debug)
                     #---
+                    resBee=0
+                    resMongo=0
+                    resSQL=0
                     #envio SSE (notificación a los clientes con
                     #el número obtenido)
                     msg = str(rnd) + "#"

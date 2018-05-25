@@ -46,17 +46,17 @@ app = Flask(__name__)
 #debug - Activar si se quieren ver los mensajes
 #debug = False
 #Manejo de BBDD
-#SQLHandler = sql_rnd.SQLHandler(app)
-#BeeHandler = beebotte_rnd.BeeHandler()
-#MongoHandler = mongo_rnd.MongoHandler()
+SQLHandler = sql_rnd.SQLHandler(app)
+BeeHandler = beebotte_rnd.BeeHandler()
+MongoHandler = mongo_rnd.MongoHandler()
 
 #Manejo de Usuarios almacenados en MongoDB
-#UserHandler = UserManager()
+UserHandler = UserManager()
 #Usuarios OAuth
-#OAuthHandler = OAuthUserManager()
+OAuthHandler = OAuthUserManager()
 
 #Encargado de manejar los SSE
-#sseHandler = SSEHandler()
+sseHandler = SSEHandler()
 
 #DEPRECATED - Guardar Manejador preferido en cookies de cliente.
 #Manejador a emplear. Será elegido en el
@@ -120,11 +120,6 @@ def no_cookie_check(func):
 #petición del cliente (request)
 @app.before_request
 def check_cookies(*args, **kwargs):
-    #Creo instancia del manjador de usuarios local
-    UserHandler = UserManager()
-    #Creo instancia del manejador de usuarios OAuth
-    OAuthHandler = OAuthUserManager()
-
     #default value.
     #Indica si hay que ejecutar el checkeo o no
     run_check=True
@@ -227,13 +222,9 @@ def getCookieUserName(request):
     #Inicializo nombreUsuario
     nombreUsuario=None
     if idTipo=="local":
-        #Creo instancia del manjador de usuarios local
-        UserHandler = UserManager()
         #Si la cookie ha caducado, me mostrara None como Usuario
         nombreUsuario = UserHandler.getCookieUserName(idSesion)
     elif idTipo=="oauth":
-        #Creo instancia del manejador de usuarios OAuth
-        OAuthHandler = OAuthUserManager()
         #Si la cookie ha caducado, me mostrara None como Usuario
         idUsuario = OAuthHandler.getCookieUserName(idSesion)
         nombreUsuario = OAuthHandler.getUserName(idUsuario)
@@ -261,7 +252,6 @@ def getCookieDB(request):
         #Actualizo las listas locales
         #para que contengan los números 
         #y las fechas actualizadas
-        SQLHandler = sql_rnd.SQLHandler(app)
         SQLHandler.reload()
         return SQLHandler
     elif db == "Beebotte":
@@ -271,7 +261,6 @@ def getCookieDB(request):
         #Actualizo las listas locales
         #para que contengan los números 
         #y las fechas actualizadas
-        BeeHandler = beebotte_rnd.BeeHandler()
         BeeHandler.reload()
         return BeeHandler
     elif db == "MongoDB":
@@ -281,7 +270,6 @@ def getCookieDB(request):
         #Actualizo las listas locales
         #para que contengan los números 
         #y las fechas actualizadas
-        MongoHandler = mongo_rnd.MongoHandler()
         MongoHandler.reload()
         return MongoHandler
     #Valor por defecto: MongoDB (puede ser cualquiera)
@@ -292,7 +280,6 @@ def getCookieDB(request):
         #Actualizo las listas locales
         #para que contengan los números 
         #y las fechas actualizadas
-        MongoHandler = mongo_rnd.MongoHandler()
         MongoHandler.reload()
         return MongoHandler
 
@@ -309,20 +296,17 @@ def getCookieDB(request):
 @app.route('/sse')
 @no_cookie_check
 def webSSE():
-    sseHandler = SSEHandler()
     return sseHandler.sendSSE()
 
 #test
 @app.route('/send')
 @no_cookie_check
 def sendTest():
-    sseHandler = SSEHandler()
     return sseHandler.createSSE()
 
 @app.route('/send/<msg>')
 @no_cookie_check
 def sendTest2(msg):
-    sseHandler = SSEHandler()
     return sseHandler.createSSE(msg)
 
 """
@@ -344,8 +328,6 @@ def jsOAuthLogin():
 @app.route("/jsoauthdata/", methods=['POST'])
 @no_cookie_check
 def jsOAuthData():
-    #Creo instancia del manejador de usuarios OAuth
-    OAuthHandler = OAuthUserManager()
     #Obtener datos enviados por cliente.
     token=request.form['idtoken']
     #token=request.get.args('idtoken','placeholder',type=str)
@@ -497,8 +479,6 @@ def webRegister():
         cadena += '<br>usuario: ' + username
         cadena += '<br>password: ' + password
         cadena += '<br>umbral: ' + str(umbral)
-        #Creo instancia del manejador de usuarios local
-        UserHandler = UserManager()
         #Creacion usuario
         exito=UserHandler.createUser(username,password,umbral)
         cadena+='<br> RET: '+str(exito)+'</html>'
@@ -546,8 +526,6 @@ def webLogin():
         #inicio de sesión, si este es satisfactorio.
         resp = make_response(redirect(url_for('webMain')))
 
-        #Creo instancia del manejador de usuarios local
-        UserHandler = UserManager()
         #Obtengo cookie resultado de log in
         cookieVal=UserHandler.login(user,passw)
         #Si se ha iniciado sesion, el valor de 
@@ -583,16 +561,12 @@ def webLogout():
     idTipo=request.cookies.get('tipoLogin')
     #OAUTH
     if idTipo=="oauth":
-        #Creo instancia del manejador de usuarios OAuth
-        OAuthHandler = OAuthUserManager()
         #Logout al usuario
         logging.info("(OAuth)logging out user: " + idSesion)
         OAuthHandler.logout(idSesion)
     #LOCAL
     elif idTipo=="local":
         logging.info("(Local)logging out user: " + idSesion)
-        #Creo instancia del manejador de usuarios local
-        UserHandler = UserManager()
         #Logout al usuario
         UserHandler.logout(idSesion)
 
@@ -622,10 +596,6 @@ def cambiarUmbral():
     #inicio variables en caso de que no haya cookies en el cliente
     nombreUser=None
     nombreAMostrar=None
-    #Creo instancia del manejador de usuarios local
-    UserHandler = UserManager()
-    #Creo instancia del manejador de usuarios OAuth
-    OAuthHandler = OAuthUserManager()
     #OAUTH
     if idTipo=="oauth":
         nombreUser=OAuthHandler.getCookieUserName(idSesion)
@@ -720,11 +690,6 @@ def webAccount():
     idSesion=request.cookies.get('SessionId')
     #tipo de login
     idTipo=request.cookies.get('tipoLogin')
-
-    #Creo instancia del manejador de usuarios local
-    UserHandler = UserManager()
-    #Creo instancia del manejador de usuarios OAuth
-    OAuthHandler = OAuthUserManager()
     
     #Incializamos vairables
     userid = None
@@ -977,10 +942,6 @@ def oldWebMain():
     idSesion=request.cookies.get('SessionId')
     #Inicializo nombreUsuario
     nombreUsuario=None
-    #Creo instancia del manejador de usuarios local
-    UserHandler = UserManager()
-    #Creo instancia del manejador de usuarios OAuth
-    OAuthHandler = OAuthUserManager()
     if idTipo=="local":
         #CADUCIDAD - BORRO Y ACTUALIZO
         sehaborrado=UserHandler.checkCookieStatus(idSesion)
@@ -1298,8 +1259,8 @@ if __name__ == "__main__":
 
     #Iniciar y lanzar proceso de carga de datos en las BBDD
     #LOS MANEJADORES DE LAS DBs SE INICIALIZAN EN SU CONSTRUCTOR
-    uploader = rnd_uploader.RndUploader(flaskApp = app,\
-    tiempoSleep=120, debug = debug) 
+    uploader = rnd_uploader.RndUploader(app, SQLHandler, BeeHandler,\
+    MongoHandler,120, debug, sseHandler) 
 
     #Arrancar el el servidor
     #app.run(host='0.0.0.0')
@@ -1328,4 +1289,10 @@ if __name__ == "__main__":
     #uploader.enable = False
     uploader.finalizar()
 
+    if True:
+       logging.debug("Las listas en main_flask: ")
+       logging.debug("BeeHandler : " + str(BeeHandler.listaGlobalNumero))
+       logging.debug("SQLHandler : " + str(SQLHandler.listaGlobalNumero))
+       logging.debug("MongoHandler : " + str(MongoHandler.listaGlobalNumero))
+    
     logging.debug("FIN")
