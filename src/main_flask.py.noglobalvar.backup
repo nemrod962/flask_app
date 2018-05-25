@@ -36,25 +36,11 @@ from threading import Thread
 #Log
 import logging
 from log_handler import setup_log, setStreamMode
-#Vistas
-from views.blue_cookie import blueCookie,\
-no_cookie_check, getCookieUserName, getCookieDB
-from views.blue_sse import blueSSE
-from views.blue_oauth import blueOAuth
-from views.blue_user import blueUser
-from views.blue_app import blueApp
-#---
+
 #Log
 setup_log()
 #Creo instancia de Flask
 app = Flask(__name__) 
-#Agrego Blueprints (vistas)
-app.register_blueprint(blueCookie)
-app.register_blueprint(blueSSE)
-app.register_blueprint(blueOAuth)
-app.register_blueprint(blueUser)
-app.register_blueprint(blueApp)
-
 
 #VAR GLOBAL
 #debug - Activar si se quieren ver los mensajes
@@ -105,7 +91,7 @@ app.register_blueprint(blueApp)
   \____\___/ \___/|_|\_\_|\___|  \____|_| |_|\___|\___|_|\_\
                                                             
 """
-"""
+
 #Añade el atributo '_exclude_from_checking' a la funcion recibida
 #como parámetra. Este atributo añadido a la función indicará al
 #request_hook que no se comprueben las cookies para la dirección
@@ -124,6 +110,7 @@ app.register_blueprint(blueApp)
 def no_cookie_check(func):
     func._exclude_from_checking = True
     return func
+
 
 #Se establecerá un request hook para comprobar las cookies de sesion, de forma
 #que nos aseguraremos de que el cliente haya iniciado sesión y esta no ha
@@ -221,11 +208,11 @@ def check_cookies(*args, **kwargs):
         #404
         logging.debug("La pagina "+ request.path +" no existe. Redirigiendo...")
         return redirect(url_for('webMain'))
-"""
+
 """
     GETTERS
 """
-"""
+
 #Función utilizada en view functions para obtener el nombre del 
 #usuario que está conectado. 
 #Devolverá el nombre del usuario conectado o None si la sesión
@@ -308,7 +295,6 @@ def getCookieDB(request):
         MongoHandler = mongo_rnd.MongoHandler()
         MongoHandler.reload()
         return MongoHandler
-"""
 
 """
   ____                             ____             _     _____                 _       
@@ -317,7 +303,6 @@ def getCookieDB(request):
   ___) |  __/ |   \ V /  __/ |     ___) |  __/ | | | |_  | |___ \ V /  __/ | | | |_\__ \
  |____/ \___|_|    \_/ \___|_|    |____/ \___|_| |_|\__| |_____| \_/ \___|_| |_|\__|___/
                                                                                         
-"""
 """
 #El cliente se conectará a esta ruta para registrarse y que 
 #el servidor le envíe los SSE.
@@ -339,7 +324,7 @@ def sendTest():
 def sendTest2(msg):
     sseHandler = SSEHandler()
     return sseHandler.createSSE(msg)
-"""
+
 """
    ___    _         _   _     
   / _ \  / \  _   _| |_| |__  
@@ -347,7 +332,6 @@ def sendTest2(msg):
  | |_| / ___ \ |_| | |_| | | |
   \___/_/   \_\__,_|\__|_| |_|
                               
-"""
 """
 #LOGIN por OAuth de Google
 @app.route("/jsoauthlogin/")
@@ -473,7 +457,7 @@ def jsOAuthData():
     return "RECIBIDO - token:" + str(request.form['idtoken'])
     #return redirect(url_for('webMain'))
 
-""" 
+    
 
 """
   ____            _     _             
@@ -482,7 +466,6 @@ def jsOAuthData():
  |  _ <  __/ (_| | \__ \ |_| | | (_) |
  |_| \_\___|\__, |_|___/\__|_|  \___/ 
             |___/                     
-"""
 """
 #Registro.
 #Registro de usuarios de forma local. Los usuarios OAuth se
@@ -526,7 +509,6 @@ def webRegister():
         #Este mensaje es interpretado por el cliente mediante javascript,
         #de forma que si exito==0 redirige a url_for('webLogin')
         return make_response(str(exito)+","+url_for('webLogin'))
-"""
 
 """
   _                _       
@@ -535,7 +517,6 @@ def webRegister():
  | |__| (_) | (_| | | | | |
  |_____\___/ \__, |_|_| |_|
              |___/         
-"""
 """
 #Login
 @app.route("/login", methods=['GET','POST'])
@@ -583,7 +564,6 @@ def webLogin():
             
         #return redirect(url_for('webMain'))
         return resp
-"""
 
 """
   _                            _   
@@ -593,7 +573,7 @@ def webLogin():
  |_____\___/ \__, |\___/ \__,_|\__|
              |___/                 
 """
-"""
+
 #Logout
 @app.route("/logout")
 def webLogout():
@@ -621,7 +601,7 @@ def webLogout():
     response=make_response(redirect(url_for('webMain')))
     return response
     
-"""
+
 """
   _   _           _               _ 
  | | | |_ __ ___ | |__  _ __ __ _| |
@@ -629,7 +609,6 @@ def webLogout():
  | |_| | | | | | | |_) | | | (_| | |
   \___/|_| |_| |_|_.__/|_|  \__,_|_|
                                     
-"""
 """
 #CAMBIAR umbral del usuario
 @app.route('/cambiarUmbral', methods=['GET','POST'])
@@ -723,7 +702,7 @@ def cambiarUmbral():
         response.set_cookie('umbral', str(umbralDef))
     return response
 
-"""
+
 """
      _                             _   
     / \   ___ ___ ___  _   _ _ __ | |_ 
@@ -731,7 +710,6 @@ def cambiarUmbral():
   / ___ \ (_| (_| (_) | |_| | | | | |_ 
  /_/   \_\___\___\___/ \__,_|_| |_|\__|
                                        
-"""
 """
 #Mostrar la informacion del usuario y permitir 
 #cambiar el umbral y hacer logout
@@ -791,7 +769,7 @@ def webAccount():
     #Retorno la respuesta
     return response
     
-"""
+
 #***************************************************************************
 #                      ('-.      _ (`-.    _ (`-.  
 #                     ( OO ).-. ( (OO  )  ( (OO  ) 
@@ -810,7 +788,6 @@ def webAccount():
  | |  | |  __/ | | | |_| | |  __/| |  | | | | | (__| | |_) | (_| | |
  |_|  |_|\___|_| |_|\__,_| |_|   |_|  |_|_| |_|\___|_| .__/ \__,_|_|
                                                      |_|            
-"""
 """
 #PAGINA INICIAL
 #menú principal
@@ -864,11 +841,11 @@ def webMain():
         else:
             return "ERROR: Opción Desconocida"
     
-"""
+
 """
     JavaScript
 """
-"""
+
 #ELEGIR DB
 @app.route("/prueba0", methods=['GET','POST'])
 def pruebajs0():
@@ -979,7 +956,6 @@ def pruebajs5():
     return render_template("grafoJs.html", listaNum=listaNum,
     listaDate=listaDate, DBName=DBName);
 
-"""
 """
   _                                  ____             _            
  | |    ___  __ _  __ _  ___ _   _  |  _ \ ___  _   _| |_ ___  ___ 
@@ -1323,7 +1299,7 @@ if __name__ == "__main__":
     #Iniciar y lanzar proceso de carga de datos en las BBDD
     #LOS MANEJADORES DE LAS DBs SE INICIALIZAN EN SU CONSTRUCTOR
     uploader = rnd_uploader.RndUploader(flaskApp = app,\
-    tiempoSleep=10, debug = debug) 
+    tiempoSleep=120, debug = debug) 
 
     #Arrancar el el servidor
     #app.run(host='0.0.0.0')

@@ -139,7 +139,7 @@ class RndUploader:
             if self.__debug:
                 logging.debug("num aleatorio a escribir: " + str(rnd))
 
-            #"""
+            """
             #BORRA ESTO!-----------------------------
             #Este trozo de codigo sirve para que esta
             #clase no suba numeros.
@@ -149,13 +149,15 @@ class RndUploader:
             self.__BeeHand.readRandom()
             self.__MongoHand.readRandom()
             #BORRA ESTO!-----------------------------
-            #"""
+            """
 
+            """
             if self.__debug:
                 logging.debug("rnd_uploader - Las listas en rnd_uploader: ")
                 logging.debug("BeeHandler : " + str(self.__BeeHand.listaGlobalNumero))
                 logging.debug("SQLHandler : " + str(self.__SQLHand.listaGlobalNumero))
                 logging.debug("MongoHandler : " + str(self.__MongoHand.listaGlobalNumero))
+            """
 
             #Escribir
             if(self.__enable.value):
@@ -194,12 +196,14 @@ class RndUploader:
                         logging.info("ENVIANDO SSE: " + str(msg))
                         logging.debug(res)
                 
+                """
                 #ACTUALIZO LOS DATOS EN LAS LISTAS LOCALES 
                 #DE LOS MANEJADORES
                 self.__SQLHand.readDataDB()
                 self.__BeeHand.readRandom()
                 self.__MongoHand.readRandom()
-                
+                """
+                """    
                 if self.__debug:
                     logging.debug("Tablas MySQL:")
                     logging.debug(self.__SQLHand.listaGlobalFecha)
@@ -210,7 +214,7 @@ class RndUploader:
                     logging.debug("Tablas Mongo:")
                     logging.debug(self.__MongoHand.listaGlobalFecha)
                     logging.debug(self.__MongoHand.listaGlobalNumero)
-
+                """
                 #esperar entre escrituras
                 try:
                     #time.sleep(self.__tiempo)

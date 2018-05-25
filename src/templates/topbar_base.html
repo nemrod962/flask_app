@@ -34,8 +34,8 @@
       {# <div class="titulo">Random-Lender</div> #}
       <img src="{{ url_for('static',filename='logo_rndlender.png') }}"
       alt = "logo"></img>
-      <a href="{{ url_for('webMain') }}">Home</a>
-      <a href="{{ url_for('webAccount') }}">Account</a>
+      <a href="{{ url_for('blueApp.webMain') }}">Home</a>
+      <a href="{{ url_for('blueUser.webAccount') }}">Account</a>
       <a href="#">About</a>
     </div>
 
@@ -47,7 +47,9 @@
     {# SSE #}
     <script>
         {# Suscribirse a los SSE #}
-		var evtSrc = new EventSource("/sse");
+        var sseUrl = '{{url_for("blueSSE.webSSE")}}'
+		{#var evtSrc = new EventSource("/sse");#}
+		var evtSrc = new EventSource(sseUrl);
 		console.log("SUSCRITO! (creo)");
 
 		evtSrc.onmessage = function(e) {
