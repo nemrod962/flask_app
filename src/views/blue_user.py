@@ -154,8 +154,9 @@ def webLogout():
         UserHandler.logout(idSesion)
 
     #Retornamos a la pag de login
-    #response=make_response(redirect(url_for('webLogin')))
     response=make_response(redirect(url_for('blueApp.webMain')))
+    #Borramos datos cookies
+    response.set_cookie('umbral', '', expires=0)
     return response
     
 

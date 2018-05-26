@@ -17,11 +17,6 @@ Campos:
 
 Hereda de la clase de guardar los usarios en MongoDB ya que muchas
 de las operaciones a realizar son similares o iguales.
-
-IMPORTANTE: Reconsiderar si en vez de heredar de UserManager es preferible que
-heredo de MongoBasic, de forma que parte de su funcionalidad se la relegue a
-User Manager, ya que él ya la tiene implementada y de forma que se tengan los
-datos de usuarios en el mismo sitio.
 """
 from numbers import Number
 from mongo_user import UserManager
@@ -30,15 +25,13 @@ import date_handler
 import logging
 from log_handler import setup_log, setStreamMode
 
-
 class OAuthUserManager(UserManager):
-    
     #Constructor
-    #Recibiré una instancia de UserManager, de forma que en vez de tener listas
-    #de sesión locales, trabajaré con las de la instancia de UserManager
-    #recibida como parámetro, de forma que tendré toda la información de las
-    #sesiones unificada.
-    def __init__(self, coleccionUsuariosOauth="usuariosOauth", mongoUserManager=None, debug=False):
+    #OAuthUserManager tendrá sus propias listas de sesiones activas y caducidad.
+    #No las comparte con UserManager.
+    #REMEMBER: Las variables que almacenan estas listas son variables de
+    #clase(estáticas), accesibles por cualquier instancia de la clase
+    def __init__(self, coleccionUsuariosOauth="usuariosOauth", debug=False):
     #def __init__(self, coleccionUsuariosOauth):
         #Igual que el de el padre pero cambiando la coleccion empleada
         #UserManager.__init__(self,coleccionUsuariosOauth,debug)
@@ -67,11 +60,6 @@ class OAuthUserManager(UserManager):
         self.campoUsername="id"
         #Los campos que siguen igual son los de password (no se
         #utiliza) y el de umbral.
-
-        #trabajaré con las listas de sesiones de la instancia de UserManager
-        #recibida como parámetro, de forma que tendré toda la información de las
-        #sesiones unificada.
-        self.mongoUserManager=mongoUserManager
 
         #debug
         self.debug=True
