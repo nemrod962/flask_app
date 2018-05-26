@@ -38,7 +38,8 @@ function onSignIn(googleUser) {
         
         var id_token = googleUser.getAuthResponse().id_token;    
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'http://dominioppr.com:5000/jsoauthdata/');
+        var url = window.location.origin + '/jsoauthdata/'
+        xhr.open('POST', url);
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         xhr.onload = function() {
             //respuesta servidor

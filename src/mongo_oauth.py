@@ -28,7 +28,7 @@ from mongo_user import UserManager
 import date_handler
 #logging
 import logging
-from log_handler import setup_log
+from log_handler import setup_log, setStreamMode
 
 
 class OAuthUserManager(UserManager):
@@ -307,6 +307,7 @@ class OAuthUserManager(UserManager):
                                                  
 if __name__ == "__main__":
     setup_log()
+    setStreamMode(logging.DEBUG)
 
     u = OAuthUserManager()
     logging.debug("db: " + str(u.client))

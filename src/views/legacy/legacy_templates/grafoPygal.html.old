@@ -14,7 +14,7 @@
     <div>Seleccione tipo de grafo: <div>
     <br>
 <!--Formulario utlizado para seleccionar el tipo de grafo-->
-    <form action="{{ url_for('createGraph_post') }}" method="POST">
+    <form action="{{ url_for('blueLegacyApp.createGraph_post') }}" method="POST">
         <select name="graphType">
             <option value="line">GrafoLineas</option>
             <option value="bar">GrafoBarras</option>
@@ -27,7 +27,7 @@
 <br>
     <div>Base de datos empleada: {{DBName}}</div>
 <br>
-    <form action="{{ url_for('createGraph_post') }}" method="POST">
+    <form action="{{ url_for('blueLegacyApp.createGraph_post') }}" method="POST">
         <input type="submit" name="volver" value="Menú Principal"><br>
     </form>
 {% endblock %}

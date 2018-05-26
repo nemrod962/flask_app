@@ -99,9 +99,6 @@ def pruebajs0():
         #
         #Creo la respuesta a la que asignaré las cookies
         response = make_response(redirect(url_for('blueApp.webMain')))
-        #DEBUG
-        if debug:
-            logging.debug("---"+opcion+"---")
         #Asigno la base de datos seleccionada al cliente
         if opcion == "MySQL":
             #DBHandler = SQLHandler
@@ -151,7 +148,7 @@ def pruebajs2(umb):
         logging.info("NO SE HA INTRODUCIDO NUMERO COMO UMBRAL!")
         #umb = "Debe introducirse un numero. Usando valor por defecto: 50."
         trueUmbral = 50
-    loggin.debug("Umbral a emplear")
+    logging.debug("Umbral a emplear")
     logging.debug("str: " + umb)
     logging.debug("float: " + str(trueUmbral))
     return render_template("umbral.html",\

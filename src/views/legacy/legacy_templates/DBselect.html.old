@@ -7,7 +7,7 @@
 <!--Hay que poner el '| safe' detrás de la variable para que Flask la interprete como código HTML-->
 <br>
 <br>
-    <form action="{{ url_for('webDBSelect_post') }}" method="POST">
+    <form action="{{ url_for('blueLegacyApp.webDBSelect_post') }}" method="POST">
         <select name="chosenDB">
             <option value="MySQL">MySQL</option>
             <option value="MongoDB">MongoDB</option>

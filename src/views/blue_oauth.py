@@ -24,11 +24,30 @@ from log_handler import setup_log, setStreamMode
 
 blueOAuth = Blueprint('blueOAuth', __name__)
 
+#Obtiene ClientId de el fichero correspondiente en ./credentials
+def getClientId():
+    import json
+    try:
+        json_data = open("credentials/google_api_data.json")
+        data = json.load(json_data)
+        ClientId = str(data['web']['client_id'])
+        logging.info("ID GOOGLE: " + ClientId)
+    except IOError:
+        logging.warning("NO SE HA PODIDO ABRIR ARCHIVO CREDENCIALES!!!!!!!!")
+        ClientId="ERROR"
+    return ClientId
+
 #LOGIN por OAuth de Google
 @blueOAuth.route("/jsoauthlogin/")
 @no_cookie_check
 def jsOAuthLogin():
-    return render_template("jsoauthlogin.html")
+    # Specify the CLIENT_ID of the app that accesses the backend:
+    #nemrod962@gmail.com
+    #CLIENT_ID="933060102795-0hf4m6v3cuq4ocvubaide7ouqui2l4lg.apps.googleusercontent.com"
+    #randomlender@gmail.com
+    #CLIENT_ID="324401899197-2cag1rbuoium6s2q96m1i0hm3fjium4g.apps.googleusercontent.com"
+    CLIENT_ID=getClientId()
+    return render_template("jsoauthlogin.html",id_api=CLIENT_ID)
 
 #VERIFICAR datos e iniciar sesion
 @blueOAuth.route("/jsoauthdata/", methods=['POST'])
@@ -45,7 +64,11 @@ def jsOAuthData():
     from google.oauth2 import id_token
     from google.auth.transport import requests
     # Specify the CLIENT_ID of the app that accesses the backend:
-    CLIENT_ID="933060102795-0hf4m6v3cuq4ocvubaide7ouqui2l4lg.apps.googleusercontent.com"
+    #nemrod962@gmail.com
+    #CLIENT_ID="933060102795-0hf4m6v3cuq4ocvubaide7ouqui2l4lg.apps.googleusercontent.com"
+    #randomlender@gmail.com
+    #CLIENT_ID="324401899197-2cag1rbuoium6s2q96m1i0hm3fjium4g.apps.googleusercontent.com"
+    CLIENT_ID=getClientId()
     try:
         #Toda la informacion en diccionario idinfo
         idinfo = id_token.verify_oauth2_token(token, requests.Request(), CLIENT_ID)

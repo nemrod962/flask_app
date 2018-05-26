@@ -2,7 +2,10 @@
 {% extends "topbar_base.html" %}
 
 {% block cabeza %}
-    <meta name="google-signin-client_id" content="933060102795-0hf4m6v3cuq4ocvubaide7ouqui2l4lg.apps.googleusercontent.com">
+    {#<meta name="google-signin-client_id"
+    content="933060102795-0hf4m6v3cuq4ocvubaide7ouqui2l4lg.apps.googleusercontent.com">#}
+    <meta name="google-signin-client_id" 
+    content="{{id_api}}">
     {# Cargo Scripts Google Oauth2 para utilizar con los botones #}
     <script type=text/javascript src="{{ url_for('static', filename='js/oauth_functions.js') }}"></script>
 {% endblock %}
