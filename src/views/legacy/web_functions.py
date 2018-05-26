@@ -202,7 +202,7 @@ def media(DBHandler, debug = True):
             media = sumatorio/l1
         return media
 
-
+"""
 #Anexo---------------------------------------------------------------
 #Dado como argumento un manejador de BD nos dice si 
 #es de MySQL o Beebotte. Se empleará para obtener el 
@@ -229,3 +229,4 @@ def getDBSimpleName(DBHandler):
         return "mongodb"
     else:
         return "desconocido"
+"""

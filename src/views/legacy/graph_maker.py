@@ -7,7 +7,7 @@ GRAFICAS CON PYGAL, PRODUCIDAS POR EL SERVIDOR
 import pygal
 from pygal.style import DarkSolarizedStyle
 #nombre de la base de datos utilizada
-import web_functions
+from db_name_getter import getDBSimpleName, getDBName
 #formato y conversion fechas
 import date_handler
  
@@ -28,7 +28,7 @@ class GraphMaker:
     #invertido.
     def formatoListas(self, DBHandler, listaNumeros, listaFechas):
         #Obtengo que DB estoy empleando
-        dbname = web_functions.getDBSimpleName(DBHandler)
+        dbname = getDBSimpleName(DBHandler)
 
         #Si la base de datos empleada es Beebotte, en las listas de
         #numeros y fechas estan los mas recientes en las primeras posiciones.
@@ -89,7 +89,7 @@ class GraphMaker:
             graph = pygal.Line()
 
         #Obtengo que DB estoy empleando
-        dbname = web_functions.getDBSimpleName(DBHandler)
+        dbname = getDBSimpleName(DBHandler)
         graph.title = 'Grafo ' + dbname
         graph.x_labels = listaFechas
         graph.add('Numeros Aleatorios', listaNumeros)

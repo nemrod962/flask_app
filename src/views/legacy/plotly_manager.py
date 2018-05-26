@@ -1,10 +1,15 @@
 # -*- coding: UTF-8 -*-
+"""
+LEGACY.
+El servidor envia una peticion a plotly para que dibuje una
+grafica con los datos que el servidor le envia.
+"""
 #PLOTLY
 import plotly
 import plotly.plotly as py
 from plotly.graph_objs import *
 #nombre de la base de datos utilizada
-import web_functions
+from db_name_getter import getDBName, getDBSimpleName
 #formato y conversion fechas
 import date_handler
  
@@ -40,7 +45,7 @@ class PlotlyHandler:
     #invertido.
     def formatoListas(self, DBHandler, listaNumeros, listaFechas):
         #Obtengo que DB estoy empleando
-        dbname = web_functions.getDBSimpleName(DBHandler)
+        dbname = getDBSimpleName(DBHandler)
 
         #Si la base de datos empleada es Beebotte, en las listas de
         #numeros y fechas estan los mas recientes en las primeras posiciones.
@@ -103,7 +108,7 @@ class PlotlyHandler:
         except:
             logging.info("plot.ly OFFLINE")
             #Obtengo que DB estoy empleando
-            dbname = web_functions.getDBSimpleName(DBHandler)
+            dbname = getDBSimpleName(DBHandler)
             plotly.offline.plot({
                 "data": [Scatter(x=listaFechas, y=listaNumeros)],
                 "layout": Layout(title="plot.ly " + dbname)

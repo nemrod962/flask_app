@@ -10,7 +10,7 @@ import graph_maker
 #genera html a partir de datos
 import web_presentation
 #Obtiene nombres de la base de datos empleada
-from web_functions import getDBName, getDBSimpleName
+from db_name_getter import getDBName, getDBSimpleName
 #Log
 import logging
 from log_handler import setup_log

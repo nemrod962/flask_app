@@ -10,7 +10,7 @@ from mongo_rnd import MongoHandler
 from mongo_user import UserManager
 from mongo_oauth import OAuthUserManager
 #Dada la clase me devuelve el nombre
-from web_functions import getDBName, getDBSimpleName
+from db_name_getter import getDBName, getDBSimpleName
 #Log
 import logging
 from log_handler import setup_log

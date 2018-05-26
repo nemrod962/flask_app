@@ -3,36 +3,9 @@
 EJEMPLO INICIAL DE FLASK
 """
 #FLASK
-from flask import Flask, render_template, url_for,\
-redirect, request, make_response
+from flask import Flask
 #proceso para subir los datos a las BBDD
 import rnd_uploader
-#funcionalidad de la web con los datos
-import web_functions
-import web_presentation
-#Manejo Bases de Datos
-import sql_rnd
-import beebotte_rnd
-import mongo_rnd
-#Usuarios en Bases de Datos
-from mongo_user import UserManager
-from mongo_oauth import OAuthUserManager
-#Crear Graficas
-import graph_maker
-#Graficas plot.ly
-import plotly_manager
-#gevent. Para lanzar la aplicación
-#en varios procesos. Uno de ellos se 
-#encargará de manejar y enviar los
-#sse (server side events).
-#En lugar de emplear app.run(),
-#se usará la clase WSGIServer
-from gevent.pywsgi import WSGIServer
-#Clase encargada de crear SSE y
-#enviarlos a los suscriptores.
-from sse_handler import SSEHandler
-#Threading
-from threading import Thread
 #Log
 import logging
 from log_handler import setup_log, setStreamMode
@@ -57,35 +30,6 @@ app.register_blueprint(blueUser)
 app.register_blueprint(blueApp)
 app.register_blueprint(blueLegacyApp, url_prefix='/legacy')
 
-
-#VAR GLOBAL
-#debug - Activar si se quieren ver los mensajes
-#debug = False
-#Manejo de BBDD
-#SQLHandler = sql_rnd.SQLHandler(app)
-#BeeHandler = beebotte_rnd.BeeHandler()
-#MongoHandler = mongo_rnd.MongoHandler()
-
-#Manejo de Usuarios almacenados en MongoDB
-#UserHandler = UserManager()
-#Usuarios OAuth
-#OAuthHandler = OAuthUserManager()
-
-#Encargado de manejar los SSE
-#sseHandler = SSEHandler()
-
-#DEPRECATED - Guardar Manejador preferido en cookies de cliente.
-#Manejador a emplear. Será elegido en el
-#menú principal. Por defecto Beebotte.
-#DBHandler = SQLHandler
-#DBHandler = MongoHandler
-#DBHandler = BeeHandler
-#
-#Cargo en en las listas globales de DBHandler
-#los datos de las bases de datos inicialmente,
-#de forma que cuando acceda al menú principal por
-#primera vez las listas ya estén pobladas
-#DBHandler.reload()
 
 #Muestra por la salida estandar una vista de las direcciones
 #disponibles en la aplicación
@@ -130,9 +74,7 @@ if __name__ == "__main__":
     uploader = rnd_uploader.RndUploader(flaskApp = app,\
     tiempoSleep=30, debug = debug) 
 
-    #Arrancar el el servidor
-    #app.run(host='0.0.0.0')
-
+    #Arrancar el servidor
     #IMPORTANTE. ES NECESARIO EMPLEAR WGSISserver de gevent
     #para lanzar la aplicación.
     #Al emplear SSE, vamos a necesitar un proceso que se encargue
@@ -144,13 +86,6 @@ if __name__ == "__main__":
     #UPDATE: es necesario emplear threaded=True en app.run en vez de
     #WSGIServer, ya que este último no ofrece el rendimiento apropiado
     #(se traba si hay más de dos conexiones por parte del cliente).
-    """
-    server = WSGIServer(("0.0.0.0", 5000), app)
-    try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        logging.info("Terminado por el usuario")
-    """
     app.run(host='0.0.0.0', threaded=True)
 
     #señal de finalizar al proceso de subida de datos

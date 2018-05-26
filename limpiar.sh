@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 BORRAR=('*.pyc' 'ghostdriver.log' 'screen.png')
 for ENTRY in ${BORRAR[*]}
 do
