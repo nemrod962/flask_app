@@ -1,0 +1,11 @@
+<html>
+<title> JS Test </title>
+<body>
+<p> This is html </p>
+<button type="button" onclick="myfunc();">Llamar funcion</button>
+{# cargar script con funcion.
+Los ficheros js tienen que estar en el directorio static#}
+<script type=text/javascript src="{{ url_for('static', filename='myscript.js') }}"></script>
+
+</body>
+</html>

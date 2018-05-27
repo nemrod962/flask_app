@@ -212,7 +212,7 @@ crear getUmbral() del servidor, mostramos mensaje al cliente.
 */
 function obtenerMensajeAlertaUmbral(n)
 {
-    var msg="placeholder"
+    var msg=0
     //n recibido es String
     n=parseFloat(n)
     switch(n)

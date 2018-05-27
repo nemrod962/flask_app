@@ -93,7 +93,6 @@ def jsOAuthData():
     #-----
     #No debería llegar a ejecutarse este return
     return "RECIBIDO - token:" + str(request.form['idtoken'])
-    #return redirect(url_for('webMain'))
 
 """
     FUNCIONES

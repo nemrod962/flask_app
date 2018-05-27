@@ -107,7 +107,8 @@ def check_cookies(*args, **kwargs):
         run_check= not hasattr(view_func, '_exclude_from_checking') \
         and '/static/' not in request.path
         #DEBUG. Muestro datos
-        logging.info('-~> Checkear cookies en %s? %s',str(request.path),
+        if '/static/' not in request.path:
+            logging.info('-~> Checkear cookies en %s? %s',str(request.path),
         str(run_check))
         if run_check:
             #En la comprobación verifico que la sesión que indican
@@ -153,13 +154,18 @@ def check_cookies(*args, **kwargs):
             if nombreUsuario == None:
                 logging.info("La sesión no existe o ha caducado."+
                 "Por favor, inicie sesión.")
-                return redirect(url_for('blueUser.webLogin'))
+                response = make_response(redirect(url_for('blueUser.webLogin')))
+                #Elimino cookies con datos de sesion como el umbral
+                response.set_cookie('umbral', '', expires=0)
+                return response
+                #---
+                #return redirect(url_for('blueUser.webLogin'))
             else:
                 logging.debug("Sesión válida. Hola " + str(nombreUsuario))
     #You can handle 404s difeerently here if u want.
     else:
         #404
-        logging.debug("La pagina "+ request.path +" no existe. Redirigiendo...")
+        logging.info("La pagina "+ request.path +" no existe. Redirigiendo...")
         return redirect(url_for('blueApp.webMain'))
 
 """

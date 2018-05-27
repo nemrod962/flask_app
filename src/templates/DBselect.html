@@ -1,13 +1,18 @@
 {# DBselect.html #}
 {% extends "topbar_base.html" %}
 {% block cabeza %}
-{# Importo script para hacer post
-de la opcion elegida como base de datos
-a utilizar y para redireccionar a la url recibida
-del servidor como respuesta (que será el menú principal).#}
-<script
-src= "{{ url_for('static',filename='js/enviarOpcionBoton.js') }}">
-</script>
+	{# Importo script para hacer post
+    de la opcion elegida del menú principal
+    y para redireccionar a la url recibida
+    del servidor como respuesta.#}
+    <script 
+    src= "{{ url_for('static',filename='js/enviarOpcionBoton.js') }}">
+    </script>
+    {# Necesitada por enviarOpcionBoton.js. Se emplea para evaluar las respuestas
+    recibidas del servidor.#}
+    <script 
+    src= "{{ url_for('static',filename='js/respuestasServidor.js') }}">
+    </script>
 {% endblock %}
 
 {% block cuerpo %}

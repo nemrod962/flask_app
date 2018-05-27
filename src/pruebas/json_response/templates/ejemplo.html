@@ -1,0 +1,28 @@
+<html>
+<head>
+    <script 
+        type=text/javascript 
+        src="{{ url_for('static', filename='myscript.js')}}">
+    </script>
+    <script
+        src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js">
+    </script>
+</head>
+<body>
+    <button>Send</button>
+    <button>Another</button>
+    <script>
+    //Selecciono todos los botones
+    $("button").each(function()
+    {
+        console.log($(this));
+        $(this).click(function(e)
+        {
+            console.log("soy un boton");
+            enviarRespuestaServidor("1");
+        });
+    });
+    //enviarRespuestaServidor("5")
+    </script>
+</body>
+</html>

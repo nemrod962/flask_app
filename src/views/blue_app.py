@@ -98,7 +98,7 @@ def pruebajs0():
         #cada uno tenga su valor.
         #
         #Creo la respuesta a la que asignaré las cookies
-        response = make_response(redirect(url_for('blueApp.webMain')))
+        response = make_response(url_for('blueApp.webMain'))
         #Asigno la base de datos seleccionada al cliente
         if opcion == "MySQL":
             #DBHandler = SQLHandler

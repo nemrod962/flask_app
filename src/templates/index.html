@@ -1,39 +1,44 @@
 {# index.html #}
 {% extends "topbar_base.html" %}
 {% block cabeza %}
-{# Importo script para hacer post
-de la opcion elegida del menú principal
-y para redireccionar a la url recibida
-del servidor como respuesta.#}
-<script 
-src= "{{ url_for('static',filename='js/enviarOpcionBoton.js') }}">
-</script>
+    {# Importo script para hacer post
+    de la opcion elegida del menú principal
+    y para redireccionar a la url recibida
+    del servidor como respuesta.#}
+    <script 
+    src= "{{ url_for('static',filename='js/enviarOpcionBoton.js') }}">
+    </script>
+    {# Necesitada por enviarOpcionBoton.js. Se emplea para evaluar las respuestas
+    recibidas del servidor.#}
+    <script 
+    src= "{{ url_for('static',filename='js/respuestasServidor.js') }}">
+    </script>
 {% endblock %}
 
 {% block cuerpo %}
-<title>Bienvenido!</title>
-<h1>Aplicación Flask</h1>
-<p align="right">User: {{username}}</p>
-<p align="right">Base de datos actual: {{DBName}}</p>
-<p align="center">Menu Principal</p>
-    <fieldset>
-        <h2>Selecciona una opción</h2>
-            <button class="botonMenu" value="elegir">Elegir base de datos</button>
-            <br>
-            <button class="botonMenu" value="tablas">Mostrar tablas</button>
-            <br>
-            <button class="botonMenu" value="umbral">Umbral</button>
-            <input class="textoMenu" type="text" name="umbralTxt">
-            <br>
-            <button class="botonMenu" value="media">Media</button>
-            <br>
-            <button class="botonMenu" value="grafoBee">Gráfica Beebotte</button>
-            <br>
-            <button class="botonMenu" value="grafo">Gráfica</button>
-    </fieldset>
+    <title>Random Lender</title>
+    <h1>Aplicación Random Lender</h1>
+    <p align="right">User: {{username}}</p>
+    <p align="right">Base de datos actual: {{DBName}}</p>
+    <p align="center">Menu Principal</p>
+        <fieldset>
+            <h2>Selecciona una opción</h2>
+                <button class="botonMenu" value="elegir">Elegir base de datos</button>
+                <br>
+                <button class="botonMenu" value="tablas">Mostrar tablas</button>
+                <br>
+                <button class="botonMenu" value="umbral">Umbral</button>
+                <input class="textoMenu" type="text" name="umbralTxt">
+                <br>
+                <button class="botonMenu" value="media">Media</button>
+                <br>
+                <button class="botonMenu" value="grafoBee">Gráfica Beebotte</button>
+                <br>
+                <button class="botonMenu" value="grafo">Gráfica</button>
+        </fieldset>
 
-<script>
-    enviarOpcionBotones();
-</script>
+    <script>
+        enviarOpcionBotones();
+    </script>
 {% endblock %}
 

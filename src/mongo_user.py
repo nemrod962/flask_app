@@ -55,7 +55,7 @@ class UserManager(MongoBasic):
         #Las cookies caducan despus de que pase le tiempo indicado 
         #por tiempoCaducidad (contiene escapcio de tiempo en ms, 
         #p.ej. 30 minutos) sin ser utilizadas.
-        self.tiempoCaducidad=date_handler.minToMs(5)
+        self.tiempoCaducidad=date_handler.minToMs(1)
 
 
     """
