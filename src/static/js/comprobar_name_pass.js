@@ -109,7 +109,7 @@ REGISTRO
 
 /*Comprobación específica para la página del registro (register.html).
 Comprueba todos los campos.
-Si están todos bien, llama a la función enviarRegistro() para
+Si están todos bien, llama a la función $.post() para
 enviar datos al servidor.*/
 function comprobarRegistro(name,pass,passRep,umbral)
 {
@@ -151,58 +151,6 @@ function comprobarRegistro(name,pass,passRep,umbral)
     }
 }
 
-function enviarRegistro(name,pass,umbral)
-{
-    console.log("func - enviarRegistro");
-    //Una vez aqui deberiamos tener un numero en umb
-    //Peticion a enviar al servidor con los datos
-    var mensaje = new XMLHttpRequest();
-    //De momento, lo envio a la misma ruta en la que estoy.
-    direccion=window.location.href
-    //DEBUG
-    console.log("DIRECCION: " + direccion)
-    mensaje.open('POST', direccion);
-    //mensaje.open('POST', 'http://dominioppr.com:5000/cambiarUmbral');
-    mensaje.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    //mensaje.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    //Qué hacer con la respuesta
-	mensaje.onload = function() {
-        //respuesta servidor
-        resp = mensaje.responseText;
-        console.log('RESPONSE FROM SERVER: ' + resp);
-        //El formato con el que se recibe es:
-        //<indicadorOperacion>,<urlRedirección>
-        /*Indicador Operacion:
-		#->  0 : Creación de usuario correcta
-        #-> -1 : tipos de argumentos no válidos
-        #-> -2 : tipo de umbral no válido
-        #-> -3 : la longitud del usuario y la contraseña
-        #no son superiores a 4 caracteres.
-        #-> -4 : El nombre 'None' no está permitido.
-        #-> -5 : El nombre de usuario ya existe.
-        #-> -6 : No hay conexion con mongoDb
-        */
-
-        //Primero, separo ambos
-        var vectorResp=resp.split(",")
-        //obtengo mensaje de resultado de operacion y lo muestro
-        var msg=obtenerMensajeAlertaRegistro(vectorResp[0]);
-        window.alert(msg);
-        //Si el indicador de operacion es 0, redirijo a
-        //la url indicada en la respuesta
-        if(parseInt(vectorResp[0]) == 0)
-        {
-            window.location.href=vectorResp[1];
-        }
-    };
-    //Muy importante poner 'umbral=', ya que el mensaje sera interpretado por
-    //el servidor como un form, el cual debe tener la estructura de
-    //variable=valor
-    //MUY IMPORTANTE UTILIZAR '&' PARA CONCATENAR VALORES!
-    mensaje.send('username='+name+"&"+'password='+pass+"&"+'umbral='+umbral);
-    console.log('mensaje enviado');
-
-}
 
 //Funciones para interpretacion de la respuesta del server.
 //Requeridos por la funcion interpretarRespuestaServidor()
