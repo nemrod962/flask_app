@@ -66,5 +66,5 @@ function checkCamposVacios(divGeneral)
 }
 
 //Compruebo los campos al cargar la página
-window.onload = checkCamposVacios(document.getElementsByClassName('userInfoBlock')[0])
+//window.onload = checkCamposVacios(document.getElementsByClassName('userInfoBlock')[0])
 

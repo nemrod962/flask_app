@@ -5,10 +5,12 @@
     {# Importo bibliotecas de plot.ly para js. #}
 
     {# El local no funciona. Tengo que importarlo del CDN. #}
-    {# <script src="{{ url_for('static',filename='js/plotly.js') }}"> #}
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script 
+    src="{{ url_for('static',filename='js/plotly-latest.min.js') }}">
+    </script>
+    {#<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>#}
 
-    {# Crear Graficas #}
+    {# Crear Graficas. Necesita haber importado plotly.js #}
     <script src="{{ url_for('static',filename='js/crearGrafo.js') }}">
     </script>
     {# Conversión de listas recibidas de Flask.#}

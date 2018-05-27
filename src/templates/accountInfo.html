@@ -1,40 +1,52 @@
 {# accountInfo.html #}
 {% extends "topbar_base.html" %}
-{% block cuerpo %}
-<title>Información Cuenta</title>
-<div class="userInfoBlock">
-    <h1>Informacion:</h1>
-    <div class="userInfoDiv">
-        <span>Nombre: </span> 
-        <span class="userInfo">{{ nombrehtml }}</span>
-    </div>
-    <div class="userInfoDiv">
-        <span>E-mail: </span> 
-        <span class="userInfo">{{ emailhtml }}</span>
-    </div>
-    <div class="userInfoDiv">
-        <span>Proveedor: </span> 
-        <span class="userInfo">{{ proveedorhtml }}</span>
-    </div>
-    <div class="userInfoDiv">
-        <span>Umbral: </span> 
-        <span class="userInfo">{{ umbralhtml }}</span> 
-        <button onclick="window.location.href='/cambiarUmbral'">Cambiar Umbral</button>
-    </div>
-    <br>
-    <div class="userInfoDiv">
-        <span>Tipo registro: </span> 
-        <span class="userInfo">{{ tipoRegistrohtml }}</span>
-    </div>
-
-</div>
-
-<br> <br>
-<button onclick="window.location.href='/'">Menú Principal</button>
-<br>
-<button onclick="window.location.href='/logout'">Cerrar Sesión</button>
-
+{% block cabeza%}
 {# IMPORTAR SCRIPT #}
-<script src="{{ url_for('static', filename='js/adaptAccountPage.js') }}"></script>
+    <script 
+        src="{{ url_for('static', filename='js/adaptAccountPage.js') }}">
+    </script>
+{% endblock %}
+{% block cuerpo %}
+    <title>Información Cuenta</title>
+    <div class="userInfoBlock">
+        <h1>Informacion:</h1>
+        <div class="userInfoDiv">
+            <span>Nombre: </span> 
+            <span class="userInfo">{{ nombrehtml }}</span>
+        </div>
+        <div class="userInfoDiv">
+            <span>E-mail: </span> 
+            <span class="userInfo">{{ emailhtml }}</span>
+        </div>
+        <div class="userInfoDiv">
+            <span>Proveedor: </span> 
+            <span class="userInfo">{{ proveedorhtml }}</span>
+        </div>
+        <div class="userInfoDiv">
+            <span>Umbral: </span> 
+            <span class="userInfo">{{ umbralhtml }}</span> 
+            {#<button 
+            onclick="window.location.href='/cambiarUmbral'">Cambiar Umbral
+            </button>#}
+            <a href='{{url_for("blueUser.cambiarUmbral")}}'>Cambiar Umbral</a>
+        </div>
+        <br>
+        <div class="userInfoDiv">
+            <span>Tipo registro: </span> 
+            <span class="userInfo">{{ tipoRegistrohtml }}</span>
+        </div>
+
+    </div>
+
+    <br> <br>
+    {#<button onclick="window.location.href='/'">Menú Principal</button>#}
+    <a href='{{url_for("blueApp.webMain")}}'>Menú Principal</a>
+    <br>
+    {#<button onclick="window.location.href='/logout'">Cerrar Sesión</button>#}
+    <a href='{{url_for("blueUser.webLogout")}}'>Cerrar Sesión</a>
+    
+    <script>
+        checkCamposVacios(document.getElementsByClassName('userInfoBlock')[0])
+    </script>
 
 {% endblock %}
