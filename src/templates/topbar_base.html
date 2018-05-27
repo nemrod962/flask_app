@@ -11,7 +11,9 @@
     src="{{ url_for('static',filename='js/jquery.js') }}">
     </script>
     {# JQuery cookies library#}
-    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js">
+    {#<script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js">
+    </script>#}
+    <script src= "{{ url_for('static',filename='js/js_cookie_lib.js') }}">
     </script>
     {# Importo notificaciones gráficas #}
     <script src= "{{ url_for('static',filename='js/graphicalNotification.js') }}">

@@ -1,10 +1,21 @@
 {# register.html #}
 {% extends "topbar_base.html" %}
 {% block cabeza%}
-    {# Cargo Script para la comprobación de datos#}
+    {# Cargo Scripts para la comprobación de datos#}
+	{# Cargo Script para la comprobación del umbral#}
     <script 
-    src="{{ url_for('static', filename='js/comprobaciones.js') }}">
+    src="{{ url_for('static', filename='js/comprobar_umbral.js') }}">
     </script>
+	{# Cargo Script para la comprobación del nombre y contraseña#}
+    <script 
+    src="{{ url_for('static', filename='js/comprobar_name_pass.js') }}">
+    </script>
+    {# Script necesitado por scripts comprobar_*.js para interpretar
+    respuestas del servidor#}
+    <script 
+    src="{{ url_for('static', filename='js/respuestasServidor.js') }}">
+    </script>
+
 {% endblock %}
 {% block cuerpo %}
     <h1>Register</h1>

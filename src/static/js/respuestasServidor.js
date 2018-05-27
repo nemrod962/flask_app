@@ -23,6 +23,8 @@ Tres situaciones (tipos respuesta):
 //Función que puede emplearse para DEBUG
 function mostrarRespuestaServidor(resp)
 {
+    console.log('json? ' + is_json(resp))
+    console.log('url? ' + is_url(resp))
     if(is_json(resp))
 	{
         console.log("Respuesta: " + JSON.stringify(resp))
@@ -53,13 +55,16 @@ funcionInterprete=dummyFunc, funcionMensaje=dummyFunc)
 {
     console.log('json? ' + is_json(resp))
     console.log('url? ' + is_url(resp))
+    //console.log('interprete ' + funcionInterprete)
+    //console.log('mensaje ' + funcionMensaje)
     if(is_json(resp))
     {
         var url = resp['url'];
         var code = resp['code'];
 
+        //mostrar mensaje si procede
         funcionMensaje(code)
-        if(funcionInterprete)
+        if(funcionInterprete(code))
         {   
             console.log('ACCEDER A: ' + url);
             window.location.href=url
@@ -90,6 +95,7 @@ funcionInterprete=dummyFunc, funcionMensaje=dummyFunc)
 //JSON recibido.
 function dummyFunc()
 {
+    console.log("SOY DUMMY!!!!!!");
     return true;
 }
 
@@ -101,7 +107,16 @@ function dummyFunc()
 //0 en caso contrario.
 function is_url(url)
 {
-    return url.charAt(0) == '/';
+    try
+    {
+        return url.charAt(0) == '/';
+    }
+    catch(err)
+    {
+        console.log('is_url() - ERROR: ' + String(err));
+        console.log('is_url() - error al evaluar:' + url);
+        return false;
+    }
 }
 
 //No se utiliza

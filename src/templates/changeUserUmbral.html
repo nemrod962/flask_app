@@ -3,7 +3,12 @@
 {% block cabeza %}
     {# Cargo Script para la comprobación de datos#}
     <script 
-    src="{{ url_for('static', filename='js/comprobaciones.js') }}">
+    src="{{ url_for('static', filename='js/comprobar_umbral.js') }}">
+    </script>
+    {# Script necesitado por comprobaciones.js para interpretar
+    respuestas del servidor#}
+    <script 
+    src="{{ url_for('static', filename='js/respuestasServidor.js') }}">
     </script>
 {% endblock %}
 

@@ -1,0 +1,19 @@
+{# login.html #}
+{% extends "topbar_base.html" %}
+{% block cuerpo %}
+    <h1>LOGIN</h1>
+    <form action="/login" method="POST">
+        <p>Username:</p>
+        <input type="text" name="user">
+        <br>
+        <p>Password:</p>
+        <input type="password" name="pass">
+        <br>
+        <br>
+        <input type="submit" name="botonLogin" value="Login">
+        <br>
+        <a href="{{url_for('blueOAuth.jsOAuthLogin')}}">Google</a>
+        <br>
+        <a href="{{url_for('blueUser.webRegister')}}">Registrarse</a>
+    </form>
+{% endblock %}

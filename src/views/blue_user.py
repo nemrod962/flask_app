@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 #FLASK
-from flask import Flask, render_template, url_for,\
+from flask import Flask, render_template, url_for, jsonify, \
 redirect, request, make_response, Blueprint, current_app
 #Usuarios en Bases de Datos
 from mongo_user import UserManager
@@ -43,29 +43,32 @@ def webRegister():
     if request.method=='POST':
         logging.debug("/register - Estoy en POST")
         username=str(request.form['username'])
-        #username=request.args.get('username','default',type=str)
         password=str(request.form['password'])
-        #password=request.args.get('password','default',type=str)
         umbral=float(request.form['umbral'])
-        #username=request.args.get('umbral','101',type=float)
 
-        #DEBUG
-        cadena = '<html>REGISTRO:'
-        cadena += '<br>usuario: ' + username
-        cadena += '<br>password: ' + password
-        cadena += '<br>umbral: ' + str(umbral)
         #Creo instancia del manejador de usuarios local
         UserHandler = UserManager()
-        #Creacion usuario
+        #Creacion usuario. Obtengo codigo indicando el resultado en 'exito'.
         exito=UserHandler.createUser(username,password,umbral)
-        cadena+='<br> RET: '+str(exito)+'</html>'
-        logging.debug(cadena)
+        #url a la que redirigir al cliente si se registra al 
+        #usuario correctamente.
+        url = url_for('blueUser.webLogin')
+        #Datos a enviar al cliente en forma de JSON.
+        #Deben tener el formato:
+        #{"url" : url_a_redireccionar, 
+        #"code": codigo del resultado de la operacion}
+        datos={'url': url, 'code': exito}
+        logging.debug("RESPUESTA SERV: " + str(datos))
+        #Creo la respuesta para el cliente.
+        #Contendrá los datos en forma JSON
+        response=make_response(jsonify(datos))
+
         #Le envio info sobre el resultado de la operacion y
         #la pagina web a donde hay que redirigir en caso de
         #craecion satisfactoria.
         #Este mensaje es interpretado por el cliente mediante javascript,
         #de forma que si exito==0 redirige a url_for('webLogin')
-        return make_response(str(exito)+","+url_for('blueUser.webLogin'))
+        return response
 
 """
   _                _       
@@ -101,7 +104,7 @@ def webLogin():
         #devuelto por la función render_template().
         #A esta respuesta le añadiré la cookie generada como resultado del 
         #inicio de sesión, si este es satisfactorio.
-        resp = make_response(redirect(url_for('blueApp.webMain')))
+        #resp = make_response(redirect(url_for('blueApp.webMain')))
 
         #Creo instancia del manejador de usuarios local
         UserHandler = UserManager()
@@ -109,18 +112,41 @@ def webLogin():
         cookieVal=UserHandler.login(user,passw)
         #Si se ha iniciado sesion, el valor de 
         #cookieVal será != -1
-        logging.debug("DEBUG - Cookie: " + str(cookieVal))
-        if cookieVal >= 0:
-            resp.set_cookie('SessionId', cookieVal)
-            resp.set_cookie('tipoLogin', 'local')
-            #también pongo umbral en la cookie, para notificaciones
-            nombreUsuario = UserHandler.getCookieUserName(cookieVal)
-            umbralUsuario = UserHandler.getUmbral(nombreUsuario)
-            logging.debug(">>>>>>>>>>>>UMBRAL USUSARIO: " + str(umbralUsuario))
-            resp.set_cookie('umbral', str(umbralUsuario))
-            
+        #---JSON
+        #url a,la que redireccionar
+        url = url_for('blueApp.webMain')
+        if cookieVal >=0:
+            exito = 1
+        else:
+            exito = 0
+        #Datos a enviar al cliente en forma de JSON.
+        #Deben tener el formato:
+        #{"url" : url_a_redireccionar, 
+        #"code": codigo del resultado de la operacion}
+        datos={'url': url, 'code': exito}
+        logging.debug("RESPUESTA SERV: " + str(datos))
+        resp = make_response(jsonify(datos))
+        #---
+        #Añado cookies a la respuesta
+        resp = setLoginCookies(resp, cookieVal)
         #return redirect(url_for('blueApp.webMain'))
         return resp
+
+#Añado credenciales a la respuesta
+#solo si se ha iniciado sesion 
+#correctamente (cookieVal >=0).
+def setLoginCookies(resp, cookieVal):
+    if cookieVal >= 0:
+        #Creo instancia del manejador de usuarios local
+        UserHandler = UserManager()
+        #Asigno cookies
+        resp.set_cookie('SessionId', cookieVal)
+        resp.set_cookie('tipoLogin', 'local')
+        #también pongo umbral en la cookie, para notificaciones
+        nombreUsuario = UserHandler.getCookieUserName(cookieVal)
+        umbralUsuario = UserHandler.getUmbral(nombreUsuario)
+        resp.set_cookie('umbral', str(umbralUsuario))
+    return resp
 
 """
   _                            _   
@@ -230,12 +256,12 @@ def cambiarUmbral():
             OAuthHandler.modUmbral(nombreUser, umbral)
             #response=make_response("UMB:"+str(OAuthHandler.getUmbral(nombreUser)))
             umbralDef = OAuthHandler.getUmbral(nombreUser)
-            response=make_response("UMB:"+str(umbralDef))
+            #response=make_response("UMB:"+str(umbralDef))
         elif idTipo=="local":
             UserHandler.modUmbral(nombreUser, umbral)
             #response=make_response("UMB:"+str(UserHandler.getUmbral(nombreUser)))
             umbralDef = UserHandler.getUmbral(nombreUser)
-            response=make_response("UMB:"+str(umbralDef))
+            #response=make_response("UMB:"+str(umbralDef))
         else:
             #EL usuario no ha hecho login.
             #
@@ -250,11 +276,23 @@ def cambiarUmbral():
             #a 104, invluyendo todos los códigos de error. Para indicar
             #es error que es que no se ha iniciado sesión, utilizaremos el
             #código 105.
-            #response=make_response("Inicia sesión antes de cambiar umbral.")
             umbralDef = 105
-            response=make_response("UMB:"+str(umbralDef))
+            #response=make_response("UMB:"+str(umbralDef))
             #Los códigos de error los interpretaremos en el cliente 
-        #response=make_response(str(umbral))
+        #---
+        #En umbralDef tengo el resultado codigo de cambiar el umbral
+        #La url a la que se debe dirigir el cliente si el umbral se
+        #ha cambiado correctamente es url_for('blueApp.webMain')
+        url = url_for('blueApp.webMain')
+        #Creo los datos a enviar al cliente como JSON.
+        #Deben tener el formato:
+        #{"url" : url_a_redireccionar, 
+        #"code": codigo del resultado de la operacion}
+        datos = {'url': url, 'code': umbralDef}
+        logging.debug("RESPUESTA SERV: " + str(datos))
+        #Creo la respuesta para el cliente.
+        #Contendrá loos datos en forma JSON
+        response=make_response(jsonify(datos))
         #Almaceno informacion del umbral en las cookies
         logging.debug(">>>>>>>>>>>>UMBRAL USUARIO: " + str(umbralDef))
         response.set_cookie('umbral', str(umbralDef))
