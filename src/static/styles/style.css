@@ -256,3 +256,7 @@ insertarán su código al heredar de topbar_base.html*/
     margin: auto;
     
 }
+/*Centrar tablas*/
+table {
+    margin: auto; /* or margin: 0 auto 0 auto */
+}
