@@ -21,7 +21,24 @@ from log_handler import setup_log
 class BeeBasic:
     
     #Inicializo las variables globales en el contructor
-    def __init__(self):
+    def __init__(self,canal="NumberList",recurso="numero"):
+        
+        """
+		As a reminder, Beebotte resource description uses 
+        a two levels hierarchy:
+        -> Channel (canal) : physical or virtual connected 
+        object (an application, an arduino, a coffee 
+        machine, etc) providing some resources.
+        -> Resource: most elementary part of Beebotte, this 
+        is the actual data source (e.g. temperature 
+        from a domotics sensor).
+
+        """
+        #Canal a emplear
+        self.canal=canal
+        #Recurso dentro del canal.
+        #De él leeremos y escribiremos los datos.
+        self.recurso = recurso
         """
         Modoa prueba de fallos. En caso de que no se pueda conectar
         con Beebotte, se activará este modo, de forma
@@ -31,9 +48,12 @@ class BeeBasic:
         a la base da datos en la funcion initConn(), lo activamos.
         """
         self.sinConexion=False
+        #Creo la instacion de bclient que utilizaré para
+        #realizar el resto de operaciones. Al hacerlo
+        #también compruebo la conexión con el servidor.
+        self.bclient = self.initConn()
 
     
-
     #Iniciamos la conexion con Beebotte. Devuelve el cliente
     #que representa la conexión.
     def initConn(self):
@@ -78,7 +98,7 @@ class BeeBasic:
             #a tener valor False, de forma que la funciones realmente
             #realicen sus operaciones
             self.sinConexion=False
-            bclient.read("NumberList", "numero", 1)
+            bclient.read(self.canal, self.recurso, 1)
         except:
             logging.warning("No se pudo conectar con Beebotte.")
             self.sinConexion=True
@@ -90,20 +110,79 @@ class BeeBasic:
 
 #-------------------------------------------------------------------------
     """
+    Funciones para escribir y leer datos de la base de datos online
+    """
+    #WRITE DATA
+    def writeData(self, channel, varName, value, debug = False):
+        #Creo la instacion de bclient que utilizaré para
+        #realizar el resto de operaciones. Al hacerlo
+        #también compruebo la conexión con el servidor.
+        self.bclient = self.initConn()
+        #Si no podemos conectar con la Beebotte, no hacemos nada.
+        if debug:
+            logging.debug("modo sin conexion : " +
+            str(self.sinConexion))
+        if self.sinConexion == False:
+            try:
+                #Create a Resource object
+                res = Resource(self.bclient, channel, varName)
+                #write to the resource
+                res.write(value)
+                return 0
+                
+            except:
+                logging.warning("Could not write value "+ str(value) +
+                    " into variable " + str(varName))
+                return 1
+        else:
+            #no hay conexion
+            return 2
+        
+
+    #READ DATA
+    def readData(self, channel, varName, myLimit = 1024, debug = False):
+        #Creo la instacion de bclient que utilizaré para
+        #realizar el resto de operaciones. Al hacerlo
+        #también compruebo la conexión con el servidor.
+        self.bclient = self.initConn()
+        #Si no podemos conectar con la Beebotte, no hacemos nada.
+        if debug:
+            logging.debug("modo sin conexion : " +
+            str(self.sinConexion))
+        if self.sinConexion == False:
+            #read resources
+            records = self.bclient.read(channel, varName, myLimit)
+            logging.warning("IMPORTANTE: TIPO records: " + str(type(records)))
+            if debug:
+                logging.debug("Estoy leyendo.")
+                for x in records:
+                    logging.debug(x)
+            return records
+        else:
+            #el tipo de records es list.
+            #si no hay conexion devulevo lista vacia
+            return list()
+
+#-------------------------------------------------------------------------
+    """
     OPTIONAL FUNCTIONS. Funciones extra que no son relevantes para el programa.
     Permiten añadir canales y recursos a la base de datos online, pero tambien
     puede hacerse desde el navegador sin la necesidad de hacerlo desde aqui
     """
-    #create channel. Es necesario crear una variable tambien
-    def createChannel(self, bclient, channelName, 
+    #create channel. Es necesario crear una variable tambien.
+    def createChannel(self, channelName, 
                     #parametros de la varable
-                    varName, varType="string",
+                    varName, varType="number",
                     #parametros canal
                     myLabel="channel label", 
                     descr="channel description", isPublic=True,
                     debug=False
                     ):
-        #Si no podemos conectar con la Beebotte, no hacemos nada.
+        #Creo la instacion de bclient que utilizaré para
+        #realizar el resto de operaciones. Al hacerlo
+        #también compruebo la conexión con el servidor.
+        self.bclient = self.initConn()
+
         if debug:
             logging.debug("createChannel - modo sin conexion : " +
             str(self.sinConexion))
@@ -116,14 +195,10 @@ class BeeBasic:
                         description = descr,
                         ispublic = isPublic,
                         
-                        resources = [
-                        {
-                        
+                        resources = [ {
                             "name": varName,
                             "vtype": BBT_Types.String
-                        
-                        } 
-                        ]
+                        } ]
                         
                     )
                 else:
@@ -133,15 +208,10 @@ class BeeBasic:
                         description = descr,
                         ispublic = isPublic,
                         
-                        resources = [
-                        {
-                        
+                        resources = [ {
                             "name": varName,
                             "vtype": BBT_Types.Number
-                        
-                        } 
-                        ]
-                        
+                        } ]
                     )
                 return 0
             except:
@@ -152,9 +222,13 @@ class BeeBasic:
     #ADD RESOURCE. Añade una 'variable' al canal.
     #El canal debe existir.
     #los tipos de la variable pueden ser "string" o "number".
-    def createResource(self, bclient, myChannel, varName, varType="string",
+    def createResource(self, myChannel, varName, varType="number",
                         myLabel = "label", descr = "description",
                         isSendOnSubscribe=False, debug=False):
+        #Creo la instacion de bclient que utilizaré para
+        #realizar el resto de operaciones. Al hacerlo
+        #también compruebo la conexión con el servidor.
+        self.bclient = self.initConn()
         #Si no podemos conectar con la Beebotte, no hacemos nada.
         if debug:
             logging.debug("createResource - modo sin conexion : " +
@@ -189,34 +263,151 @@ class BeeBasic:
                     logging.warning("Error adding resource "+varName)
                     return 1
 
-#-------------------------------------------------------------------------
-    """
-    Funciones para escribir y leer datos de la base de datos online
-    """
-    #WRITE DATA
-    def writeData(self, bclient, channel, varName, value, debug = False):
-        try:
-            #Create a Resource object
-            res = Resource(bclient, channel, varName)
-            #write to the resource
-            res.write(value)
-            return 0
-            
-        except:
-            logging.warning("Could not write value "+ str(value) +
-                " into variable " + str(varName))
-            return 1
+    #REMOVE CHANNEL
+    def deleteChannel(self, channel):
+        #Creo la instacion de bclient que utilizaré para
+        #realizar el resto de operaciones. Al hacerlo
+        #también compruebo la conexión con el servidor.
+        self.bclient = self.initConn()
+        #Si no podemos conectar con la Beebotte, no hacemos nada.
+        if debug:
+            logging.debug("modo sin conexion : " +
+            str(self.sinConexion))
+        if self.sinConexion == False:
+            logging.debu("Borrando canal: " + str(channel))
+            return self.bclient.deleteChannel(str(channel))
         
 
-    #READ DATA
-    def readData(self, bclient, channel, varName, myLimit = 5, debug = False):
-        #read resources
-        records = bclient.read(channel, varName, myLimit)
+    #REMOVE RESOURCE
+    def deleteResource(self, channel, resource):
+        #Creo la instacion de bclient que utilizaré para
+        #realizar el resto de operaciones. Al hacerlo
+        #también compruebo la conexión con el servidor.
+        self.bclient = self.initConn()
+        #Si no podemos conectar con la Beebotte, no hacemos nada.
         if debug:
-            logging.debug("Estoy leyendo.")
-            for x in records:
-                logging.debug(x)
-        return records
+            logging.debug("modo sin conexion : " +
+            str(self.sinConexion))
+        if self.sinConexion == False:
+            logging.debu("Borrando recurso: " + str(resource)
+            + " del canal: " + str(channel))
+            return self.bclient.deleteChannel(str(channel), str(resource))
+
+    #RESET CHANNEL
+    def resetChannel(self, channel, myLabel="channel label",\
+    descr="channel description", isPublic=True,debug=False):
+        #Creo la instacion de bclient que utilizaré para
+        #realizar el resto de operaciones. Al hacerlo
+        #también compruebo la conexión con el servidor.
+        self.bclient = self.initConn()
+        #Si no podemos conectar con la Beebotte, no hacemos nada.
+        if debug:
+            logging.debug("modo sin conexion : " +
+            str(self.sinConexion))
+        if self.sinConexion == False:
+            #Guardo info recurso (nombre y tipo). El del canal ya lo tengo.
+            varName = self.getResourceName(channel)
+            varType = self.getResourceType(channel)
+            logging.info("Nombre Res: " + str(varName))
+            logging.info("Tipo Res: " + str(varType))
+            #Borro canal
+            self.deleteChannel(channel)
+            #lo vuelvo a crear
+            self.createChannel(channel,varName,varType,myLabel,\
+            descr, isPublic, debug)
+
+    #RESET RESOURCE
+    def resetResource(self, channel, varName=None, varType=None,\
+    myLabel="channel label", descr="channel description",\
+    sendOnSubs=False, debug=False):
+        #Creo la instacion de bclient que utilizaré para
+        #realizar el resto de operaciones. Al hacerlo
+        #también compruebo la conexión con el servidor.
+        self.bclient = self.initConn()
+        #Si no podemos conectar con la Beebotte, no hacemos nada.
+        if debug:
+            logging.debug("modo sin conexion : " +
+            str(self.sinConexion))
+        if self.sinConexion == False:
+            #Guardo info recurso (nombre y tipo). El del canal ya lo tengo.
+            if varName == None:
+                varName = self.getResourceName(channel)
+            if varType == None:
+                varType = self.getResourceType(channel)
+            logging.info("Nombre Res: " + str(varName))
+            logging.info("Tipo Res: " + str(varType))
+            #Borro canal
+            self.deleteResource(channel, varName)
+            #lo vuelvo a crear
+            self.createResource(channel,varName,varType,myLabel,\
+            descr, sendOnSubs, debug)
+
+    #Devuelve nombre del canal indicado
+    def getChannelName(self, channel=None):
+        #Creo la instacion de bclient que utilizaré para
+        #realizar el resto de operaciones. Al hacerlo
+        #también compruebo la conexión con el servidor.
+        self.bclient = self.initConn()
+        #Si no podemos conectar con la Beebotte, no hacemos nada.
+        logging.debug("modo sin conexion : " + str(self.sinConexion))
+        if self.sinConexion == False:
+            if channel == None:
+                channel = self.canal
+        #datos es de tipo dict()
+        """
+        {u'description': u'lista con numeros aleatorios', u'ispublic': True,
+        u'label': u'label', u'token': u'1513081905125_RP02tuBl9e4HvVTH',
+        u'owner': u'nemrod962', u'creationTimestamp': 1513081905127, u'id':
+        u'nemrod962.NumberList', u'resources': [{u'sendOnSubscribe': False,
+        u'vtype': u'number', u'ispublic': True, u'name': u'numero', u'inherit':
+        True}], u'name': u'NumberList'}
+        """
+        datos = self.bclient.getChannel(channel)
+        nombre = str(datos['name'])
+        return nombre
+    
+    #Devuelve nombre del recurso indicado
+    def getResourceName(self, channel=None, resource=None):
+        #Creo la instacion de bclient que utilizaré para
+        #realizar el resto de operaciones. Al hacerlo
+        #también compruebo la conexión con el servidor.
+        self.bclient = self.initConn()
+        #Si no podemos conectar con la Beebotte, no hacemos nada.
+        logging.debug("modo sin conexion : " + str(self.sinConexion))
+        if self.sinConexion == False:
+            if channel == None:
+                channel = self.canal
+            if resource == None:
+                resource = self.recurso
+        #datos es de tipo dict()
+        
+        datos = self.bclient.getChannel(channel)['resources']
+        if len(datos) > 1:
+            logging.info("HAY MAS DE UN RECURSO EN EL CANAL DE BEEBOTTE!"
+            + " DEVOLVIENDO SOLO EL PRIMERO")
+        nombre = str(datos[0]['name'])
+        return nombre
+
+    #Devuelve tipo del recurso indicado
+    def getResourceType(self, channel=None, resource=None):
+        #Creo la instacion de bclient que utilizaré para
+        #realizar el resto de operaciones. Al hacerlo
+        #también compruebo la conexión con el servidor.
+        self.bclient = self.initConn()
+        #Si no podemos conectar con la Beebotte, no hacemos nada.
+        logging.debug("modo sin conexion : " + str(self.sinConexion))
+        if self.sinConexion == False:
+            if channel == None:
+                channel = self.canal
+            if resource == None:
+                resource = self.recurso
+        
+        datos = self.bclient.getChannel(channel)['resources']
+        if len(datos) > 1:
+            logging.info("HAY MAS DE UN RECURSO EN EL CANAL DE BEEBOTTE!"
+            + " DEVOLVIENDO SOLO EL PRIMERO")
+        tipo = str(datos[0]['vtype'])
+        return tipo
 
 #-------------------------------------------------------------------------
     #INTERFAZ DE USUARIO

@@ -28,8 +28,8 @@ class BeeHandler(BeeBasic):
     """
     
     #Inicializo las variables globales en el contructor
-    def __init__(self):
-        BeeBasic.__init__(self)
+    def __init__(self,canal="NumberList",recurso="numero"):
+        BeeBasic.__init__(self, canal, recurso)
         #lista temporal con todas las entradas de beebotte (fecha)
         self.listaGlobalFecha = list()
         #lista temporal con todas las entradas de beebotte (numeros)
@@ -69,8 +69,8 @@ class BeeHandler(BeeBasic):
     #BeeBotte almacena la fecha automaticamente, no hace falta
     #que tengamos otro recurso almacenandola.
     def writeRandom(self, rndNumber, debug=False):
-        #iniciamos conexion con la base ded datos online
-        bclient = self.initConn()
+        #comrpobamos conexion con la base de datos online
+        self.initConn()
         #Si no podemos conectar con la Beebotte, no hacemos nada.
         if debug:
             logging.debug("writeRandom - ModoFallo : " + str(self.sinConexion))
@@ -82,7 +82,7 @@ class BeeHandler(BeeBasic):
                 logging.debug("El numero aleatorio es: "+str(rndNumber))
             #escribimos el numero random en la BBDD online
             #es necseraio convertirlo a string para pasarlo como parametro
-            success=self.writeData(bclient,"NumberList","numero",rndNumber,debug)
+            success=self.writeData(self.canal,self.recurso,rndNumber,debug)
             if success == 0:
                 if debug:
                     logging.debug("Numero "+str(rndNumber)+
@@ -90,8 +90,9 @@ class BeeHandler(BeeBasic):
                 return 0
             else:
                 if debug:
-                    logging.warning("ERROR: no se pudo escribir el numero "+
-                    str(rndNumber))
+                    logging.warning("ERROR: no se pudo escribir el numero rnd."
+                    +" - cod. error" + str(success))
+                    logging
                 return 1
         else:
             #No hay conexion
@@ -101,7 +102,8 @@ class BeeHandler(BeeBasic):
     #ACTUALIZO LAS LISTAS LOCALES CON LOS DATOS DE LA BD
     #Lee los numeros aleatorios ya esxitentes en la Base de datos online
     def readRandom(self, debug = False):
-        bclient = self.initConn()
+        #comprobamos ocnexion von Beebotte.
+        self.initConn()
         #Si no podemos conectar con la Beebotte, no hacemos nada.
         if debug:
             logging.debug("readRandom - ModoFallo : " + str(self.sinConexion))
@@ -110,7 +112,7 @@ class BeeHandler(BeeBasic):
             #   #NumberList : canal (tabla de la BBDD) a utilizar
             #   #numero : variable del canal a leer
             #   #1024 : numero máximo de valores a leer
-            resultado = self.readData(bclient, "NumberList", "numero", 1024, debug)
+            resultado = self.readData(self.canal, self.recurso, 1024, debug)
             
             #Una vez obtenido el resultado, parsearemos y volcaremos los
             #numeros y sus fechas en dos listas de esta clase con la
@@ -138,7 +140,7 @@ class BeeHandler(BeeBasic):
                 #Numero sera un float pues tiene decimales
                 self.listaGlobalNumero[index] = float(numero)
                 if debug:
-                    logging.debug("Entada ["+str(index)+"] num: "+numero+
+                    logging.debug("Entrada ["+str(index)+"] num: "+numero+
                     " fecha: "+fechaMs)
             if debug:        
                 logging.debug("Todas las entradas de Beebotte")
@@ -151,6 +153,9 @@ class BeeHandler(BeeBasic):
     #manejador de SQL como de Beebotte.
     def reload(self):
         self.readRandom()
+
+    
+    #Reiniciar canal de los numeros aleatorios.
 
 #-------------------------------------------------------------------------
     #INTERFAZ DE USUARIO
@@ -176,7 +181,7 @@ class BeeHandler(BeeBasic):
                 varName = raw_input("Nombre variable: ")
                 varType = raw_input("Tipo variable (\"string\" o \"number\": ")
                 isPublic = True
-                res = self.createChannel(bclient, nombre, varName, varType, label, descr, isPublic, debug)
+                res = self.createChannel(nombre, varName, varType, label, descr, isPublic, debug)
                 logging.debug(res)
             #Añadir variable
             elif opcion == "2":
@@ -186,12 +191,12 @@ class BeeHandler(BeeBasic):
                 label= raw_input("label: ")
                 descr= raw_input("descripcion: ")
                 sendOnSubs = False
-                res = self.createResource(bclient, canal, nombre,tipo,label, descr, sendOnSubs, debug)
+                res = self.createResource(canal, nombre,tipo,label, descr, sendOnSubs, debug)
                 logging.debug(res)
             elif opcion == "3":
                 nombre = raw_input("Nombre canal: ")
                 try:
-                    bclient.deleteChannel(nombre)
+                    self.deleteChannel(nombre)
                 except:
                     logging.warning("No se pudo borrar canal "+nombre)
             elif opcion == "4":
