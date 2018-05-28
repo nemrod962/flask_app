@@ -6,7 +6,7 @@
     y para redireccionar a la url recibida
     del servidor como respuesta.#}
     <script 
-    src= "{{ url_for('static',filename='js/enviarOpcionBoton.js') }}">
+    src= "{{ url_for('static',filename='js/enviarOpcionMenu.js') }}">
     </script>
     {# Necesitada por enviarOpcionBoton.js. Se emplea para evaluar las respuestas
     recibidas del servidor.#}
@@ -21,6 +21,7 @@
     <p align="right">User: {{username}}</p>
     <p align="right">Base de datos actual: {{DBName}}</p>
     <p align="center">Menu Principal</p>
+    {#
         <fieldset>
             <h2>Selecciona una opción</h2>
                 <button class="botonMenu" value="elegir">Elegir base de datos</button>
@@ -36,9 +37,77 @@
                 <br>
                 <button class="botonMenu" value="grafo">Gráfica</button>
         </fieldset>
+    #}
+        <fieldset>
+            <h2>Selecciona una opción</h2>
+            <div id="menu">
+                <ul>
+                    <li id="item">
+                        <div>
+                            <a 
+                            id="link_selectDB"
+                            href='{{url_for("blueApp.webSelectDB")}}'>
+                            Elegir base de datos</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            {#<span>Mostrar tablas</span>#}
+                            <a 
+                            id="link_tabla"
+                            href='{{url_for("blueApp.webTabla")}}'>
+                            Mostrar tablas</a>
+
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            {#<span>Umbral<span>#}
+                            <a 
+                            id="link_umbral"
+                            href='{{url_for("blueApp.webUmbral", umb=50)}}'
+                            >Umbral</a>
+                        </div>
+                        <div>
+                            <input class="textoMenu" type="text" name="umbralTxt">
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            {#<span>Media</span>#}
+                            <a 
+                            id="link_media"
+                            href='{{url_for("blueApp.webMedia")}}'
+                            >Media</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            {#<span>Gráfica Beebotte</span>#}
+                            <a
+                            id="link_grafo_bee"
+                            href='{{url_for("blueApp.webGrafoBee")}}'
+                            >Gráficas Beebotte</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            {#<span>Gráfica</span>#}
+                            <a 
+                            id="link_grafo"
+                            href='{{url_for("blueApp.webGrafo")}}'
+                            >Grafo</a>
+                        </div>
+                    </li>
+                    </ul>
+                </ul>
+        </div<>
+        </fieldset>
 
     <script>
-        enviarOpcionBotones();
+        var url = '{{url_for("blueApp.webUmbral")}}';
+        actualizarLinkUmbral($("#link_umbral"), $(".textoMenu"), url);
+        
     </script>
 {% endblock %}
 

@@ -7,6 +7,8 @@ GENERADO POR LA PAGINA www.numeroalazar.com.ar
 import urllib2
 #regexp
 import re
+#log
+import logging
 
 class Rnd_fetcher:
 

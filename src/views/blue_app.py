@@ -61,21 +61,21 @@ def webMain():
         #la pantalla inicial redirigiremos a una dirección 
         #o a otra.
         if opcion == "elegir":
-            return url_for('blueApp.pruebajs0')
+            return url_for('blueApp.webSelectDB')
         if opcion == "tablas":
             #return redirect(url_for('show_type', sensor="s1"))
-            return url_for('blueApp.pruebajs1')
+            return url_for('blueApp.webTabla')
         if opcion == "umbral":
             #Evitar cadena vacia
             if umbraltxt == "":
                 umbraltxt = "error"
-            return url_for('blueApp.pruebajs2', umb = umbraltxt)
+            return url_for('blueApp.webUmbral', umb = umbraltxt)
         if opcion == "media":
-            return url_for('blueApp.pruebajs3')
+            return url_for('blueApp.webMedia')
         if opcion == "grafoBee":
-            return url_for('blueApp.pruebajs4')
+            return url_for('blueApp.webGrafoBee')
         if opcion == "grafo":
-            return url_for('blueApp.pruebajs5')
+            return url_for('blueApp.webGrafo')
         else:
             return "ERROR: Opción Desconocida"
     
@@ -85,8 +85,9 @@ def webMain():
 """
 
 #ELEGIR DB
-@blueApp.route("/prueba0", methods=['GET','POST'])
-def pruebajs0():
+@blueApp.route("/selectDB", methods=['GET','POST'])
+#def pruebajs0():
+def webSelectDB():
     if request.method == 'GET':
         return render_template("DBselect.html")
     elif request.method == 'POST':
@@ -100,13 +101,16 @@ def pruebajs0():
         #Creo la respuesta a la que asignaré las cookies
         response = make_response(url_for('blueApp.webMain'))
         #Asigno la base de datos seleccionada al cliente
-        if opcion == "MySQL":
+        if opcion.lower() == "MySQL".lower():
+            opcion = "MySQL"
             #DBHandler = SQLHandler
             pass
-        elif opcion == "Beebotte":
+        elif opcion.lower() == "Beebotte".lower():
+            opcion = "Beebotte"
             #DBHandler = BeeHandler
             pass
-        elif opcion == "MongoDB":
+        elif opcion.lower() == "MongoDB".lower():
+            opcion = "MongoDB"
             #DBHandler = MongoHandler
             pass
         else:
@@ -122,8 +126,9 @@ def pruebajs0():
         return response
 
 #TABLAS_JS
-@blueApp.route('/prueba')
-def pruebajs1():
+@blueApp.route('/tabla')
+#def pruebajs1():
+def webTabla():
     DBHandler = getCookieDB(request)
     listaNum = DBHandler.listaGlobalNumero
     listaDate = DBHandler.listaGlobalFecha
@@ -133,8 +138,10 @@ def pruebajs1():
     listaDate=listaDate, DBName=DBName)
 
 #UMBRAL_JS
-@blueApp.route("/prueba2/<umb>")
-def pruebajs2(umb):
+@blueApp.route("/umbral")
+@blueApp.route("/umbral/<umb>")
+#def pruebajs2(umb):
+def webUmbral(umb=50):
     #Obtengo el manejador de la BD a 
     #utilizar según la cookie del usuario.
     DBHandler = getCookieDB(request)
@@ -149,7 +156,7 @@ def pruebajs2(umb):
         #umb = "Debe introducirse un numero. Usando valor por defecto: 50."
         trueUmbral = 50
     logging.debug("Umbral a emplear")
-    logging.debug("str: " + umb)
+    logging.debug("str: " + str(umb))
     logging.debug("float: " + str(trueUmbral))
     return render_template("umbral.html",\
     listaNum=listaNum,
@@ -159,8 +166,9 @@ def pruebajs2(umb):
     #resUmbral = "<div>HOLA</div>")
 
 #Media
-@blueApp.route('/prueba3')
-def pruebajs3():
+@blueApp.route('/media')
+#def pruebajs3():
+def webMedia():
     DBHandler = getCookieDB(request)
     listaNum = DBHandler.listaGlobalNumero
     listaDate = DBHandler.listaGlobalFecha
@@ -170,13 +178,15 @@ def pruebajs3():
     listaDate=listaDate, DBName=DBName)
 
 #Graficas Beebotte
-@blueApp.route('/prueba4')
-def pruebajs4():
+@blueApp.route('/grafoBee')
+#def pruebajs4():
+def webGrafoBee():
     return render_template("grafoBee.html")
 
 #Graficas Plotly
-@blueApp.route('/prueba5')
-def pruebajs5():
+@blueApp.route('/grafo')
+#def pruebajs5():
+def webGrafo():
     DBHandler = getCookieDB(request)
     listaNum = DBHandler.listaGlobalNumero
     listaDate = DBHandler.listaGlobalFecha

@@ -171,3 +171,88 @@ insertarán su código al heredar de topbar_base.html*/
 .cuerpo fieldset h2 {
     text-align: center;
 }
+
+
+/*Menu principal*/
+#menu,
+#menu ul,
+#menu ul li,
+#menu ul li a {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  list-style: none;
+  line-height: 1;
+  display: block;
+  position: relative;
+}
+#menu {
+  width: auto;
+  text-align: center;
+  margin: auto;
+    
+}
+#menu ul {
+  //border: 1px solid #cccccc;
+  //border-radius: 0px;
+    
+}
+#menu ul li {
+  border: 1px solid white;
+  margin: 0 0 10px 0;
+  background: #0099cc;
+  //background: orange;
+  border-radius: 10px;
+}
+
+#menu ul li:hover {
+  background: #ffffff;
+}
+
+#menu ul li:hover > div a {
+    
+  color: red;
+}
+#menu div
+{
+    //background: orange;
+    //border-radius: 10px;
+}
+#menu ul li div a {
+  //la clave -> display: block
+  //Para los elementos a.
+  //Son como visualmente como botones.
+  display: block;
+  padding: 14px 12px;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  text-decoration: none;
+  color: white;
+}
+
+/*PARCHES*/
+.cuerpo{
+    border: solid 2px white;
+    border-radius: 5px;
+    padding: 10px;
+    //position: fixed;
+    left: 50%;
+    top: 50%;
+    //z-index: 100;
+
+    height: auto;
+    //margin-top: -250px;
+    margin-top: 5%;
+
+    width: auto;
+    //margin-left: -300px;
+    margin-left: 5%;
+    text-align: center;
+
+}
+
+.cuerpo div{
+    margin: auto;
+    
+}

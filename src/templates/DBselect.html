@@ -6,7 +6,7 @@
     y para redireccionar a la url recibida
     del servidor como respuesta.#}
     <script 
-    src= "{{ url_for('static',filename='js/enviarOpcionBoton.js') }}">
+    src= "{{ url_for('static',filename='js/enviarOpcionMenu.js') }}">
     </script>
     {# Necesitada por enviarOpcionBoton.js. Se emplea para evaluar las respuestas
     recibidas del servidor.#}
@@ -20,13 +20,28 @@
 <div>Selecciona base de datos:  </div>
 <br>
 <br>
-    <button class="botonMenu" value="MySQL">MySQL</button>
+    <button 
+        type = "button"
+        class="botonMenu" 
+        opcion="MySQL"
+        >MySQL</button>
     <br>
-    <button class="botonMenu" value="MongoDB">MongoDB</button>
+    <button 
+        type = "button"
+        class="botonMenu" 
+        opcion="MongoDB"
+        >MongoDB</button>
     <br>
-    <button class="botonMenu" value="Beebotte">Beebotte</button>
+    <button 
+        type = "button"
+        class="botonMenu" 
+        opcion="Beebotte"
+        >Beebotte</button>
 
 <script>
-    enviarOpcionBotones();
+    //enviarOpcionBotones();
+    var listaBotones = $(".botonMenu");
+    var atrib = "opcion"
+    enviarOpcionMenu(listaBotones, atrib);
 </script>
 {% endblock %}

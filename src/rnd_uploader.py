@@ -255,28 +255,30 @@ class RndUploader:
 
     #Marca y espera que los procesos en segundo plano terminen su ejecución.
     def finalizar(self):
-        logging.debug("PROCESO VIVO: " + str(self.proceso.isAlive()))
-        logging.debug("PARANDO")
-        #Obtengo la condicion de forma que 
-        #pueda utilizar el método notify()
-        self.cond.acquire()
-        #Hago notify de forma que si el hilo
-        #de lanzar() esta esperando con wait(), 
-        #interrumpa su espera para terminar
-        self.cond.notify()
-        #Libero la condicion
-        self.cond.release()
+        estavivo = self.proceso.isAlive()
+        logging.info("PROCESO VIVO: " + str(estavivo))
+        if estavivo:
+            logging.debug("PARANDO")
+            #Obtengo la condicion de forma que 
+            #pueda utilizar el método notify()
+            self.cond.acquire()
+            #Hago notify de forma que si el hilo
+            #de lanzar() esta esperando con wait(), 
+            #interrumpa su espera para terminar
+            self.cond.notify()
+            #Libero la condicion
+            self.cond.release()
 
         self.__enable.value=False
         if self.__debug:
             logging.info("Bandera activada para finalizar: " + str(self.__enable.value))
-            logging.info("Esperando para acabar")
         #Si el proceso no esta vivo no espero
         #pues bloquerá el programa
-        if self.proceso.isAlive():
+        if estavivo:
+            logging.info("Esperando para acabar - thread.join()")
             self.proceso.join()
         if self.__debug:
-            logging.debug("el proceso ya ha acabado")
+            logging.info("el proceso ya ha acabado")
 
 if __name__ == '__main__':
     setup_log()
