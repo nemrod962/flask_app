@@ -19,6 +19,9 @@ serán "numero" para los números y
 """
 #Clase padre
 from mongo_base import MongoBasic
+#Interfaz para los manejadores de bases de datos
+#para trabajar con los numeros aleatorios
+from interface_rnd import HandlerInterface
 #Manejo de fechas
 import date_handler
 #logging
@@ -26,7 +29,7 @@ import logging
 from log_handler import setup_log
 
 
-class MongoHandler(MongoBasic):
+class MongoHandler(MongoBasic, HandlerInterface):
     """
      ____        _ _     _ 
     | __ ) _   _(_) | __| |
@@ -40,18 +43,24 @@ class MongoHandler(MongoBasic):
     #Inicializo las variables.
     def __init__(self, coleccion="NumberList", limite=1024, debug=False):
         MongoBasic.__init__(self,coleccion,limite,debug)
-        #para mensajes de debug
-        self.debug=True
+        HandlerInterface.__init__(self)
+        
+        """
+        #Ya se inicializan en el contructor de HandlerInterface
         #Tendré dos listas globales donde almacenaré todos los números
         #y las fechas temporalmente, durante el tiempo de ejecución.
         self.listaGlobalNumero = list()
         self.listaGlobalFecha = list()
+        """
         #Nombres de los campos en los que se escribirán los 
         #números y las fechas
         self.campoNumero="numero"
         self.campoFecha="fecha"
         #self.campoNumero="var1"
         #self.campoFecha="var2"
+
+        #para mensajes de debug
+        self.debug=True
 
     #Cerrar conexion con MongoDB
     def close(self):
@@ -126,8 +135,11 @@ class MongoHandler(MongoBasic):
     #LOS DATOS DE LAS BASES DE DATOS.
     #Este metodo se llamará igual tanto en el
     #manejador de SQL como de Beebotte como de MongoDB.
+    #Ya implementado por HandlerInterface
+    """
     def reload(self):
         self.readRandom()
+    """
 
 
     """

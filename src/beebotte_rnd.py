@@ -7,6 +7,10 @@ DE LA WEB EN LA BASE DE DATOS DE BEEBOTTE.
 #from beebotte import *
 from beebotte_base import BeeBasic
 
+#Interfaz para los manejadores de bases de datos
+#para trabajar con los numeros aleatorios
+from interface_rnd import HandlerInterface
+
 #expresiones regulares para parsear los datos obtenidos
 import re
 
@@ -17,7 +21,7 @@ from log_handler import setup_log
 #importamos la clase para obtener los numeros aleatorios
 import web_fetcher.rnd_fetcher
 
-class BeeHandler(BeeBasic):
+class BeeHandler(BeeBasic, HandlerInterface):
     
     """
     #VARIABLES GLOBALES (de clase)
@@ -30,10 +34,14 @@ class BeeHandler(BeeBasic):
     #Inicializo las variables globales en el contructor
     def __init__(self,canal="NumberList",recurso="numero"):
         BeeBasic.__init__(self, canal, recurso)
+        HandlerInterface.__init__(self)
+        """
+        #Ya se inicializan en el contructor de HandlerInterface
         #lista temporal con todas las entradas de beebotte (fecha)
         self.listaGlobalFecha = list()
         #lista temporal con todas las entradas de beebotte (numeros)
         self.listaGlobalNumero = list()
+        """
 
     """
         Extracción de los datos en las cadenas
@@ -147,14 +155,7 @@ class BeeHandler(BeeBasic):
                 logging.debug(self.listaGlobalFecha)
                 logging.debug(self.listaGlobalNumero)
 
-    #INTERFAZ PARA CARGAR EN LAS LISTAS GLOBALES
-    #LOS DATOS DE LAS BASES DE DATOS.
-    #Este metodo se llamará igual tanto en el
-    #manejador de SQL como de Beebotte.
-    def reload(self):
-        self.readRandom()
 
-    
     #Reiniciar canal de los numeros aleatorios.
 
 #-------------------------------------------------------------------------
