@@ -30,6 +30,42 @@ app.register_blueprint(blueUser)
 app.register_blueprint(blueApp)
 app.register_blueprint(blueLegacyApp, url_prefix='/legacy')
 
+##MONKEY PATCH
+#Cuando cambiamos de página en el navegador, cerramos la 
+#conexion SSE en esa página y abrimos otra cuando cargamos 
+#la página  ala que vamos. Cuando el manejador de SSE envia
+#un SSE a la primera conexion que esta cerrada, genera un error
+#en el manejador de Django que anque capture en mi código sigue
+#mostrando por la salida estandar el mensaje de error. La 
+#siguiente función es para evitar que muestre por la salida estándar
+#ese mensaje de error.
+def patch_broken_pipe_error():
+    """Monkey Patch BaseServer.handle_error to not write
+    a stacktrace to stderr on broken pipe.
+    http://stackoverflow.com/a/22618740/362702"""
+    import sys
+    from SocketServer import BaseServer
+    from wsgiref import handlers
+
+    handle_error = BaseServer.handle_error
+    log_exception = handlers.BaseHandler.log_exception
+
+    def is_broken_pipe_error():
+        type, err, tb = sys.exc_info()
+        return repr(err) == "error(32, 'Broken pipe')"
+
+    def my_handle_error(self, request, client_address):
+        if not is_broken_pipe_error():
+            handle_error(self, request, client_address)
+
+    def my_log_exception(self, exc_info):
+        if not is_broken_pipe_error():
+            log_exception(self, exc_info)
+
+    BaseServer.handle_error = my_handle_error
+    handlers.BaseHandler.log_exception = my_log_exception
+
+patch_broken_pipe_error()
 
 #Muestra por la salida estandar una vista de las direcciones
 #disponibles en la aplicación
