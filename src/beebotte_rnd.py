@@ -225,5 +225,6 @@ if __name__ == "__main__":
     #Setup log
     setup_log()
     logging.warning("Iniciado!")
-    clase = BeeHandler()
-    clase.user_op()
+    #clase = BeeHandler()
+    #clase.user_op()
+    bee = BeeHandler("canal01","res01")
