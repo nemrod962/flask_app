@@ -1,3 +1,5 @@
+//Var globales para poder actualizar mediante SSE
+var listaNumerosGlobal = [];
 /*
  - elem es el elemento html donde insertaremos la tabla creada. 
  Típicamente será un <div>.
@@ -24,7 +26,8 @@ function crearTablaMedia(elem, listasDatos)
     //getResMedia() solo recibe una lista con los numeros aleatorios
     //por lo que solo tendremos que pasarle listasDatos[0] que es la
     //que los contiene.
-    var dato=getResMedia(listasDatos[0]);
+    var listaNumeros = listasDatos[0]
+    var dato=getResMedia(listaNumeros);
     //getResMedia devuelve la media de la lista.
     //Esta media la meteremos en una lista dentro de otra lista 
     //de forma que tengamos una lista de listas. Esto es para poder 
@@ -33,7 +36,14 @@ function crearTablaMedia(elem, listasDatos)
     listaCabeceras=["Media"];
 
     //creo tabla
-    crearTabla(elem,listaCabeceras,listaDato);
+    crearTabla(elem,listaCabeceras,listaDato,true);
+
+    //Actualizo variable global si no esta 
+    //inicializada.
+    if(listaNumerosGlobal.length == 0)
+    {
+        listaNumerosGlobal = listaNumeros;
+    }
 }
 
 /*Realiza la operación media con los datos recibidos (numeros aleatorios en la
@@ -76,3 +86,16 @@ function getResMedia(listaDatos)
     return media;
 }
 
+/*Actualizar Media mediante SSE*/
+function updateTableMediaSSE(datosSSE, divTabla)
+{
+    //Obtengo el numero añadido mediante SSE
+    var num = getNumeroAleatorioSSE(datosSSE);
+    //Lo añado a la lista de numeros global
+    listaNumerosGlobal.push(num);
+    //Vuelvo a crear la tabla de medias
+    //Meto listaNumerosGlobal en una lista
+    //pues crearTablaMedia recibe una lista
+    //de listas con los datos
+    crearTablaMedia(divTabla, [listaNumerosGlobal])
+}

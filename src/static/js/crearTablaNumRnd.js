@@ -63,3 +63,21 @@ function crearTablaRandom(elem, listaCabeceras, listaListas)
     crearTabla(elem, listaCabeceras, listaListas)
 
 }
+
+/*Funcion a llamar cuando se reciba un SSE para añadir
+fila con los datos*/
+//Se emplean funciones de evaluarUmbralSSE.js y arrayOps.js
+function updateTableNumRndSSE(datosSSE, tabla)
+{
+    //Parseo datos SSE
+    var num = getNumeroAleatorioSSE(datosSSE);
+    //fechams
+    var fechams = getFechaSSE(datosSSE);
+    //fecha datetime
+    var fecha = dateToDatetime(fechams);
+    //Tiene que ser lista de listas
+    var datos = [num, fechams, fecha];
+    //añado fila. Indice = 0, pues las listas
+    //solo tienen un elemento
+    addSingleRowTop(tabla,datos);
+}

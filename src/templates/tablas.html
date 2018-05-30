@@ -40,8 +40,18 @@ console.log("***")
 console.log('antes funcion: ' + listaCab)
 console.log('antes funcion: ' + listaDatos)
 
+//Creo la tabla al cargar la ventana
 window.onload = crearTablaRandom(document.getElementById('myTableDiv'),listaCab,listaDatos) 
-{# window.onload = crearTabla(document.getElementById('myTableDiv'), ["numeros"]
-,listaNum) #}
 </script>
+{% endblock %}
+
+{#Añado funcionalidad al recibir SSE. Añadiremos numero recibdo
+en el SSE a la tabla. Disponemos de la variable e.data que 
+podremos parsear mediante la libreria evaluar#}
+{%block SSE%}
+    //Los datos SSE estan en variable e.data
+    //var tabla = document.getElementById("myTable");
+    //Igual a lo anterior
+    var tabla = $("#myTable")[0];
+    updateTableNumRndSSE(e.data,tabla);
 {% endblock %}

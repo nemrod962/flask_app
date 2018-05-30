@@ -66,6 +66,9 @@
             //Si se ha escrito un numero que sobrepasa mi umbral
             //la funcion evaluarUmbralSSE() mostrará una notificación
             evaluarUmbralSSE(e.data)
+            //Creamos bloque para poder añadir funcionalidades
+            //en otras páginas al recibir SSE.
+            {% block SSE %}{% endblock %}
 
 		}; 
         {# Cerrar conexión con SSE cuando se cierre la ventana#}

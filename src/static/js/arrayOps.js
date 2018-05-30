@@ -1,3 +1,6 @@
+/*Convierte las listas recibidas del servidor (las
+cuales son interpretadas como strings) a listas 
+reconocidas por javascript para trabajar con ellas.*/
 function flaskToArray(lista)
 {
     console.log("Antes: " + lista)
@@ -102,11 +105,27 @@ function parseDateArrayToDatetime(lista)
     var listaDT = [];
     for(i in lista)
     {
-        var date = new Date(lista[i]);
-        listaDT[i] = date.toLocaleString();
+        //var date = new Date(lista[i]);
+        //listaDT[i] = date.toLocaleString();
+        listaDT[i] = dateToDatetime(lista[i])
     }
     return listaDT;
 }
+
+/*Pasa una fecha de ms a formato datetime*/
+function dateToDatetime(fechams)
+{
+    //Parseo a float porque si no no funciona
+    fechams = parseFloat(fechams)
+    var date = new Date(fechams);
+    date = date.toLocaleString();
+    return date;
+}
+
+
+/*
+    CREACION TABLAS GENERICAS
+*/
 
 /*Recibe como parametro un elemento (div) dentro
 del cual se generará la tablas HTML.
@@ -122,45 +141,35 @@ entonces listaListas = [ listaNombres, listaDnis].
 
 si listaListas = [ listaDnis, listaNombres], los nombres 
 se mostrarán en la columna de los DNIs y viceversa.
+
+-> Si overwrite = false, al crear una tabla se añadira como
+hijo del elemento 'elem' sin afectar el resto. Por el contrario, 
+si esto es true, se eliminarán todos los hijos del elemento antes
+de insertar la tabla
 */
-function crearTabla(elem, listaCabeceras, listaListas) {
-    
-    /*
-    var temp = new Array(listaListas[0]);
-    temp = flaskToArray(temp);
-    console.log("DENTRO - ARRAY: " + temp);
-    console.log("DENTRO - ARRAY - tipo: " + typeof temp);
-    for(k in temp)
-    {
-        console.log("DENTRO: " + temp[k]);
-    }
-    */
+function crearTabla(elem, listaCabeceras, listaListas, overwrite=false) {
 
-    /*
-    //Convertir listas a listas de verdad
-    listaCabeceras = flaskToArray(listaCabeceras)
-    for(indice in listaListas)
-    {
-        listaListas[indice] = flaskToArray(listaListas[indice])
+    if(overwrite){
+        //ATENCION
+        /*Limpio elemento que contendrá la tabla.*/
+        //Elimino hijos
+        while (elem.firstChild) {
+            elem.removeChild(elem.firstChild);
+        }
     }
-
-    console.log('tras conversion: ')
-    console.log('CAB: ' + listaCabeceras)
-    console.log('primer elem: ' + listaCabeceras[0])
-    for(indice in listaListas)
-    {
-        console.log('DATOS[' +indice+']: ' + listaListas[indice])
-        console.log('primer elem: ' + listaListas[indice][0])
-    }
-    */
 
     /*Creo tabla*/
     var tabla = document.createElement('TABLE');
+    //Añado atributo id a la tabla para
+    //poder referenciarla facilmente
+    tabla.setAttribute("id", "myTable");
 
     //Borde de la tabla
     tabla.border='1';
     //Cuerpo tabla
     var cuerpoTabla = document.createElement('TBODY');
+    cuerpoTabla.setAttribute("id", "myTableBody");
+    
     //Añado cuerpo a la tabla
     tabla.appendChild(cuerpoTabla)
 
@@ -188,47 +197,161 @@ function crearTabla(elem, listaCabeceras, listaListas) {
 
     for(var i=-1;i<numFilas;i++)
     {
-        //console.log('i' + i);
-        //Creo fila generica a añadir a la tabla
-        var fila = document.createElement('TR')
-        cuerpoTabla.appendChild(fila)
-        
         //En la primera iteración añado las cabeceras a la tabla.
         if(i == -1)
         {
-            for(j in listaCabeceras)
-            {
-                //Creo objecto celda
-                var celda = document.createElement('TH');
-                //Creo contenido de la celda
-                celda.appendChild(document.createTextNode(listaCabeceras[j]));
-                //añado celda a la lista
-                fila.appendChild(celda)
-            }
+            addHeader(tabla, listaCabeceras);
         }
         //Si no es la primera iteración, añado datos
         else
         {
-            for(j in listaListas)
-            {
-                //Creo objecto celda
-                var celda = document.createElement('TD');
-                //Creo contenido de la celda
-                //listaListas[j] - lista j en listaListas
-                //listaLista[j][i] - elemento i de la lista j en listaListas
-                celda.appendChild(document.createTextNode(listaListas[j][i]));
-                //añado celda a la lista
-                fila.appendChild(celda)
-            }
+            addRowBottom(cuerpoTabla, listaListas, i);
         }
     }
     //Finalmente, añado la tabla creada al elemento
     //recibido como parámetro
     elem.appendChild(tabla);
     //console.log('fin - ' + elem.innerHTML);
-
     //devolvemos tabla
     return tabla
 }
 
-//---------------------------------------------------------------------------
+/*Añade una fila con 
+las cabeceras a la tabla.*/
+function addHeader(tabla, listaCabeceras)
+{
+    //Creo elemento <tr> en la primera fila
+    //ya que serán las cabeceras
+    var row = tabla.insertRow(0);
+    //Por cada uno de los elementos en la lista de las cabeceras
+    //añado una celda.
+    for(j in listaCabeceras)
+    {
+        //Creo objecto celda
+        var celda = document.createElement('TH');
+        //Creo contenido de la celda
+        celda.appendChild(document.createTextNode(listaCabeceras[j]));
+        //añado celda a la fila
+        row.appendChild(celda)
+    }
+
+}
+
+/*Añade fila al final de la tabla*/
+/*Funcion empleada en crearTabla()*/
+/*Esta funcion es la utilizada cuando creamos
+las tablas con los datos iniciales recibidos del servidor.
+En estas listas recibidas del servidor primero esán los 
+números más actuales. Empezamos añadiendo estos, y por
+cada número en estas listas añadimos una fila para cada
+uno de ellos. La tabla crece hacia abajo*/
+/*Debe recibir el elemento TBODY en vez de TABLE*/
+function addRowBottom(cuerpoTabla, listaListas, indice)
+{
+    //Creo fila generica a añadir al
+    //final de la tabla
+    var fila = document.createElement('TR')
+    cuerpoTabla.appendChild(fila)
+    /*ATENCION: Si se quiere crear una tabla
+    con una sola columna, la lista con los datos
+    de esta columna debe estar metida en otra 
+    lista de forma que se ejecute el siguiente
+    bucle. Si no, no se añadiran los datos a la
+    tabla*/
+    for(j in listaListas)
+    {
+        //Creo objecto celda
+        var celda = document.createElement('TD');
+        //Creo contenido de la celda
+        //listaListas[j] - lista j en listaListas
+        //listaLista[j][i] - elemento i de la lista j en listaListas
+        celda.appendChild(document.createTextNode(listaListas[j][indice]));
+        //añado celda a la lista
+        fila.appendChild(celda)
+    }
+}
+
+/*Añade fila al inicio de la tabla*/
+/*Esta funcion es la utilizada para actualizar la tabla
+con los datos recibidos del SSE*/
+/*Añado una fila con los elementos en el indice especificado
+de cada una de las filas en listaListas*/
+/*
+L1  L2  L3
+1   1   1
+2   2   2 <- indice = 1
+3   3   3
+
+Creo fila: 2    2   2
+*/
+function addRowTop(tabla, listaListas, indice)
+{
+    // Create an empty <tr> element and add it to the 2st (under headers) position of the table:
+    // Index begins in 0.
+    var fila = tabla.insertRow(1);
+    /*ATENCION: Si se quiere crear una tabla
+    con una sola columna, la lista con los datos
+    de esta columna debe estar metida en otra 
+    lista de forma que se ejecute el siguiente
+    bucle. Si no, no se añadiran los datos a la
+    tabla*/
+    for(j in listaListas)
+    {
+        //Creo objecto celda
+        var celda = document.createElement('TD');
+        //Creo contenido de la celda
+        //listaListas[j] - lista j en listaListas
+        //listaLista[j][i] - elemento i de la lista j en listaListas
+        celda.appendChild(document.createTextNode(listaListas[j][indice]));
+        //añado celda a la lista
+        fila.appendChild(celda)
+    }
+}
+
+/*Añade fila al inicio de la tabla*/
+/*Esta funcion es la utilizada para actualizar la tabla
+con los datos recibidos del SSE*/
+/*Añado una fila con los elementos en el indice especificado
+de cada una de las filas en listaListas*/
+/*Similar a la funcion anterior pero recibe una lista
+con los datos, en vez de una lista de listas, por lo
+que el indice ya no es necesario*/
+/*
+lista = [2,2,2]
+Creo fila: 2    2   2
+*/
+function addSingleRowTop(tabla, listaDatos)
+{
+    // Create an empty <tr> element and add it to the 2st (under headers) position of the table:
+    // Index begins in 0.
+    var fila = tabla.insertRow(1);
+    for(j in listaDatos)
+    {
+        //Creo objecto celda
+        var celda = document.createElement('TD');
+        //Creo contenido de la celda
+        //listaListas[j] - lista j en listaListas
+        //listaLista[j][i] - elemento i de la lista j en listaListas
+        celda.appendChild(document.createTextNode(listaDatos[j]));
+        //añado celda a la lista
+        fila.appendChild(celda)
+    }
+}
+
+function testAddRow()
+{
+    var table = document.getElementById("myTable");
+    // Create an empty <tr> element and add it to the 2st (under headers) position of the table:
+    var row = table.insertRow(1);
+
+    // Insert new cells (<td> elements) at the 1st and 2nd position of the "new"
+    // <tr> element:
+    var cell1 = row.insertCell(0);
+    var cell2 = row.insertCell(1);
+
+    // Add some text to the new cells:
+    cell1.innerHTML = "NEW CELL1";
+    cell2.innerHTML = "NEW CELL2"; 
+}
+
+

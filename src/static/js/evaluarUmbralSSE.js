@@ -20,11 +20,14 @@ function evaluarUmbralSSE(datosSSE)
 {
     //Obtengo numero aleatorio de el SSE
     //el SSE tiene la siguiente estructura:
-    //<rnd>#<listaDB>
-    //44.65#Beebotte,MySQL,
+    //<rnd>,<fechams>#<listaDB>
+    //44.65,fechams#Beebotte,MySQL,
     var num = getNumeroAleatorioSSE(datosSSE);
-    
-    console.log("Numero:" + num);
+    var fecha = getFechaSSE(datosSSE);
+
+    console.log("Numero: " + num);
+    console.log("Fecha: " + fecha);
+
     //Obtengo umbral de las cookies
     //Empleo la libraria de cookies
     //var umbral = parseFloat(Cookies.get('umbral'));
@@ -49,6 +52,9 @@ function evaluarUmbralSSE(datosSSE)
 
 }
 
+/*
+    DATOS DE LAS COOKIES DEL CLIENTE
+*/
 function getUmbralCookie()
 {
     var umbral = parseFloat(Cookies.get('umbral'));
@@ -65,6 +71,10 @@ function getDBCookie()
         db="MongoDB";
     return db;
 }
+
+/*
+    OBTENCION DE LOS CAMPOS DEL SSE RECIBIDO
+*/
 
 /*Obtiene la lista de las bases de datos en las que se ha escrito
 el número aleatorio.*/
@@ -86,21 +96,44 @@ function getDBListSSE(datosSSE)
     return dbl
 }
 
+/*Obtiene el numero aleatorio instertado*/
 function getNumeroAleatorioSSE(datosSSE)
 {
     //Obtengo numero aleatorio de el SSE
     //el SSE tiene la siguiente estructura:
     //<rnd>#<listaDB>
-    //44.65#Beebotte,MySQL,
+    //44.65,fechams#Beebotte,MySQL,
     var num0 = String(datosSSE)
-    //44.65#Beebotte,MySQL,
+    //44.65,fechams#Beebotte,MySQL,
     //console.log('num0: ' + num0)
     var num1 = num0.split("#",1);
-    //[44.65]
+    //["44.65,fechams"]
     //console.log('num1: ' + num1)
-    var num = num1[0];
+    var num2 = num1[0].split(",")
+    //[44.65, fechams]
+    var num = num2[0];
     return num
+}
 
+/*Obtiene la fecha ne la que 
+se ha obtenido el numero 
+aleatorio instertado*/
+function getFechaSSE(datosSSE)
+{
+    //Obtengo la fecha de el SSE
+    //el SSE tiene la siguiente estructura:
+    //<rnd>,<fechams>#<listaDB>
+    //44.65,fechams#Beebotte,MySQL,
+    var date0 = String(datosSSE)
+    //44.65,fechams#Beebotte,MySQL,
+    //console.log('date0: ' + date0)
+    var date1 = date0.split("#",1);
+    //["44.65,fechams"]
+    //console.log('date1: ' + date1)
+    var date2 = date1[0].split(",")
+    //[44.65, fechams]
+    var date = date2[1];
+    return date
 }
 
 /*Recibe el número aleatorio escrito en la base de datos

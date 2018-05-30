@@ -183,7 +183,9 @@ class RndUploader:
                     resSQL=0
                     #envio SSE (notificación a los clientes con
                     #el número obtenido)
-                    msg = str(rnd) + "#"
+                    #FORMATO SSE (parseado mediante js en el cliente)
+                    #NUM,FECHA#BD1,BD2,BD3,
+                    msg = str(rnd)+","+str(fecha)+"#"
                     if resBee == 0:
                         msg += "Beebotte,"
                     if resMongo == 0:
