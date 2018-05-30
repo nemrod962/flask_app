@@ -45,3 +45,13 @@ crearTablaRandom(document.getElementById('myTableDiv'),listaCab,listaDatos) #}
 </script>
 
 {% endblock %}
+
+                                                                                                     47,14
+{%block SSE%}
+    //Los datos SSE estan en variable e.data
+    //var tabla = document.getElementById("myTable");
+    //Igual a lo anterior
+    var tablaDiv = $("#myTableDiv")[0];
+    updateTableUmbralSSE(e.data,tablaDiv);
+{% endblock %}
+

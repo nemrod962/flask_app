@@ -3,6 +3,18 @@
  Típicamente será un <div>.
  - lista datos es una lista que contiene varias listas con los
 datos a tratar.*/
+
+//VARIABLES GLOBALES
+//Lista con datos globales para poder actualizar
+//mediante SSE.
+//Tras inicializarse, tendrá la siguiente estructura
+//listaDatos = [ listaNumeros, listaFechasMS, listaFecha]
+var listaGlobalDatos = [];
+//lista global con las cabeceras a utilizar
+var listaCabeceras=["Umbral","Numero Superior","Fecha Obtención Núm. Superior","Numero Inferior","Fecha Obtención Núm. Inferior"];
+//umbral, de forma que lo tengo disponible en la funcion SSE
+var umbralGlobal;
+
 function crearTablaUmbral(elem, listasDatos, umbral)
 {
     //TRATAMIENTO ARGUMENTOS RECIBIDOS
@@ -19,6 +31,10 @@ function crearTablaUmbral(elem, listasDatos, umbral)
         window.alert("Cambiando a valor por defecto: 50");
         umbral=50;
     }
+
+    //Guardo umbral en variable global para tenerlo disponible en 
+    //la funcion SSE
+    umbralGlobal = umbral;
 
     //Damos formato a listasDatos
     //listaDatos = [ listaNumeros, listaFechasMS]
@@ -48,10 +64,16 @@ function crearTablaUmbral(elem, listasDatos, umbral)
     //Para crear la tabla necesito el elem, listaCabeceras
     //y listaDatos.
     listaResultados=getResUmbral(listasDatos, umbral);
-    listaCabeceras=["Umbral","Numero Superior","Fecha Obtención Núm. Superior","Numero Inferior","Fecha Obtención Núm. Inferior"];
+    //listaCabeceras=["Umbral","Numero Superior","Fecha Obtención Núm. Superior","Numero Inferior","Fecha Obtención Núm. Inferior"];
 
     //creo tabla
     crearTabla(elem,listaCabeceras,listaResultados);
+
+    //Actualizo variable global si esta vacia con la lista de los datos
+    if(listaGlobalDatos.length == 0)
+    {
+        listaGlobalDatos = listaDatos;
+    }
 }
 
 /*Realiza la operación umbral con los datos recibidos y genera los datos de
@@ -264,3 +286,31 @@ function getResUmbralInferior(listasDatos, umbral)
     listaResultado = [resNumInf, resDateInf, resDateInfFormat];
     return listaResultado;
 }
+
+////SSE
+/*Funcion a llamar cuando se reciba un SSE para añadir
+fila con los datos*/
+//Se emplean funciones de evaluarUmbralSSE.js y arrayOps.js
+function updateTableUmbralSSE(datosSSE, divTabla)
+{
+    //Parseo datos SSE
+    var num = getNumeroAleatorioSSE(datosSSE);
+    //fechams
+    var fechams = getFechaSSE(datosSSE);
+    //fecha datetime
+    var fecha = dateToDatetime(fechams);
+
+    //actualizar datos globales	
+    //listaGlobalDatos = [listaNumeros, listaFechasMS, listaFechasFormato].
+    //añado numero
+    listaGlobalDatos[0].push(num);
+    //añado fecha ms
+    listaGlobalDatos[1].push(fechams);
+    //añado fecha datetime
+    listaGlobalDatos[2].push(fecha);
+
+    //actualizo tabla
+    var listaResultados=getResUmbral(listaGlobalDatos, umbralGlobal);
+    crearTabla(divTabla,listaCabeceras,listaResultados,true);
+}
+
