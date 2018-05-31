@@ -6,11 +6,12 @@ console.log('inicio script jsoauth')
 /*El boton de google ejecuta la funcion onSignIn según carga, por
 lo que no da tiempo al usuario a pulsar el boton.
 Empleamos la variable 'espera' de forma que cuando se ejecute la funcion 
-onSignIn, no se produzca el login (no envia datos al aservidor)
-Si no se ha hecho click en el botón.*/
+onSignIn, no se produzca el login (no envia datos al servidor)
+si no se ha hecho click en el botón.*/
 var espera=true;
 
 function validarSignIn() {
+	console.log("Validado!");
     espera=false;
 }
 
@@ -22,12 +23,6 @@ function onSignIn(googleUser) {
     }
     else
     {
-
-        if(googleUser['g-oauth-window']){
-            console.log('si');
-        }else if(googleUser['error']) {
-            console.log('no');
-        }
         console.log('onSignIn - dentro del script')
         var profile = googleUser.getBasicProfile();
         console.log('ID: ' + profile.getId()); 
@@ -67,21 +62,17 @@ function signOut()
     googleAuth.disconnect();
 }
 
-//Impide que se mantenga el boton iniciado de 
-//forma que cuando carguemos la pagina no haga log in inmediatamente
-
-//ERROR: gapi is not defined
-//window.onbeforeunload = signOut();
-
-/*No funcionan
-window.onbeforeunload = function(e){
-    console.log("onbefreunload")
-    gapi.auth2.getAuthInstance().disconnect();
-};
-
-document.onload = function(e){
-    window.alert("onload")
-    gapi.auth2.getAuthInstance().disconnect();
-};
-*/
+/*Funciones para boton custom. Define el estilo
+del botón.*/
+function renderButton() {
+      gapi.signin2.render('my-signin2', {
+        'scope': 'profile email',
+        'width': 240,
+        'height': 50,
+        'longtitle': true,
+        'theme': 'dark',
+        'onsuccess': onSignIn,
+        'onfailure': signOut
+      });
+}
 console.log('Fin script jsoauth');
