@@ -32,12 +32,16 @@
     <input type="text" id="umbral">
     <br>
     <br>
-    <button 
-    onclick="comprobarRegistro(document.getElementById('user').value,
-    document.getElementById('pass').value,
-    document.getElementById('passRep').value,
-    document.getElementById('umbral').value);">
-    Register
-    </button>
-    
+    <button type="button" id="boton_registro">Register</button>
+
+    <script> 
+        $("#boton_registro").click(function()
+        {
+            var name = $("#user").val();
+            var pass = $("#pass").val();
+            var passRep = $("#passRep").val();
+            var umbral = $("#umbral").val();
+            comprobarRegistro(name,pass,passRep,umbral);
+        });
+    </script>
 {% endblock %}
