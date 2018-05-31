@@ -19,22 +19,24 @@
 {% endblock %}
 {% block cuerpo %}
     <h1>Register</h1>
-    <p>Username:</p>
-    <input type="text" id="user">
-    <br>
-    <p>Password:</p>
-    <input type="password" id="pass">
-    <br>
-    <p>Repeat Password:</p>
-    <input type="password" id="passRep">
-    <br>
-    <p>Umbral:</p>
-    <input type="text" id="umbral">
-    <br>
-    <br>
-    <button type="button" id="boton_registro">Register</button>
-
-    <script> 
+    <form id="form_register" action="{{url_for('blueUser.webRegister')}}" method="POST">
+        <p>Username:</p>
+        <input type="text" id="user" name="username">
+        <br>
+        <p>Password:</p>
+        <input type="password" id="pass" name="password">
+        <br>
+        <p>Repeat Password:</p>
+        <input type="password" id="passRep" name="passRep">
+        <br>
+        <p>Umbral:</p>
+        <input type="text" id="umbral" name="umbral">
+        <br>
+        <br>
+        <button type="submit" id="boton_registro">Register</button>
+    </form>
+    <script>
+        /*
         $("#boton_registro").click(function()
         {
             var name = $("#user").val();
@@ -43,5 +45,8 @@
             var umbral = $("#umbral").val();
             comprobarRegistro(name,pass,passRep,umbral);
         });
+        */
+        var selector = "#form_register";
+        comprobarRegistroForm(selector);
     </script>
 {% endblock %}

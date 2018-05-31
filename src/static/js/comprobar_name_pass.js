@@ -113,28 +113,28 @@ Si están todos bien, llama a la función $.post() para
 enviar datos al servidor.*/
 function comprobarRegistro(name,pass,passRep,umbral)
 {
-    res1=comprobarNombre(name);
+    var res1=comprobarNombre(name);
     //muestro mensaje de resultado de comprobar nombre usuario
     mostrarComprobacionNombre(res1)
 
-    res2=comprobarContrasena(pass,passRep);
+    var res2=comprobarContrasena(pass,passRep);
     //muestro mensaje de resultado de comprobar contraseña
     mostrarComprobacionContrasenna(res2)
     
-    res3=comprobarUmbral(umbral);
+    var res3=comprobarUmbral(umbral);
     //muestro mensaje de resultado de comprobar umbral
     mostrarComprobacionUmbral(res3)
     //Actualizo umbral, ya que comprobarUmbral() parsea
     //el umbral.P.ej: 12,12 -> 12.12
-    umbral=res3
+    var umbral=res3
 
     if(res1==0 && res2==0 && res3<=100)
     {
         console.log('Enviar Campos...')
         //Datos a enviar
-        datos='username='+name+"&"+'password='+pass+"&"+'umbral='+umbral;
+        var datos='username='+name+"&"+'password='+pass+"&"+'umbral='+umbral;
         //Hago el post a la misma direccion en la que estoy
-        url = window.location.href;
+        var url = window.location.href;
         //Envio datos al server.
         $.post(url,datos,function(e)
         {
@@ -144,8 +144,6 @@ function comprobarRegistro(name,pass,passRep,umbral)
             interpretarRespuestaServidor(e,
             interpretarRespuestaRegistro,
             mostrarMensajeRegistro);
-            
-            
         }      
         );
     }
@@ -249,3 +247,103 @@ function mostrarMensajeRegistro(n)
     return msg
 }
 
+//----------------------------------------------
+
+/*Similar a comrpobarRegistro(), pero en vez de un boton, empleando
+un formulario. Aun así, debo recibir los datos para poder parsearlos.
+Como argumento extra recibe selectForm que debe ser una cadena que
+se pueda utilizar como selector en JQuery para seleccionar el formulario*/
+function comprobarRegistroForm(selectForm)
+{
+    $(selectForm).submit(function(e)
+    {
+        //Obtengo en lista datos una lista de pares de datos
+        //con nombre del campo y su valor
+        //[{ name: "user", value: "test" },{ name: "pass", value: "1234" }]
+        //listaDatos[0]['name'] ==> 'user'
+        var listaDatos = $(selectForm).serializeArray();
+        console.log("Los datos del form:");
+        console.log(listaDatos);
+        
+        //Comprobaciones. Itero a través de listaDatos.
+        //Dependiendo del valor obtenido en 'name', que 
+        //indicará el campo que estamos tratando,
+        //haremos una comprobación u otra.
+
+        //Damos valores por defecto que no pasen las comprobaciones.
+        var name = "";
+        var pass = "";
+        var passRep = "";
+        var umbral = NaN;
+        for(i in listaDatos)
+        {
+            var actual = listaDatos[i]['name'];
+            console.log("Actual: " + actual );
+            switch(actual)
+            {
+                case "username":
+                    console.log("Se ha asignado name");
+                    name = listaDatos[i]['value']
+                    break;
+                case "password":
+                    console.log("Se ha asignado pass");
+                    pass = listaDatos[i]['value']
+                    break;
+                case "passRep":
+                    console.log("Se ha asignado passRep");
+                    passRep = listaDatos[i]['value']
+                    break;
+                case "umbral":
+                    console.log("Se ha asignado umbral");
+                    umbral = listaDatos[i]['value']
+                    break;
+            }
+        }
+        console.log("user: " + name);
+        console.log("pass: " + pass);
+        console.log("passRep: " + passRep);
+        console.log("umbral: " + umbral);
+        
+        var res1=comprobarNombre(name);
+        //muestro mensaje de resultado de comprobar nombre usuario
+        mostrarComprobacionNombre(res1)
+
+        var res2=comprobarContrasena(pass,passRep);
+        //muestro mensaje de resultado de comprobar contraseña
+        mostrarComprobacionContrasenna(res2)
+        
+        var res3=comprobarUmbral(umbral);
+        //muestro mensaje de resultado de comprobar umbral
+        mostrarComprobacionUmbral(res3)
+        //Actualizo umbral, ya que comprobarUmbral() parsea
+        //el umbral.P.ej: 12,12 -> 12.12
+        var umbral=res3
+
+        if(res1==0 && res2==0 && res3<=100)
+        {
+            console.log('Enviar Campos...')
+            //Datos a enviar. Los obtengo del form, aunque en principio
+            //deberían ser iguales.
+            //var datos='username='+name+"&"+'password='+pass+"&"+'umbral='+umbral;
+            var datos = $(selectForm).serialize();
+            //Hago el post a la misma direccion en la que estoy.
+            //Mejor la obtengo del formulario
+            //var url = window.location.href;
+            var url = $(selectForm).attr('action');
+            //Envio datos al server.
+            console.log("url: " + url);
+            console.log("datos: " + datos);
+            $.post(url,datos,function(e)
+            {
+                //respuestasServidor.js
+                interpretarRespuestaServidor(e,
+                interpretarRespuestaRegistro,
+                mostrarMensajeRegistro);
+            }, 'json');
+
+        }
+        //Evitamos el comportamiento por defecto del form, de
+        //forma que no envía por su cuenta el formulario al servidor
+        e.preventDefault();
+    });
+}
