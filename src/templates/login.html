@@ -15,25 +15,39 @@
 
 {% block cuerpo %}
     <h1>LOGIN</h1>
-        <p>Username:</p>
-        <input type="text" id="user">
+        {#En los forms, los atributos que identifican a un 
+        input text es el name. Es como se identificará en el server.
+        P.ej: request.form.get('user') obtendrá el texto
+        que haya en el campo de texto con name='user'.#}
+        <form id="form_login" action="{{url_for('blueUser.webLogin')}}" method="POST">
+            <p>Username:</p>
+            <input type="text" id="user" name="user">
+            <br>
+            <p>Password:</p>
+            <input type="password" id="pass" name="pass">
+            <br>
+            <br>
+            <button type="submit" id="botonLogin" >Login</button>
+        </form>
         <br>
-        <p>Password:</p>
-        <input type="password" id="pass">
-        <br>
-        <br>
-        <button type="button" id="botonLogin" >Login</button>
         <br>
         <a href="{{url_for('blueOAuth.jsOAuthLogin')}}">Google</a>
+        <br>
         <br>
         <a href="{{url_for('blueUser.webRegister')}}">Registrarse</a>
 
         <script>
+        /*
             $("#botonLogin").click(function()
             {
                 var user = $("#user").val();
                 var pass = $("#pass").val();
                 enviarLogin(user,pass);
             });
+        */
+        //Unicamente recibe una cadena que se empleará como 
+        //selector del form. En este caso, '#form_login'
+        var selector = '#form_login';
+        enviarLoginForm(selector);
         </script>
 {% endblock %}
