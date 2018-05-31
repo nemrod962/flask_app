@@ -47,6 +47,6 @@ if __name__ == '__main__':
     #ssl_context sirve para utilizar https
     #la opcion adhoc indica a flask que se encargue el 
     #de crear las claves.
-    #app.run(debug=True, threaded=True, ssl_context='adhoc')
-    app.run(debug=True, threaded=True)
+    app.run(debug=True, threaded=True, ssl_context='adhoc')
+    #app.run(debug=True, threaded=True)
 

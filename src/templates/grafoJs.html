@@ -59,7 +59,7 @@
         listaDateFormat=listaDateFormat.reverse();
     }
 
-    window.onload=crearGrafoSimple(graphElem, listaDateFormat, listaNum);
+    window.onload=crearGrafoSimpleNumRnd(graphElem, listaDateFormat, listaNum);
     
     {# Empleamos jQuery en vez de js para obtener los valores de los
     elementos y definir eventos.#}
@@ -72,15 +72,22 @@
         }
         else
         {
-            crearGrafoFreq(graphElem2,listaNum,intervalo);
+            crearGrafoFreqNumRnd(graphElem2,listaNum,intervalo);
         }
     }
     );
-
-
-
 </script>
-
-
-
 {% endblock %}
+
+{#Añado funcionalidad al recibir SSE. Añadiremos numero recibdo
+en el SSE a la tabla. Disponemos de la variable e.data que 
+podremos parsear mediante la libreria evaluar#}
+{%block SSE%}
+	//Elementos html en los que generar las gráficas
+	graphElem1 = document.getElementById('grafica');
+	graphElem2 = document.getElementById('grafica2');
+    //Los datos SSE estan en variable e.data
+    updateGrafoSimpleSSE(e.data, graphElem1);
+    updateGrafoFreqSSE(e.data, graphElem2);
+{% endblock %}
+

@@ -63,6 +63,12 @@ function crearGrafoSimple(elem, datosX, datosY)
 
 function crearGrafoSimpleOrdenado(elem, datosX, datosY)
 {   
+    //ORDENAR NUMERICAMENTE
+    //array.sort((a, b) => a - b);
+    //(a, b) => a - b es la definición de una función anónima.
+    //ORDENAR ALFABETICAMENTE
+    //array.sort();
+
     var ordenado=true;
     for(var i=0;i<datosX.length-1;i++)
     {
@@ -201,8 +207,18 @@ anchuraIntervalo)
     //Recorrer la lista de números aleatorios 
     //Clasificándolos según el intervalo en el que se encuentren.
     var indice = 0;
+    //Elimino "" de lista Numeros, de forma que si esta
+    //vacio no me añada un contador en la primera posicion
+    //al entrar en el bucle for
+    listaNumeros = listaNumeros.filter(Boolean);
+
     for(var i=0;i<listaNumeros.length;i++)
     {
+        //console.log("listaNum: ");
+        //console.log(listaNumeros);
+        //console.log("Long listaNum: " + listaNumeros.length);
+        //console.log("iteracion - " + i);
+        //console.log("num - " + listaNumeros[i]);
         //Obtengo el índice del intervalo al que 
         //pertenece el número. La clave del éxito
         //es esta siguiente línea.
@@ -257,4 +273,90 @@ function getLimiteSuperior(listaDatos)
         }
     }
     return lim;
+}
+
+//Variables globales. Necesarias para SSE
+var listaGlobalNumeros;
+var listaGlobalFechas;
+var anchuraGlobalIntervalo;
+
+//WRAPPERS PARA MANTENER VARIABLES GLOBALES
+function crearGrafoSimpleNumRnd(elem, datosX, datosY)
+{
+    //Creo grafo simple
+    crearGrafoSimple(elem,datosX,datosY)
+    //actualizo variables globales
+    listaGlobalFechas=datosX
+    listaGlobalNumeros=datosY;
+}
+
+function crearGrafoFreqNumRnd(elem,listaNum,intervalo)
+{
+    //Creo grafo frecuencias
+    crearGrafoFreq(elem,listaNum,intervalo);
+    //actualizo variables globales
+    listaGlobalNumeros = listaNum;
+    anchuraGlobalIntervalo = intervalo;
+}
+
+//Funciones SSE para actualizar la gráfica simple
+function updateGrafoSimpleSSE(datosSSE, divGrafo)
+{
+    //Parseo datos SSE
+    //numero aleatorio
+    var num = getNumeroAleatorioSSE(datosSSE);
+    //fechams
+    var fechams = getFechaSSE(datosSSE);
+    //fecha datetime
+    var fecha = dateToDatetime(fechams);
+    //Actualizo variables globales
+    listaGlobalNumeros.push(num);
+    listaGlobalFechas.push(fecha);
+
+    //Genero tabla actualizada.
+    //Llamo crearGrafoSimple() en lugar
+    //de crearGrafoSimpleNumRnd() porque
+    //no necesito actualizar las varaibles globales
+    //porque ya lo estan.
+    crearGrafoSimple(divGrafo, listaGlobalFechas, listaGlobalNumeros);
+}
+
+//Funciones SSE para actualizar la gráfica simple
+function updateGrafoFreqSSE(datosSSE, divGrafo)
+{
+    //Solo actualizo gráfica si la var global no esta
+    //indefinida. Si esta indefinida significa que el 
+    //cliente no ha definido intervalo por lo que no se ha generado
+    //la gráfica de frecuencias todavía, por lo tanto no tendrá sentido
+    //actualizar una gráfica que no existe.
+    if(anchuraGlobalIntervalo != undefined)
+    {
+
+        //Parseo datos SSE
+        //numero aleatorio
+        var num = getNumeroAleatorioSSE(datosSSE);
+        //fechams
+        var fechams = getFechaSSE(datosSSE);
+        //fecha datetime
+        var fecha = dateToDatetime(fechams);
+        //Esta funcion se llamara a continuacion de actualizar
+        //el otro grafo simple, por lo que las variables globales 
+        //ya estrán actualizadas.
+        //Comprobaré si estan actualizadas, y en ese caso no
+        //añado el numero y la fecha obtenidas del SSE.
+        var last = listaGlobalFechas.length - 1;
+        if(listaGlobalFechas[last]!=fecha)
+        {
+            //Actualizo variables globales
+            listaGlobalNumeros.push(num);
+            listaGlobalFechas.push(fecha);
+        }
+
+        //Genero tabla actualizada.
+        //Llamo crearGrafoSimple() en lugar
+        //de crearGrafoSimpleNumRnd() porque
+        //no necesito actualizar las varaibles globales
+        //porque ya lo estan.
+        crearGrafoFreq(divGrafo, listaGlobalNumeros, anchuraGlobalIntervalo);
+    }
 }
