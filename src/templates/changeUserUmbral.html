@@ -13,10 +13,16 @@
 {% endblock %}
 
 {% block cuerpo %}
-    <p>Elige tu umbral: {{ username }}</p>
-    <input type="text" id="umbral" name="umbral">
-    <input type="submit" name="boton" 
-    onclick="enviarUmbral(document.getElementById('umbral').value);" 
-    value="Enviar">
-    <br>
+    <form 
+    id="form_umbral" 
+    action="{{url_for('blueUser.cambiarUmbral')}}" 
+    method="POST">
+        <p>Elige tu umbral: {{ username }}</p>
+        <input type="text" id="umbral" name="umbral">
+        <button type="submit" id="botonUmbral">Enviar</button>
+    </form>
+    <script>
+        var selector = "#form_umbral";
+        enviarUmbralForm(selector);
+    </script>
 {% endblock %}

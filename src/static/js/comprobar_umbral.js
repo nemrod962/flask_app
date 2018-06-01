@@ -166,3 +166,66 @@ function mostrarMensajeUmbral(n)
     }
     return msg
 }
+
+//-----------------------------------------------------------------------------
+
+//LLAMADA DESDE EL TEMPLATE
+/*Enviar unbral en el form de changeUmbral.html.
+Interpreta los valores devueltos por comprobarUmbral() y muestra
+avisos por pantalla.
+Similar a enviarUmbral() pero obtiene los datos del form, los comprueba,
+y si son correctos, los envía.
+Si está todo bien, enviará los datos al servidor con postUmbral().*/
+//En vez de recibir el supuesto umbral, recibe una cadena que
+//se empleará como selector del form.
+function enviarUmbralForm(selectForm)
+{
+    $(selectForm).submit(function(e)
+    {
+        //Obtengo en lista datos una lista de pares de datos
+        //con nombre del campo y su valor
+        //[{ name: "umbral", value: "17" }, ...]
+        //listaDatos[0]['name'] ==> 'umbral'
+        var listaDatos = $(selectForm).serializeArray();
+        console.log("Los datos del form:");
+        console.log(listaDatos);
+		//Obtengo el valor del umbral del form
+    	var umbralForm = NaN
+		for(i in listaDatos)
+        {
+            if(listaDatos[i]['name']=="umbral")
+            {
+                umbralForm = listaDatos[i]['value']
+            }
+        }
+		console.log("umbral obtenido del form: " + umbralForm);
+
+        console.log("func - enviarUmbral");
+        n=comprobarUmbral(umbralForm);
+        //muestro mensaje de resultado de comprobar umbral
+        mostrarComprobacionUmbral(n);
+        console.log("func - enviarUmbral: n = " + n);
+        if(n!=101 && n!=102)
+        {
+            //Obtengo direccion del form a la que enviaré el post
+            url = $(selectForm).attr('action')
+            //Utilizo el numero que he parseado en vez
+            //de el obtenido directamente del form.
+            //Ya que 'n' lo hemos podido alterar para
+            //que sea un numero(p.ej: 12,12 -> 12.12)
+            datos ='umbral=' + n 
+            $.post(url, datos,function(res)
+            {
+                //respuestasServidor.js
+                //mostrarRespuestaServidor(e)
+                
+                interpretarRespuestaServidor(res,
+                interpretarRespuestaUmbral,
+                mostrarMensajeUmbral);
+            },'json');
+        }
+        //Evitamos el comportamiento por defecto del form, de
+        //forma que no envía por su cuenta el formulario al servidor
+        e.preventDefault();
+    });
+}
