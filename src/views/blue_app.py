@@ -11,6 +11,8 @@ from mongo_user import UserManager
 from mongo_oauth import OAuthUserManager
 #Dada la clase me devuelve el nombre
 from db_name_getter import getDBName, getDBSimpleName
+#Generar num aleatorios
+import random
 #Log
 import logging
 from log_handler import setup_log
@@ -194,3 +196,14 @@ def webGrafo():
     
     return render_template("grafoJs.html", listaNum=listaNum,
     listaDate=listaDate, DBName=DBName);
+
+#Devuelve un numero aleatorio aleatorio de la base de datos
+@blueApp.route('/random')
+def webRandom():
+    DBHandler = getCookieDB(request)
+    listaNum = DBHandler.listaGlobalNumero
+    listaDate = DBHandler.listaGlobalFecha
+    
+    DBName = getDBSimpleName(DBHandler)
+    return render_template("random.html", listaNum=listaNum,
+    listaDate=listaDate, DBName=DBName)

@@ -1,0 +1,50 @@
+{# random.html #}
+{% extends "topbar_base.html" %}
+{% block cabeza %}
+    {#Importo scripts#}
+    {# Operaciones basicas con listas para convertir las mismas
+    de el formato en que las recibo desde flask a array en javascript.
+    Dependencia de crearTablas.js#}
+    <script src='{{ url_for('static', filename='js/arrayOps.js') }}'>
+    </script>
+    {# Funcionalidad principal para mostrar numero aleatior#}
+    <script src='{{ url_for('static', filename='js/obtenerNumRnd.js') }}'>
+    </script>
+    {# Crea tabla con los datos del numero aleatorio#}
+    <script src='{{ url_for('static', filename='js/crearTablaNumRnd.js') }}'>
+    </script>
+{% endblock %}
+{% block cuerpo %}
+<title>Random</title>
+<div>Numero Aleatorio:  </div>
+<br>
+{#Muestro numero random en grando#}
+<div id="numRandDiv">
+    <span id="numRandSpan"><span>
+</div>
+{#Se creará una tabla con los datos del numero aleatorio#}
+<div id="myTableDiv">
+</div>
+<br>
+    <button type="button" id="numRandButton">Otro!</button>
+<br>
+    <div>Base de datos empleada: {{DBName}} </div>
+
+
+{#Llamo funciones del script importado#}
+<script>
+
+    {#Recibo listas con los datos de flask.
+    Estas listas recibidas no se reconocerán como arrays sino
+    como strings, por lo que habrá que convertirlas.#}
+    var listaNum = '{{listaNum}}'
+    var listaDate = '{{listaDate}}'
+    var selectDiv = "#myTableDiv";
+    var selectSpan = "#numRandSpan";
+    var selectButton = "#numRandButton";
+    
+    /*obtenerNumRnd.js*/
+    mostrarNumeroAleatorio(listaNum,listaDate,selectButton,selectSpan,selectDiv);
+</script>
+
+{% endblock %}

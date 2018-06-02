@@ -49,18 +49,24 @@ function crearTablaRandom(elem, listaCabeceras, listaListas)
     }
     
     //Crear lista con las fechas en formato
-    //listaDatos = [ listaNumeros, listaFechasMS]
-    //listaDatos[1] = listaFechasMS
+    //listaListas = [ listaNumeros, listaFechasMS]
+    //listaListas[1] = listaFechasMS
     var listaFechaFormato = [];
     if(typeof listaListas[1][0] == 'number')
     {
-        listaFechaFormato = parseDateArrayToDatetime(listaDatos[1]);
+        //listaFechaFormato = parseDateArrayToDatetime(listaDatos[1]);
+        listaFechaFormato = parseDateArrayToDatetime(listaListas[1]);
         console.log('fechFOrmato: ' + listaFechaFormato);
         listaCabeceras.push("fecha formato");
         listaListas.push(listaFechaFormato);
     }
-
-    crearTabla(elem, listaCabeceras, listaListas)
+    
+    //El true es para que al crear la tabla en el div sobrescriba
+    //las tablas ya existente en caso de que existieran.
+    //Este parametro no es relevante para /tablas
+    //pero si para /random, ya que se emplea
+    //esta funcion crearTablaNumRnd().
+    crearTabla(elem, listaCabeceras, listaListas, true);
 
 }
 

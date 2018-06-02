@@ -122,7 +122,9 @@ if __name__ == "__main__":
     #UPDATE: es necesario emplear threaded=True en app.run en vez de
     #WSGIServer, ya que este último no ofrece el rendimiento apropiado
     #(se traba si hay más de dos conexiones por parte del cliente).
-    app.run(host='0.0.0.0', threaded=True)
+    #app.run(host='0.0.0.0', threaded=True)
+    #https
+    app.run(host='0.0.0.0', threaded=True, ssl_context='adhoc')
 
     #señal de finalizar al proceso de subida de datos
     #uploader.enable = False

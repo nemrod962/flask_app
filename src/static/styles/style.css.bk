@@ -1,3 +1,280 @@
+/* ELEMENTOS BASICOS*/
+
+/*Estilo general del body*/
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #333;
+  margin: 0px;
+}
+
+button {
+    /*color letra*/
+    color: white;
+    /*Borde*/
+    border:5px solid #0099cc;
+    /*Color fondo*/
+    background-color: #0099cc;
+    /*Redondeo boton*/
+    border-radius:8px;
+    /*Duracion transicion del efecto*/
+    transition-duration: 0.5s;
+    /*Cambia el cursor cuando lo ponemos encima*/
+    cursor: pointer;
+    /*padding. Espacio desde texto hasta bordes*/
+    padding: 10px 5px;
+    /*Espacio entre botones*/
+    margin: 5px 5px;
+    /*Anchura fija*/
+    display: inline-block;
+    width: 150px;
+    /*height: 50px;*/
+}
+
+button:hover {
+    color: red;
+    background-color: #ffffff;
+}
+
+/* BARRA SUPERIOR*/
+
+/*Estilo de la barra superior*/
+.topnav {
+  overflow: hidden;
+  background-color: #0099cc;
+}
+
+.topnav img {
+    height: 44px;
+    width: auto;
+    margin-left: 10px;
+}
+
+/*Estilo elemntos 'a' en la barra superior*/
+.topnav a {
+  float: right;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+.topnav a:hover {
+    /*Color fondo*/
+    background-color: #ffffff;
+    /*Color texto*/
+    color: red;
+}
+
+/*Estilo elemente 'titulo' de la barra superior.*/
+.topnav div.titulo {
+
+  float: left;
+  color: #000000;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+  /*background-color: #333*/
+  text-transform: uppercase;
+  /*Negrita*/
+  font-weight:bold;
+}
+
+/* CUERPO */
+
+/*Estilo del elemento 'cuerpo' dentro de body. Es donde los diferentes templates
+insertarán su código al heredar de topbar_base.html*/
+
+.cuerpo {
+    margin: 10px 25px;
+}
+
+/* TEXTO (<span>) */
+
+.cuerpo span {
+    color: white;
+}
+
+/*Enlaces (<a>)*/
+.cuerpo a{
+    color:red;
+}
+
+.cuerpo a:visited{
+    color:red;
+}
+
+.cuerpo a:hover{
+    color:yellow;
+}
+
+/* TABLAS */
+
+/*Tabla*/
+.cuerpo table {
+    border-collapse: collapse;
+    width: 50%;
+}
+
+/*Celdas individales y cabeera*/
+.cuerpo th, td {
+    text-align: left;
+    padding: 5px;
+}
+
+/*Filas*/
+.cuerpo tr
+{
+    background-color: black;
+    color: white;
+}
+
+/*Filas pares*/
+.cuerpo tr:nth-child(even)
+{
+    background-color: white;
+    color: black;
+}
+
+/*Cabecera*/
+.cuerpo th {
+    background-color: #4CAF50;
+    color: white;
+}
+
+
+/*accountInfo.html*/
+
+.cuerpo div.userInfoBlock {
+    font-size: 20px;
+}
+
+.cuerpo span.userInfo {
+    color:red;
+}
+
+/* index.html (menú principal) */
+
+.cuerpo input[type="checkbox"]{
+    color: blue;
+    background: blue;
+}
+/* FIELDSET */
+
+.cuerpo fieldset {
+    border: 1px solid rgb(255,255,255);
+    width: 500px;
+    margin:auto;
+}
+
+.cuerpo fieldset h2 {
+    text-align: center;
+}
+
+
+/*Menu principal*/
+#menu,
+#menu ul,
+#menu ul li,
+#menu ul li a {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  list-style: none;
+  line-height: 1;
+  display: block;
+  position: relative;
+}
+#menu {
+  width: auto;
+  text-align: center;
+  margin: auto;
+    
+}
+#menu ul {
+  //border: 1px solid #cccccc;
+  //border-radius: 0px;
+    
+}
+#menu ul li {
+  border: 1px solid white;
+  margin: 0 0 10px 0;
+  background: #0099cc;
+  //background: orange;
+  border-radius: 10px;
+}
+
+#menu ul li:hover {
+  background: #ffffff;
+}
+
+#menu ul li:hover > div a {
+    
+  color: red;
+}
+#menu div
+{
+    //background: orange;
+    //border-radius: 10px;
+}
+#menu ul li div a {
+  //la clave -> display: block
+  //Para los elementos a.
+  //Son como visualmente como botones.
+  display: block;
+  padding: 14px 12px;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  text-decoration: none;
+  color: white;
+}
+
+/*PARCHES*/
+.cuerpo{
+    border: solid 2px white;
+    border-radius: 5px;
+    padding: 10px;
+    //position: fixed;
+    left: 50%;
+    top: 50%;
+    //z-index: 100;
+
+    height: auto;
+    //margin-top: -250px;
+    margin-top: 5%;
+
+    width: auto;
+    //margin-left: -300px;
+    margin-left: 5%;
+    text-align: center;
+
+}
+
+.cuerpo div{
+    margin: auto;
+    
+}
+/*Centrar tablas*/
+table {
+    margin: auto; /* or margin: 0 auto 0 auto */
+}
+
+/* random.html */
+#numRandDiv {
+    margin: 50px;
+}
+
+#numRand {
+    font-size: 80px;
+    border: 1px solid yellow;
+    background-color: #4CAF50;
+    padding: 5px;
+}
+
+/*----------------------------------------------------------------------*/
+
 /* ---------- ESTILO GLOBAL --------- */
 
 /*body. Estilo general, luego puede ser sobrescrito*/
@@ -194,7 +471,7 @@ table {
     margin: 50px;
 }
 /*Mostraremos el número más grande*/
-#numRandSpan {
+#numRand {
     font-size: 80px;
     border: 1px solid yellow;
     background-color: #4CAF50;
