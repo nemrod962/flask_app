@@ -78,7 +78,7 @@ class BeeHandler(BeeBasic, HandlerInterface):
     #que tengamos otro recurso almacenandola.
     def writeRandom(self, rndNumber, debug=False):
         #comrpobamos conexion con la base de datos online
-        self.initConn()
+        self.checkConn()
         #Si no podemos conectar con la Beebotte, no hacemos nada.
         if debug:
             logging.debug("writeRandom - ModoFallo : " + str(self.sinConexion))
@@ -111,7 +111,7 @@ class BeeHandler(BeeBasic, HandlerInterface):
     #Lee los numeros aleatorios ya esxitentes en la Base de datos online
     def readRandom(self, debug = False):
         #comprobamos ocnexion von Beebotte.
-        self.initConn()
+        self.checkConn()
         #Si no podemos conectar con la Beebotte, no hacemos nada.
         if debug:
             logging.debug("readRandom - ModoFallo : " + str(self.sinConexion))
