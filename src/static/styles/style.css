@@ -117,9 +117,28 @@ en la presentación de la página*/
     margin: auto;
 }
 
-/* texto (<span>) */
+/* cabeceras (<h1>) */
+.cuerpo h1 {
+    color: white;
+}
 
+/* cabeceras (<h2>) */
+.cuerpo h2 {
+    color: white;
+}
+
+/* cabeceras (<h3>) */
+.cuerpo h3 {
+    color: white;
+}
+
+/* texto (<span>) */
 .cuerpo span {
+    color: white;
+}
+
+/* texto (<p>) */
+.cuerpo p {
     color: white;
 }
 
@@ -186,6 +205,13 @@ table {
 
 .cuerpo span.userInfo {
     color:red;
+}
+
+/* >>>>> ACERCA DE RANDOM-LENDER */
+/* about.html */
+.cuerpo #divAbout{
+    /*Alineacion a la izquierda*/
+    text-align: left;
 }
 
 /* >>>>> NUMERO RANDOM */

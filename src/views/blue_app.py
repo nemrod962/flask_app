@@ -17,7 +17,7 @@ import random
 import logging
 from log_handler import setup_log
 #Views
-from blue_cookie import getCookieUserName, getCookieDB
+from blue_cookie import getCookieUserName, getCookieDB, no_cookie_check
 
 blueApp = Blueprint('blueApp', __name__)
 
@@ -207,3 +207,9 @@ def webRandom():
     DBName = getDBSimpleName(DBHandler)
     return render_template("random.html", listaNum=listaNum,
     listaDate=listaDate, DBName=DBName)
+
+#Muestra la página 'About'
+@blueApp.route('/about')
+@no_cookie_check
+def webAbout():
+    return render_template("about.html")

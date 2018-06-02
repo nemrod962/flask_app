@@ -1,0 +1,60 @@
+{# accountInfo.html #}
+{% extends "topbar_base.html" %}
+{% block cuerpo %}
+    <title>Acerda de Random-Lender</title>
+    <div id="divAbout">
+    <h1>Random-Lender</h1>
+    <p>
+    <span>Random_Lender es una aplicación web que obtiene números aleatorios de
+    la web </span><a
+    href="http://www.numeroalazar.com.ar/">numeroalazar.com.ar</a>
+    <span> y los almacena en diferentes bases de datos:</span>
+    </p>
+    <ul>
+        <li><p>MongoDB (local)</p></li>
+        <li><p>Beebotte (online)</p></li>
+        <li><p><span>MySQL </span><del>(local)</del>
+        <span>(obsoleto)</span></p></li>
+    </ul>
+    <p>Random_lender nos permite realizar ciertas operaciones con los números
+    almacenados:</p>
+    <ul>
+        <li><p>Umbral: Indicado un número como umbral, se nos indicará cuál
+        es el último número alamacenado en las bases de datos que lohaya superado
+        tanto por arriba como por abajo.</p></li>
+        <li><p>Media: Muestra la media de los números alamacenados en las bases
+        de datos.</p></li>
+        <li><p>Grafo Beebotte: Redirige a la página de Beebotte y muestra
+        grafos con los datos almacenados allí.</p></li>
+        <li><p>Grafo: Muestra gráfica de los números aleatorios registrados.
+        También permite mostrar gráfico de barras con las frecuencias de los
+        números por intervalos.</p></li>
+    </ul>
+    
+    <p>Random-Lender también nos avisará cuando se haya registrado un número que
+    active el umbral del usuario (puede cambiarse en el apartado de cuenta).</p>
+    
+    <h2>Umbrales de Usuario</h2>
+
+    <p>Los umbrales funcionan de la siguiente manera:</p>
+    <ul>
+        <li>Un umbral debe estar comprendido entre -100 y 100
+        para que sea válido.</li>
+        <li>
+            <p>Si un umbral de usuario es mayor que 0, se notificará al 
+            usuario cuando se registre un número mayor que el umbral.</p>
+            <p>Umbral Usuario: 50</p>
+            <p>Número registrado: 40 =&gt; (40 &lt; 50) =&gt; No avisa</p>
+            <p>Número registrado: 60 =&gt; (60 &gt; 50) =&gt; Avisa</p>
+        </li>
+        <li>
+            <p>Si un umbral de usuario es menor que 0, se notificará al 
+        usuario cuando se registre un número menor que el valor
+        absoluto del umbral.</p>
+            <p>Umbral Usuario: -50</p>
+            <p>Número registrado: 40 =&gt; (40 &lt; 50) =&gt; Avisa</p>
+            <p>Número registrado: 60 =&gt; (60 &gt; 50) =&gt; No avisa</p>
+        </li>
+    </ul>
+    </div>
+{% endblock %}
