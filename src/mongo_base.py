@@ -57,12 +57,14 @@ class MongoBasic:
         #Obtengo credenciales del fichero.
         #Un dato por línea
         try:
-            mongo_key_file=open("credentials/mongo_credentials", "r")
-            host=mongo_key_file.readline().rstrip()
-            port=mongo_key_file.readline().rstrip()
-            user=mongo_key_file.readline().rstrip()
-            passw=mongo_key_file.readline().rstrip()
-            db=mongo_key_file.readline().rstrip()
+            import json
+            mongo_key_file=open("credentials/mongo_credentials.json", "r")
+            data = json.load(mongo_key_file)
+            host=data['host']
+            port=data['port']
+            user=data['user']
+            passw=data['pass']
+            db=data['database']
 
         #Si fallo en abrir fichero, utilizo credenciales por defecto
         except IOError:

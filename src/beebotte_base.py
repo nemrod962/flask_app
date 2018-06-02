@@ -73,15 +73,14 @@ class BeeBasic:
         _secretkey = "placeholder"
         #Abro fichero.
         try:
-            bee_key_file=open("credentials/beebotte_credentials", "r")
-            #Leo linea a linea las credenciales. Debo respetar el orden
-            #en el que estan escritas las credenciales.
-            #Al leer una linea, tengo '\n' al final.
-            #rstrip() me elimina este caracter.
-            _accesskey = bee_key_file.readline().rstrip() 
-            _secretkey = bee_key_file.readline().rstrip()
-            #cierro fichero
+            #cargo credenciales de fichero json
+            import json
+            bee_key_file=open("credentials/beebotte_credentials.json", "r")
+            data = json.load(bee_key_file)
+            _accesskey = data['accesskey']
+            _secretkey = data['secretkey']
             bee_key_file.close()
+
         except IOError as e:
             logging.warning("No se pudo abrir archivo credenciales: " + str(e))
             self.sinConexion=True
@@ -455,7 +454,6 @@ class BeeBasic:
     #permite al usuario añadir canales y variables a los mismos
     def user_op(self):
         repetir = True
-        bclient = self.initConn()
         debug_str = raw_input("Activar Modo Debug?[Y\N]: ")
         if debug_str == "Y" or debug_str == "y":
             debug = True
@@ -485,7 +483,7 @@ class BeeBasic:
                 varName = raw_input("Nombre variable: ")
                 varType = raw_input("Tipo variable (\"string\" o \"number\": ")
                 isPublic = True
-                res = self.createChannel(bclient, nombre, varName, varType, label, descr, isPublic, debug)
+                res = self.createChannel(nombre, varName, varType, label, descr, isPublic, debug)
                 logging.debug(res)
             #Añadir variable
             elif opcion == "2":
@@ -495,7 +493,7 @@ class BeeBasic:
                 label= raw_input("label: ")
                 descr= raw_input("descripcion: ")
                 sendOnSubs = False
-                res = self.createResource(bclient, canal, nombre,tipo,label, descr, sendOnSubs, debug)
+                res = self.createResource(canal, nombre,tipo,label, descr, sendOnSubs, debug)
                 logging.debug(res)
             #BorrarCanal
             elif opcion == "3":

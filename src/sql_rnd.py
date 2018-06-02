@@ -95,14 +95,14 @@ class SQLHandler:
         """
         #Abro fichero. 
         try:
-            sql_key_file=open("credentials/sql_credentials", "r")
-            #Debo leer los datos del fichero en orden.
-            #Al leer una linea, tengo '\n' al final.
-            #rstrip() me elimina este caracter
-            self.app.config['MYSQL_DATABASE_USER']=sql_key_file.readline().rstrip()
-            self.app.config['MYSQL_DATABASE_PASSWORD']=sql_key_file.readline().rstrip()
-            self.app.config['MYSQL_DATABASE_DB']=sql_key_file.readline().rstrip()
-            self.app.config['MYSQL_DATABASE_HOST']=sql_key_file.readline().rstrip()
+            import json
+            sql_key_file=open("credentials/sql_credentials.json", "r")
+            #Debo leer los datos del fichero json
+            data = json.load(sql_key_file)
+            self.app.config['MYSQL_DATABASE_USER']=data['user']
+            self.app.config['MYSQL_DATABASE_PASSWORD']=data['pass']
+            self.app.config['MYSQL_DATABASE_DB']=data['database']
+            self.app.config['MYSQL_DATABASE_HOST']=data['host']
             #cierro fichero
             sql_key_file.close()
         except IOError as e:
