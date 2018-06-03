@@ -34,6 +34,7 @@ git clone https://github.com/pablopenna/flask_app
 * Instalar python, virtualenv y sus dependencias:
 
 ```shell
+cd scripts/
 bash -x instalar_flask.txt
 ```
 
@@ -42,18 +43,22 @@ bash -x instalar_flask.txt
 ```shell
 bash -x instalar_phantomjs.txt
 ```
-
+* Iniciar el entorno virtual
+```shell
+cd ..
+bash -x init_flask.txt
+```
 * Instalar las librerías que la aplicación necesita
 
 ```shell
-pip install -r requirements.txt
+pip install -r scripts/requirements.txt
 ```
 
 * Tener MongoDB instalado. Puede emplearse un contenedor de Docker como alternativa:
   - Instalar Docker: [Docker Install Guide](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
   - Descargar imagen mongo y crear contenedor [Docker Mongo Page](https://hub.docker.com/_/mongo/). Es importante que al crear el contenedor se vincule el puerto 27017 del contenedor a uno del host para poder acceder a mongoDB desde la aplicación flask. Por ejemplo, para vincular el puerto 27017 del contenedor al 8080 del host: `docker run ... -p 8080:27017 ...`.
   - Especificar la configuración de mongoDB en el fichero src/credentials/mongo_credentials.json (usuario, contraseña, host, puerto y base de datos.)
-  - Alternativamente pueden emplearse los scripts en dockerScripts/
+  - Alternativamente pueden emplearse los scripts en scripts/dockerScripts/
     - Instalar Docker `bash -x installDockerUbuntu.sh`.
     - Crear contenedor `bash -x installMongoDocker.sh`. Especificar las credenciales deseadas modificando el archivo `mongoAddAdminConfig`.
     - Especificar la configuración de mongoDB en el fichero src/credentials/mongo_credentials.json (usuario, contraseña, host, puerto y base de datos.)
