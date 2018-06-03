@@ -29,6 +29,11 @@ class OAuthUserManager(UserManager):
     #Constructor
     #OAuthUserManager tendrá sus propias listas de sesiones activas y caducidad.
     #No las comparte con UserManager.
+	#Variables de clase, ya que estas deben ser comunes para todas la instancias
+    #Diccionario que contiene los pares de cookie y usuario correspondiente
+    listaSesiones=dict()
+    #Contiene los pares de cookies y fecha de caducidad.     
+    listaCaducidad=dict()
     #REMEMBER: Las variables que almacenan estas listas son variables de
     #clase(estáticas), accesibles por cualquier instancia de la clase
     def __init__(self, coleccionUsuariosOauth="usuariosOauth", debug=False):
@@ -60,6 +65,13 @@ class OAuthUserManager(UserManager):
         self.campoUsername="id"
         #Los campos que siguen igual son los de password (no se
         #utiliza) y el de umbral.
+		#
+        #Al ser diccionarios, las variables de la instancia
+        #referenciarán a las de la clase, por lo que al modificar
+        #las listas de la instancia realmente estaré modificando las 
+        #de la clase
+        self.listaSesiones = OAuthUserManager.listaSesiones
+        self.listaCaducidad = OAuthUserManager.listaCaducidad
 
         #debug
         self.debug=True

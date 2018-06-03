@@ -56,6 +56,13 @@ class UserManager(MongoBasic):
         #por tiempoCaducidad (contiene escapcio de tiempo en ms, 
         #p.ej. 30 minutos) sin ser utilizadas.
         self.tiempoCaducidad=date_handler.minToMs(30)
+        #
+        #Al ser diccionarios, las variables de la instancia
+        #referenciarán a las de la clase, por lo que al modificar
+        #las listas de la instancia realmente estaré modificando las 
+        #de la clase
+        self.listaSesiones = UserManager.listaSesiones
+        self.listaCaducidad = UserManager.listaCaducidad
 
 
     """
@@ -100,7 +107,7 @@ class UserManager(MongoBasic):
                 #que corresponde.
                 cookie=self.genCookieVal(userId)
                 entrada={cookie : userId}
-                UserManager.listaSesiones.update(entrada)
+                self.listaSesiones.update(entrada)
                 #Consultando la cookie en este diccionario, nos
                 #devolverá el usuario al que pertenece la cookie
                 #---
@@ -110,7 +117,7 @@ class UserManager(MongoBasic):
                 #caducidad contendrá la fecha de dentro de 30 minutos.
                 caducidad=date_handler.getDatetimeMs() + self.tiempoCaducidad
                 entrada2={cookie : caducidad}
-                UserManager.listaCaducidad.update(entrada2)
+                self.listaCaducidad.update(entrada2)
                 if self.debug:
                     logging.debug("MONGO_USER:")
                     logging.debug("Sesion iniciada. Id: " + str(cookie))
@@ -119,7 +126,7 @@ class UserManager(MongoBasic):
                     logging.debug("Tiempo Actual: " + str(fechaAct))
                     logging.debug("conversion: " + \
                     str(date_handler.msToDatetime(fechaAct)))
-                    cadcook=UserManager.listaCaducidad[cookie]
+                    cadcook=self.listaCaducidad[cookie]
                     logging.debug("Caducidad Cookie: " + str(cadcook))
                     logging.debug("conversion: " + \
                     str(date_handler.msToDatetime(cadcook)))
@@ -142,11 +149,11 @@ class UserManager(MongoBasic):
             logging.debug("MongoUser - logout()")
             logging.debug("clase :" + str(self.__class__.__name__))
             logging.debug("mostrando listas:")
-            logging.debug(UserManager.listaSesiones)
-            logging.debug(UserManager.listaCaducidad)
+            logging.debug(self.listaSesiones)
+            logging.debug(self.listaCaducidad)
         try:
-            del UserManager.listaSesiones[cookieVal]
-            del UserManager.listaCaducidad[cookieVal]
+            del self.listaSesiones[cookieVal]
+            del self.listaCaducidad[cookieVal]
             if self.debug:
                 logging.debug("Se ha salido de la sesion " + cookieVal)
             return 0
@@ -304,7 +311,7 @@ class UserManager(MongoBasic):
             #HAY QUE COMPROBAR SI YA EXISTE ESE VALOR EN LISTASESIONES
             #Si ya existe, generop de nuevo la clave
             #SI no (lo normal), salgo y retorono la cookie
-            if not (cookie in UserManager.listaSesiones):
+            if not (cookie in self.listaSesiones):
                 repetir=False
         #retorno la cookie
         return cookie
@@ -316,7 +323,7 @@ class UserManager(MongoBasic):
     def getCookieUserName(self, sessionId):
         try:
             sessionId=str(sessionId)
-            return UserManager.listaSesiones[sessionId]
+            return self.listaSesiones[sessionId]
         except KeyError:
             return None
     
@@ -330,15 +337,15 @@ class UserManager(MongoBasic):
         if self.debug:
             logging.debug("MongoUser - refreshCookie()")
             logging.debug("Actualizando caducidad cookie - " + str(cookieVal))
-            logging.debug("Antes: " + str(UserManager.listaCaducidad))
+            logging.debug("Antes: " + str(self.listaCaducidad))
 
-        if cookieVal in UserManager.listaCaducidad:
+        if cookieVal in self.listaCaducidad:
             #Actualiza la fecha para dentro de tiempoCaducidad minutos
             caducidad=date_handler.getDatetimeMs() + self.tiempoCaducidad
-            UserManager.listaCaducidad[cookieVal]=caducidad
+            self.listaCaducidad[cookieVal]=caducidad
 
         if self.debug:
-            logging.debug("Despues: " + str(UserManager.listaCaducidad))
+            logging.debug("Despues: " + str(self.listaCaducidad))
     
 
     #Recorre la lista de todas las cookies y borra las que hayan caducado
@@ -350,11 +357,11 @@ class UserManager(MongoBasic):
         #Esto producirá un error de ejecución.
         #Para evitarlo, crearé una copia del diccionario y utilizaré
         #las claves de esta copia para iterar a través del original
-        for value in UserManager.listaCaducidad.copy():
+        for value in self.listaCaducidad.copy():
             #Si el tiempo actual es mayor que la fecha
             #de caducidad, significa que ha caducado la cookie
             fechaAct=date_handler.getDatetimeMs()
-            cadTemp=UserManager.listaCaducidad[value]
+            cadTemp=self.listaCaducidad[value]
             #DEBUG
             if self.debug:
                 logging.debug("MongoUser - deleteExpiredCookies()")
@@ -380,7 +387,7 @@ class UserManager(MongoBasic):
     def deleteExpiredCookie(self, sessionId):
         #OBtengo fecha de caducidad para la sesion indicada
         try:
-            cadTemp=UserManager.listaCaducidad[sessionId]
+            cadTemp=self.listaCaducidad[sessionId]
         except KeyError:
             #Si no existe la cookie no ha caducado,
             #devuelvo False ya que no he borrado nada
