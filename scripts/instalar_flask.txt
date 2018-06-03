@@ -1,6 +1,7 @@
 #instrucciones sobre como instalar flask mediante un entporno virtual.
 sudo apt-get install python-dev
 sudo apt-get install python-virtualenv
+cd ..
 mkdir flask_env
 cd flask_env
 virtualenv flask
