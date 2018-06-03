@@ -1,5 +1,10 @@
 /*comprobaciones de nombre de usuario y contraseña para el registro
 de usuarios*/
+/*La comprobaciones del umbral se hacen con las funciones en enviarUmbral.js*/
+/*Si todas las comprobaciones son satisfactorias, envío datos
+al servidor (en caso de estar en la página /register) para crear usuario */
+/* Emplea funciones del script respuestasServidor.js para interpretar 
+las respuesta recibida del servidor. */
 
 /*Precisa de los scripts 
     ->comprobaciones_umbral.js:

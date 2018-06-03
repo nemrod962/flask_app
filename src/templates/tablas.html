@@ -1,48 +1,54 @@
 {# tablas.html #}
 {% extends "topbar_base.html" %}
+{% block cabeza %}
+    {#Importo scripts#}
+    {# Operaciones basicas con listas para convertir las mismas
+    de el formato en que las recibo desde flask a array en javascript.
+    Dependencia de crearTablas.js#}
+    <script src='{{ url_for('static', filename='js/arrayOps.js') }}'>
+    </script>
+    {# Operaciones basicas para la creacion de tablas. 
+    Dependencia de crearTablaNumRnd.js#}
+    <script src='{{ url_for('static', filename='js/tableOps.js') }}'>
+    </script>
+    {# Crea tabla con los datos recibidos de flask. Emplea #}
+    <script src='{{ url_for('static', filename='js/crearTablaNumRnd.js') }}'>
+    </script>
+{% endblock %}
 {% block cuerpo %}
-<title>Tablas</title>
-<div>TABLA:  </div>
-<!--Hay que poner el '| safe' detrás de la variable 
-para que Flask la interprete como código HTML-->
-<br>
+    <title>Tablas</title>
+    <div>TABLA:  </div>
+    <!--Hay que poner el '| safe' detrás de la variable 
+    para que Flask la interprete como código HTML-->
+    <br>
 
-{# Tabla HTML. Contenida en un <div> #}
-<div id="myTableDiv">
-</div>
+    {# Tabla HTML. Contenida en un <div> #}
+    <div id="myTableDiv">
+    </div>
 
-<br>
-<div>Base de datos empleada: {{DBName}} </div>
+    <br>
+    <div>Base de datos empleada: {{DBName}} </div>
 
-{#Importo scripts#}
-{# Operaciones basicas con listas para convertir las mismas
-de el formato en que las recibo desde flask a array en javascript.
-Dependencia de crearTablas.js#}
-<script src='{{ url_for('static', filename='js/arrayOps.js') }}'>
-</script>
-{# Crea tabla con los datos recibidos de flask. Emplea #}
-<script src='{{ url_for('static', filename='js/crearTablaNumRnd.js') }}'>
-</script>
 
-{#Llamo funciones del script importado#}
-<script>
-{#Recibo listas con los datos de flask.
-Estas listas recibidas no se reconocerán como arrays sino
-como strings, por lo que habrá que convertirlas.#}
-var listaNum = '{{listaNum}}'
-var listaDate = '{{listaDate}}'
+    {#Llamo funciones del script importado#}
+    <script>
+    {#Recibo listas con los datos de flask.
+    Estas listas recibidas no se reconocerán como arrays sino
+    como strings, por lo que habrá que convertirlas.#}
+    var listaNum = '{{listaNum}}'
+    var listaDate = '{{listaDate}}'
 
-var listaCab = ["numeros", "fechas"]
+    var listaCab = ["numeros", "fechas"]
 
-var listaDatos = [listaNum, listaDate]
+    var listaDatos = [listaNum, listaDate]
 
-console.log("***")
-console.log('antes funcion: ' + listaCab)
-console.log('antes funcion: ' + listaDatos)
+    console.log("***")
+    console.log('antes funcion: ' + listaCab)
+    console.log('antes funcion: ' + listaDatos)
 
-//Creo la tabla al cargar la ventana
-window.onload = crearTablaRandom(document.getElementById('myTableDiv'),listaCab,listaDatos) 
-</script>
+    //Creo la tabla al cargar la ventana
+    window.onload = crearTablaRandom(document.getElementById('myTableDiv'),listaCab,listaDatos) 
+    </script>
 {% endblock %}
 
 {#Añado funcionalidad al recibir SSE. Añadiremos numero recibdo

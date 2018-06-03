@@ -1,4 +1,6 @@
-/*comprobaciones del umbral del usuario a cambiar.*/
+/*Comprobaciones del umbral del usuario a cambiar.*/
+/*Si las comprobaciones son satisfactorias, enviar
+umbral al server (en /cambiarUmbral).*/
 
 /*Precisa de los scripts 
     ->respuestasServidor.js:

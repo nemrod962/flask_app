@@ -7,6 +7,10 @@
     Dependencia de crearTablas.js#}
     <script src='{{ url_for('static', filename='js/arrayOps.js') }}'>
     </script>
+    {# Operaciones basicas para la creacion de tablas. 
+    Dependencia de crearTablaNumRnd.js#}
+    <script src='{{ url_for('static', filename='js/tableOps.js') }}'>
+    </script>
     {# Funcionalidad principal para mostrar numero aleatior#}
     <script src='{{ url_for('static', filename='js/obtenerNumRnd.js') }}'>
     </script>
@@ -15,36 +19,35 @@
     </script>
 {% endblock %}
 {% block cuerpo %}
-<title>Random</title>
-<div>Numero Aleatorio:  </div>
-<br>
-{#Muestro numero random en grando#}
-<div id="numRandDiv">
-    <span id="numRandSpan"><span>
-</div>
-{#Se creará una tabla con los datos del numero aleatorio#}
-<div id="myTableDiv">
-</div>
-<br>
-    <button type="button" id="numRandButton">Otro!</button>
-<br>
-    <div>Base de datos empleada: {{DBName}} </div>
+    <title>Random</title>
+    <div>Numero Aleatorio:  </div>
+    <br>
+    {#Muestro numero random en grando#}
+    <div id="numRandDiv">
+        <span id="numRandSpan"><span>
+    </div>
+    {#Se creará una tabla con los datos del numero aleatorio#}
+    <div id="myTableDiv">
+    </div>
+    <br>
+        <button type="button" id="numRandButton">Otro!</button>
+    <br>
+        <div>Base de datos empleada: {{DBName}} </div>
 
 
-{#Llamo funciones del script importado#}
-<script>
+    {#Llamo funciones del script importado#}
+    <script>
 
-    {#Recibo listas con los datos de flask.
-    Estas listas recibidas no se reconocerán como arrays sino
-    como strings, por lo que habrá que convertirlas.#}
-    var listaNum = '{{listaNum}}'
-    var listaDate = '{{listaDate}}'
-    var selectDiv = "#myTableDiv";
-    var selectSpan = "#numRandSpan";
-    var selectButton = "#numRandButton";
-    
-    /*obtenerNumRnd.js*/
-    mostrarNumeroAleatorio(listaNum,listaDate,selectButton,selectSpan,selectDiv);
-</script>
-
+        {#Recibo listas con los datos de flask.
+        Estas listas recibidas no se reconocerán como arrays sino
+        como strings, por lo que habrá que convertirlas.#}
+        var listaNum = '{{listaNum}}'
+        var listaDate = '{{listaDate}}'
+        var selectDiv = "#myTableDiv";
+        var selectSpan = "#numRandSpan";
+        var selectButton = "#numRandButton";
+        
+        /*obtenerNumRnd.js*/
+        mostrarNumeroAleatorio(listaNum,listaDate,selectButton,selectSpan,selectDiv);
+    </script>
 {% endblock %}

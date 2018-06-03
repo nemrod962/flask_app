@@ -72,7 +72,7 @@ function crearTablaRandom(elem, listaCabeceras, listaListas)
 
 /*Funcion a llamar cuando se reciba un SSE para añadir
 fila con los datos*/
-//Se emplean funciones de evaluarUmbralSSE.js y arrayOps.js
+//Se emplean funciones de evaluarUmbralSSE.js, arrayOps.js y tableOps.js.
 function updateTableNumRndSSE(datosSSE, tabla)
 {
     //Parseo datos SSE

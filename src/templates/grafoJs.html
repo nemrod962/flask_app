@@ -16,67 +16,68 @@
     {# Conversión de listas recibidas de Flask.#}
     <script src="{{ url_for('static',filename='js/arrayOps.js') }}">
     </script>
-
-
+    {# Funciones basicas para la creacion de tablas.#}
+    <script src="{{ url_for('static',filename='js/tableOps.js') }}">
+    </script>
 
 {% endblock %}
 
 {% block cuerpo %}
-<title>Grafo Plot.ly</title>
-<span>Seleccione intervalo: </span>
-<input type="text" id="textIntervalo"></input>
-<button id="botonGrafica">Refrescar</button>
-<div id="grafica" style="width:600px;height:250px;"></div>
-<br>
-<div id="grafica2" style="width:600px;height:250px;"></div>
-<br>
-    <div>Base de datos empleada: {{DBName}}</div>
-<br>
+    <title>Grafo Plot.ly</title>
+    <span>Seleccione intervalo: </span>
+    <input type="text" id="textIntervalo"></input>
+    <button id="botonGrafica">Refrescar</button>
+    <div id="grafica" style="width:600px;height:250px;"></div>
+    <br>
+    <div id="grafica2" style="width:600px;height:250px;"></div>
+    <br>
+        <div>Base de datos empleada: {{DBName}}</div>
+    <br>
 
-{# Creo la grafica con plotly #}
-<script>
+    {# Creo la grafica con plotly #}
+    <script>
 
-	graphElem = document.getElementById('grafica');
-	graphElem2 = document.getElementById('grafica2');
+        graphElem = document.getElementById('grafica');
+        graphElem2 = document.getElementById('grafica2');
 
-	{#Recibo listas con los datos de flask.
-    Estas listas recibidas no se reconocerán como arrays sino
-    como strings, por lo que habrá que convertirlas.#}
-    var listaNumRaw = '{{listaNum}}'
-    var listaDateRaw = '{{listaDate}}'
+        {#Recibo listas con los datos de flask.
+        Estas listas recibidas no se reconocerán como arrays sino
+        como strings, por lo que habrá que convertirlas.#}
+        var listaNumRaw = '{{listaNum}}'
+        var listaDateRaw = '{{listaDate}}'
 
-    console.log("***")
+        console.log("***")
 
-    var listaNum = flaskToArray(listaNumRaw);
-    var listaDate = flaskToArray(listaDateRaw);
-    var listaDateFormat = parseDateArrayToDatetime(listaDate);
+        var listaNum = flaskToArray(listaNumRaw);
+        var listaDate = flaskToArray(listaDateRaw);
+        var listaDateFormat = parseDateArrayToDatetime(listaDate);
 
-    {#Si las fechas no están de menor a mayor, ordeno todas las listas.#}
-    if(listaDate[0]>listaDate[1])
-    {
-        listaNum=listaNum.reverse();
-        listaDate=listaDate.reverse();
-        listaDateFormat=listaDateFormat.reverse();
-    }
-
-    window.onload=crearGrafoSimpleNumRnd(graphElem, listaDateFormat, listaNum);
-    
-    {# Empleamos jQuery en vez de js para obtener los valores de los
-    elementos y definir eventos.#}
-    $('#botonGrafica').click(function()
-    {
-        var intervalo = parseInt($('#textIntervalo').val())
-        if(isNaN(intervalo))
+        {#Si las fechas no están de menor a mayor, ordeno todas las listas.#}
+        if(listaDate[0]>listaDate[1])
         {
-            window.alert("Por favor, introduce un número.");
+            listaNum=listaNum.reverse();
+            listaDate=listaDate.reverse();
+            listaDateFormat=listaDateFormat.reverse();
         }
-        else
+
+        window.onload=crearGrafoSimpleNumRnd(graphElem, listaDateFormat, listaNum);
+        
+        {# Empleamos jQuery en vez de js para obtener los valores de los
+        elementos y definir eventos.#}
+        $('#botonGrafica').click(function()
         {
-            crearGrafoFreqNumRnd(graphElem2,listaNum,intervalo);
+            var intervalo = parseInt($('#textIntervalo').val())
+            if(isNaN(intervalo))
+            {
+                window.alert("Por favor, introduce un número.");
+            }
+            else
+            {
+                crearGrafoFreqNumRnd(graphElem2,listaNum,intervalo);
+            }
         }
-    }
-    );
-</script>
+        );
+    </script>
 {% endblock %}
 
 {#Añado funcionalidad al recibir SSE. Añadiremos numero recibdo

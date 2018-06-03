@@ -1,4 +1,5 @@
 /* obtenerNumRnd.js */
+/* Empleado en la página /random */
 /*Implementa la funcionalidad del html random.html, el cual consiste en mostrar
  * un numero aleatorio aleatorio contenido en la base de datos.
  Reicbiremos del servidor una lista de los numeros aleatorio y las fechas de

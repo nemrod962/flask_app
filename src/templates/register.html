@@ -4,14 +4,14 @@
     {# Cargo Scripts para la comprobación de datos#}
 	{# Cargo Script para la comprobación del umbral#}
     <script 
-    src="{{ url_for('static', filename='js/comprobar_umbral.js') }}">
+    src="{{ url_for('static', filename='js/enviarUmbral.js') }}">
     </script>
 	{# Cargo Script para la comprobación del nombre y contraseña#}
     <script 
-    src="{{ url_for('static', filename='js/comprobar_name_pass.js') }}">
+    src="{{ url_for('static', filename='js/enviarRegister.js') }}">
     </script>
-    {# Script necesitado por scripts comprobar_*.js para interpretar
-    respuestas del servidor#}
+    {# Script necesitado por los scripts enviarumbral.js y 
+    enviarRegister.js para interpretar las respuestas del servidor. #}
     <script 
     src="{{ url_for('static', filename='js/respuestasServidor.js') }}">
     </script>

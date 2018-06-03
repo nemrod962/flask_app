@@ -290,7 +290,7 @@ function getResUmbralInferior(listasDatos, umbral)
 ////SSE
 /*Funcion a llamar cuando se reciba un SSE para añadir
 fila con los datos*/
-//Se emplean funciones de evaluarUmbralSSE.js y arrayOps.js
+//Se emplean funciones de evaluarUmbralSSE.js, arrayOps y tableOps.js
 function updateTableUmbralSSE(datosSSE, divTabla)
 {
     //Parseo datos SSE
