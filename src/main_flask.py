@@ -124,7 +124,8 @@ if __name__ == "__main__":
     #(se traba si hay más de dos conexiones por parte del cliente).
     #app.run(host='0.0.0.0', threaded=True)
     #https
-    app.run(host='0.0.0.0', threaded=True, ssl_context='adhoc')
+    app.run(host='0.0.0.0',threaded=True,ssl_context=('certificates/cert.pem',\
+    'certificates/key.pem'))
 
     #señal de finalizar al proceso de subida de datos
     #uploader.enable = False
