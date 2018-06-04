@@ -2,7 +2,7 @@
 {% extends "topbar_base.html" %}
 {% block cuerpo %}
 <title>Gráficas Beebotte</title>
-<div>Gráficas Beebotte:  </div>
+<div><p>Gráficas Beebotte:</p></div>
 <br>
 {#Se creará una tabla con el umbral en este elemento#}
 <div id="result">
@@ -15,8 +15,6 @@ click aquí</a>
 <br>
 
 <script>
-
-$.ajax({url: "{{ url_for('static', filename='phpscript.php') }}",dataType: "json", success: function(data){console.log('jola: ' + data);}});
 
 $("span#linkaux").click(function(){window.open("https://beebotte.com/dash/09db3e70-df3a-11e7-bfef-6f68fef5ca14");})
 
