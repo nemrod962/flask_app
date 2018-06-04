@@ -75,15 +75,20 @@ fila con los datos*/
 //Se emplean funciones de evaluarUmbralSSE.js, arrayOps.js y tableOps.js.
 function updateTableNumRndSSE(datosSSE, tabla)
 {
-    //Parseo datos SSE
-    var num = getNumeroAleatorioSSE(datosSSE);
-    //fechams
-    var fechams = getFechaSSE(datosSSE);
-    //fecha datetime
-    var fecha = dateToDatetime(fechams);
-    //Tiene que ser lista de listas
-    var datos = [num, fechams, fecha];
-    //añado fila. Indice = 0, pues las listas
-    //solo tienen un elemento
-    addSingleRowTop(tabla,datos);
+    //Solo actualizo si el numero registrado esta disponible en
+    //la base de datos que esta empleando el usuario
+    if(estaNumeroDisponibleSSE(datosSSE))
+    {
+        //Parseo datos SSE
+        var num = getNumeroAleatorioSSE(datosSSE);
+        //fechams
+        var fechams = getFechaSSE(datosSSE);
+        //fecha datetime
+        var fecha = dateToDatetime(fechams);
+        //Tiene que ser lista de listas
+        var datos = [num, fechams, fecha];
+        //añado fila. Indice = 0, pues las listas
+        //solo tienen un elemento
+        addSingleRowTop(tabla,datos);
+    }
 }

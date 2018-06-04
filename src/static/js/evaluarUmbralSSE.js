@@ -36,10 +36,10 @@ function evaluarUmbralSSE(datosSSE)
     
     //---
     //Base de datos empleada por el usuario (cookie)
-    dbUser = getDBCookie();
+    var dbUser = getDBCookie();
     //Lista de las bases de datos en las que se
     //ha escrito el numero aleatorio
-    dbSSE = getDBListSSE(datosSSE);
+    var dbSSE = getDBListSSE(datosSSE);
     //---
 
     //Si el valor 'umbral' no existe en la cookie, la
@@ -188,4 +188,28 @@ function evaluarNotificacionesSSE(num, umbral, dbList, dbUser)
         }
     }
 
+}
+
+//--------------------------------------
+//Función a emplear en otros scripts para actualizar
+//datos al recibir SSE.
+//Esta función devuelve true si la base de datos
+//que está empleando actualmente el usuario
+//(obtenida de las cookies, si no hay ninguna
+//se da por hehco que emplea MongoDB) está contenida
+//en la lista de bases de datos indicadas en el SSE recibido
+//(El SSE contiene una lista de las bases de datos en las que se
+//ha registrado el número aleatorio).
+function estaNumeroDisponibleSSE(datosSSE)
+{
+    //---
+    //funciones de evaluarUmbralSSE.js
+    //Base de datos empleada por el usuario (cookie)
+    var dbUser = getDBCookie();
+    //Lista de las bases de datos en las que se
+    //ha escrito el numero aleatorio
+    var dbList = getDBListSSE(datosSSE);
+    //---
+    var esNumDisponible = (dbList.indexOf(dbUser)!=-1)
+    return esNumDisponible
 }

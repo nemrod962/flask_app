@@ -89,13 +89,18 @@ function getResMedia(listaDatos)
 /*Actualizar Media mediante SSE*/
 function updateTableMediaSSE(datosSSE, divTabla)
 {
-    //Obtengo el numero añadido mediante SSE
-    var num = getNumeroAleatorioSSE(datosSSE);
-    //Lo añado a la lista de numeros global
-    listaNumerosGlobal.push(num);
-    //Vuelvo a crear la tabla de medias
-    //Meto listaNumerosGlobal en una lista
-    //pues crearTablaMedia recibe una lista
-    //de listas con los datos
-    crearTablaMedia(divTabla, [listaNumerosGlobal])
+    //Solo actualizo si el numero registrado esta disponible en
+    //la base de datos que esta empleando el usuario
+    if(estaNumeroDisponibleSSE(datosSSE))
+    {
+        //Obtengo el numero añadido mediante SSE
+        var num = getNumeroAleatorioSSE(datosSSE);
+        //Lo añado a la lista de numeros global
+        listaNumerosGlobal.push(num);
+        //Vuelvo a crear la tabla de medias
+        //Meto listaNumerosGlobal en una lista
+        //pues crearTablaMedia recibe una lista
+        //de listas con los datos
+        crearTablaMedia(divTabla, [listaNumerosGlobal])
+    }
 }

@@ -293,24 +293,29 @@ fila con los datos*/
 //Se emplean funciones de evaluarUmbralSSE.js, arrayOps y tableOps.js
 function updateTableUmbralSSE(datosSSE, divTabla)
 {
-    //Parseo datos SSE
-    var num = getNumeroAleatorioSSE(datosSSE);
-    //fechams
-    var fechams = getFechaSSE(datosSSE);
-    //fecha datetime
-    var fecha = dateToDatetime(fechams);
+    //Solo actualizo si el numero registrado esta disponible en
+    //la base de datos que esta empleando el usuario
+    if(estaNumeroDisponibleSSE(datosSSE))
+    {
+        //Parseo datos SSE
+        var num = getNumeroAleatorioSSE(datosSSE);
+        //fechams
+        var fechams = getFechaSSE(datosSSE);
+        //fecha datetime
+        var fecha = dateToDatetime(fechams);
 
-    //actualizar datos globales	
-    //listaGlobalDatos = [listaNumeros, listaFechasMS, listaFechasFormato].
-    //añado numero
-    listaGlobalDatos[0].push(num);
-    //añado fecha ms
-    listaGlobalDatos[1].push(fechams);
-    //añado fecha datetime
-    listaGlobalDatos[2].push(fecha);
+        //actualizar datos globales	
+        //listaGlobalDatos = [listaNumeros, listaFechasMS, listaFechasFormato].
+        //añado numero
+        listaGlobalDatos[0].push(num);
+        //añado fecha ms
+        listaGlobalDatos[1].push(fechams);
+        //añado fecha datetime
+        listaGlobalDatos[2].push(fecha);
 
-    //actualizo tabla
-    var listaResultados=getResUmbral(listaGlobalDatos, umbralGlobal);
-    crearTabla(divTabla,listaCabeceras,listaResultados,true);
+        //actualizo tabla
+        var listaResultados=getResUmbral(listaGlobalDatos, umbralGlobal);
+        crearTabla(divTabla,listaCabeceras,listaResultados,true);
+    }
 }
 

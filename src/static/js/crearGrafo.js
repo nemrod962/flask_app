@@ -302,36 +302,10 @@ function crearGrafoFreqNumRnd(elem,listaNum,intervalo)
 //Funciones SSE para actualizar la gráfica simple
 function updateGrafoSimpleSSE(datosSSE, divGrafo)
 {
-    //Parseo datos SSE
-    //numero aleatorio
-    var num = getNumeroAleatorioSSE(datosSSE);
-    //fechams
-    var fechams = getFechaSSE(datosSSE);
-    //fecha datetime
-    var fecha = dateToDatetime(fechams);
-    //Actualizo variables globales
-    listaGlobalNumeros.push(num);
-    listaGlobalFechas.push(fecha);
-
-    //Genero tabla actualizada.
-    //Llamo crearGrafoSimple() en lugar
-    //de crearGrafoSimpleNumRnd() porque
-    //no necesito actualizar las varaibles globales
-    //porque ya lo estan.
-    crearGrafoSimple(divGrafo, listaGlobalFechas, listaGlobalNumeros);
-}
-
-//Funciones SSE para actualizar la gráfica simple
-function updateGrafoFreqSSE(datosSSE, divGrafo)
-{
-    //Solo actualizo gráfica si la var global no esta
-    //indefinida. Si esta indefinida significa que el 
-    //cliente no ha definido intervalo por lo que no se ha generado
-    //la gráfica de frecuencias todavía, por lo tanto no tendrá sentido
-    //actualizar una gráfica que no existe.
-    if(anchuraGlobalIntervalo != undefined)
+    //Solo actualizo si el numero registrado esta disponible en
+    //la base de datos que esta empleando el usuario
+    if(estaNumeroDisponibleSSE(datosSSE))
     {
-
         //Parseo datos SSE
         //numero aleatorio
         var num = getNumeroAleatorioSSE(datosSSE);
@@ -339,24 +313,60 @@ function updateGrafoFreqSSE(datosSSE, divGrafo)
         var fechams = getFechaSSE(datosSSE);
         //fecha datetime
         var fecha = dateToDatetime(fechams);
-        //Esta funcion se llamara a continuacion de actualizar
-        //el otro grafo simple, por lo que las variables globales 
-        //ya estrán actualizadas.
-        //Comprobaré si estan actualizadas, y en ese caso no
-        //añado el numero y la fecha obtenidas del SSE.
-        var last = listaGlobalFechas.length - 1;
-        if(listaGlobalFechas[last]!=fecha)
-        {
-            //Actualizo variables globales
-            listaGlobalNumeros.push(num);
-            listaGlobalFechas.push(fecha);
-        }
+        //Actualizo variables globales
+        listaGlobalNumeros.push(num);
+        listaGlobalFechas.push(fecha);
 
         //Genero tabla actualizada.
         //Llamo crearGrafoSimple() en lugar
         //de crearGrafoSimpleNumRnd() porque
         //no necesito actualizar las varaibles globales
         //porque ya lo estan.
-        crearGrafoFreq(divGrafo, listaGlobalNumeros, anchuraGlobalIntervalo);
+        crearGrafoSimple(divGrafo, listaGlobalFechas, listaGlobalNumeros);
+    }
+}
+
+//Funciones SSE para actualizar la gráfica de frecuencias
+function updateGrafoFreqSSE(datosSSE, divGrafo)
+{
+    //Solo actualizo si el numero registrado esta disponible en
+    //la base de datos que esta empleando el usuario
+    if(estaNumeroDisponibleSSE(datosSSE))
+    {
+        //Solo actualizo gráfica si la var global no esta
+        //indefinida. Si esta indefinida significa que el 
+        //cliente no ha definido intervalo por lo que no se ha generado
+        //la gráfica de frecuencias todavía, por lo tanto no tendrá sentido
+        //actualizar una gráfica que no existe.
+        if(anchuraGlobalIntervalo != undefined)
+        {
+
+            //Parseo datos SSE
+            //numero aleatorio
+            var num = getNumeroAleatorioSSE(datosSSE);
+            //fechams
+            var fechams = getFechaSSE(datosSSE);
+            //fecha datetime
+            var fecha = dateToDatetime(fechams);
+            //Esta funcion se llamara a continuacion de actualizar
+            //el otro grafo simple, por lo que las variables globales 
+            //ya estrán actualizadas.
+            //Comprobaré si estan actualizadas, y en ese caso no
+            //añado el numero y la fecha obtenidas del SSE.
+            var last = listaGlobalFechas.length - 1;
+            if(listaGlobalFechas[last]!=fecha)
+            {
+                //Actualizo variables globales
+                listaGlobalNumeros.push(num);
+                listaGlobalFechas.push(fecha);
+            }
+
+            //Genero tabla actualizada.
+            //Llamo crearGrafoSimple() en lugar
+            //de crearGrafoSimpleNumRnd() porque
+            //no necesito actualizar las varaibles globales
+            //porque ya lo estan.
+            crearGrafoFreq(divGrafo, listaGlobalNumeros, anchuraGlobalIntervalo);
+        }
     }
 }
