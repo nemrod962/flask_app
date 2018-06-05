@@ -1,18 +1,10 @@
 /*REQUIERE PLOTLY.JS*/
 
-/*Función de prueba para crear un grafo con datos fijos.*/
-function crearGrafoSimpleTest(elem, datosX, datosY)
-{
-    Plotly.plot( 
-        elem, 
-        [{
-            x: [1, 2, 3, 4, 5],
-            y: [1, 2, 4, 8, 16] 
-        }], 
-        { margin: { t: 0 } } 
-    );
-
-}
+//Var global con la lista de selectores de todos los elementos
+//en los que he creado una gráfica. Emplearé esta lista
+//para redimensionar las gráficas cuando cambie el
+//tamaño de la ventana.
+var listaGlobalElementos = [];
 
 /* Función básica para crear las gráficas. El resto de funciones
 dependerán de esta.
@@ -27,7 +19,7 @@ modos conocidos:
     dibujan líneas para unir los puntos).
     
 */
-function crearGrafo(elem, datosX, datosY, tipo, modo)
+function crearGrafo(elem, datosX, datosY, tipo, modo, myLayout = {margin:{t:0}} )
 {
     var trace1 = {
         x: datosX,
@@ -35,17 +27,22 @@ function crearGrafo(elem, datosX, datosY, tipo, modo)
         type: tipo,
         mode: modo
     }
-
+    
+    //Lista con todas las trazas
+    var datos = [trace1];
     //Si se emplea Plotly.plot en lugar de 
     //Plotly.newPlot, la gráfica generada se
     //añadirá a la ya existente en vez de
     //sobrescribirla.
     Plotly.newPlot( 
         elem, 
-        [trace1], 
-        { margin: { t: 0 } } 
+        datos, 
+        //{ margin: { t: 0 } } 
+        myLayout
     );
-
+    
+    //Añado elemento a la lista
+    addElemToGlobalList(elem,listaGlobalElementos);
 }
 
 /*
@@ -58,7 +55,8 @@ Gráfica de líneas.
 */
 function crearGrafoSimple(elem, datosX, datosY)
 {
-    crearGrafo(elem,datosX,datosY,'scatter','markers');
+        var myLayout = getScatterLayout();
+        crearGrafo(elem,datosX,datosY,'scatter','markers', myLayout);
 }
 
 function crearGrafoSimpleOrdenado(elem, datosX, datosY)
@@ -94,9 +92,16 @@ Gráfica de barras.
     -> datosX es una lista con los datos del ejeX
     -> datosY es una lista con los datos del ejeY
 */
-function crearGrafoBarras(elem, datosX, datosY)
+function crearGrafoBarras(elem, datosX, datosY, layout)
 {
-    crearGrafo(elem,datosX,datosY,'bar','None');
+    if(layout == undefined)
+    {
+        crearGrafo(elem,datosX,datosY,'bar','None');
+    }
+    else
+    {
+        crearGrafo(elem,datosX,datosY,'bar','None',layout);
+    }
 }
 
 /* GRAFOS ESPECIFICOS.*/
@@ -135,8 +140,10 @@ function crearGrafoFreq(elem,listaNumeros,anchuraIntervalo)
     console.log('listaNumeros: ' + listaNumeros);
     console.log('listaContadores: ' + listaContadoresIntervalos);
 
+    //Obtengo layout para grafo frecuencias
+    var myLayout = getFreqLayout();
     //Creo gráfica
-    crearGrafoBarras(elem,listaIntervalos,listaContadoresIntervalos);
+    crearGrafoBarras(elem,listaIntervalos,listaContadoresIntervalos,myLayout);
 
 }
 /*
@@ -369,4 +376,145 @@ function updateGrafoFreqSSE(datosSSE, divGrafo)
             crearGrafoFreq(divGrafo, listaGlobalNumeros, anchuraGlobalIntervalo);
         }
     }
+}
+
+//-----------------------------------------------------------------------------
+//RESIZE
+//Añade el elemento a la lista si no esta presente
+function addElemToGlobalList(elem,list)
+{
+    var idElem = elem.id;
+    var yaEstaIncluido = false;
+    for(i in list)
+    {
+        if(list[i].id == idElem)
+        {
+            yaEstaIncluido = true;
+        }
+    }
+    if(!yaEstaIncluido)
+    {
+        list.push(elem);
+    }
+}
+
+//Redimensiona graficas de los elementos en la lista
+//global con los elementos que contienen graficas.
+function redimensionar()
+{
+    /*
+    console.log("lista elem.: " + listaGlobalElementos);
+    for(i in listaGlobalElementos)
+    {
+        console.log("elem " + i + " : " + listaGlobalElementos[i].id);
+    }
+    */
+    //selector
+    var d3 = Plotly.d3;
+    /*Por cada elemento en la lista de elementos (elementos que 
+    contienen gráficas), lo selecciono y redimensiono*/
+    for(i in listaGlobalElementos)
+    {
+        //Selecciono elemento
+        var grafica = d3.select("#" + listaGlobalElementos[i].id).node();
+        //Redimension
+        Plotly.Plots.resize(grafica);
+    }
+}
+
+/*Ejecuto la función anterior cada vez que se cambia el tamaño de la ventana.*/
+window.onresize = function() {
+    redimensionar();
+};
+
+//-----------------------------------------------------------------------------
+//LAYOUTS. Funciones para obtener los layouts para las gráficas de los números
+//y las frecuencias.
+
+/*Devuelve layout para la gráfica simple
+con los números registrados en la base de datos.*/
+function getScatterLayout()
+{
+    //Layout
+    var myLayout = {
+        title: "Números Registrados",
+        font: {
+            family: 'Helvetica',
+            size: 20,
+            color: 'black'
+        },
+        xaxis: {
+			title: 'Fecha',
+			titlefont: {
+			  family: 'Helvetica',
+			  size: 18,
+			  color: '#4CAF50'
+			},
+			//Oculto fehcas en el eje X
+			showticklabels: false,
+			showgrid: false
+			//showline: false
+        },
+        yaxis: {
+			title: 'Número',
+			titlefont: {
+			  family: 'Helvetica',
+			  size: 18,
+			  color: '#4CAF50'
+			},
+			showticklabels: true,
+			//tickangle: 45,
+			tickfont: {
+			  family: 'Helvetica',
+			  size: 14,
+			  color: 'black'
+			},
+  		}
+    };
+    return myLayout
+}
+/*Devuelve layout para la gráfica de frecuencias
+con los números registrados en la base de datos.*/
+function getFreqLayout()
+{
+    //Layout
+    var myLayout = {
+        title: "Frecuencias",
+        font: {
+            family: 'Helvetica',
+            size: 20,
+            color: 'black'
+        },
+        xaxis: {
+			title: 'Intervalo',
+			titlefont: {
+			  family: 'Helvetica',
+			  size: 18,
+			  color: '#4CAF50'
+			},
+			showticklabels: true,
+			//tickangle: 45,
+			tickfont: {
+			  family: 'Helvetica',
+			  size: 14,
+			  color: 'black'
+			}
+        },
+        yaxis: {
+			title: 'Cantidad',
+			titlefont: {
+			  family: 'Helvetica',
+			  size: 18,
+			  color: '#4CAF50'
+			},
+			showticklabels: true,
+			//tickangle: 45,
+			tickfont: {
+			  family: 'Helvetica',
+			  size: 14,
+			  color: 'black'
+			}
+  		}
+    };
+    return myLayout
 }
