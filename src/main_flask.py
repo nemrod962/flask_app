@@ -108,7 +108,7 @@ if __name__ == "__main__":
     #Iniciar y lanzar proceso de carga de datos en las BBDD
     #LOS MANEJADORES DE LAS DBs SE INICIALIZAN EN SU CONSTRUCTOR
     uploader = rnd_uploader.RndUploader(flaskApp = app,\
-    tiempoSleep=120, debug = debug) 
+    tiempoSleep=10, debug = debug) 
 
     #Arrancar el servidor
     #IMPORTANTE. ES NECESARIO EMPLEAR WGSISserver de gevent

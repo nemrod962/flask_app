@@ -20,7 +20,6 @@
     <h1>Aplicación Random Lender</h1>
     <p align="right">User: {{username}}</p>
     <p align="right">Base de datos actual: {{DBName}}</p>
-    <p align="center">Menu Principal</p>
     {#
         <fieldset>
             <h2>Selecciona una opción</h2>
@@ -64,7 +63,7 @@
                             <a 
                             id="link_tabla"
                             href='{{url_for("blueApp.webTabla")}}'>
-                            Mostrar tablas</a>
+                            Mostrar tablas con los números aleatorios</a>
 
                         </div>
                     </li>
@@ -74,7 +73,7 @@
                             <a 
                             id="link_umbral"
                             href='{{url_for("blueApp.webUmbral", umb=50)}}'
-                            >Umbral</a>
+                            >Umbrales</a>
                         </div>
                         <div>
                             <input class="textoMenu" type="text" name="umbralTxt">
@@ -86,7 +85,7 @@
                             <a 
                             id="link_media"
                             href='{{url_for("blueApp.webMedia")}}'
-                            >Media</a>
+                            >Media de los Números Aleatorios</a>
                         </div>
                     </li>
                     <li>
@@ -95,7 +94,7 @@
                             <a
                             id="link_grafo_bee"
                             href='{{url_for("blueApp.webGrafoBee")}}'
-                            >Gráficas Beebotte</a>
+                            >Gráficas Remotas (Beebotte)</a>
                         </div>
                     </li>
                     <li>
@@ -104,7 +103,7 @@
                             <a 
                             id="link_grafo"
                             href='{{url_for("blueApp.webGrafo")}}'
-                            >Grafo</a>
+                            >Gráficas Locales (Plot.ly)</a>
                         </div>
                     </li>
                     </ul>

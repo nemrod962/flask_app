@@ -1,5 +1,5 @@
 {# register.html #}
-{% extends "topbar_base.html" %}
+{% extends "topbar_empty_base.html" %}
 {% block cabeza%}
     {# Cargo Scripts para la comprobación de datos#}
 	{# Cargo Script para la comprobación del umbral#}
@@ -21,20 +21,22 @@
     <h1>Register</h1>
     <form id="form_register" action="{{url_for('blueUser.webRegister')}}" method="POST">
         <p>Username:</p>
-        <input type="text" id="user" name="username">
+        <input type="text" id="user" name="username" required="true">
         <br>
         <p>Password:</p>
-        <input type="password" id="pass" name="password">
+        <input type="password" id="pass" name="password" required="true">
         <br>
         <p>Repeat Password:</p>
-        <input type="password" id="passRep" name="passRep">
+        <input type="password" id="passRep" name="passRep" required="true">
         <br>
         <p>Umbral:</p>
-        <input type="text" id="umbral" name="umbral">
+        <input type="text" id="umbral" name="umbral" required="true">
         <br>
         <br>
         <button type="submit" id="boton_registro">Register</button>
     </form>
+    <br>
+    <a href="{{url_for('blueUser.webLogin')}}">Atrás</a>
     <script>
         /*
         $("#boton_registro").click(function()

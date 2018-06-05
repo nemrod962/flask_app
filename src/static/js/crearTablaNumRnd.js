@@ -57,10 +57,19 @@ function crearTablaRandom(elem, listaCabeceras, listaListas)
         //listaFechaFormato = parseDateArrayToDatetime(listaDatos[1]);
         listaFechaFormato = parseDateArrayToDatetime(listaListas[1]);
         console.log('fechFOrmato: ' + listaFechaFormato);
-        listaCabeceras.push("fecha formato");
+        listaCabeceras.push("Fecha");
         listaListas.push(listaFechaFormato);
     }
-    
+    //ELIMINAMOS LA FECHA EN MS. NO ES USER FRIENDLY.
+    //La fecha en ms estará en los indices [1]
+    //  > listaCabeceras[1] => "Fecha ms"
+    //  > listaListas[1] => [fechams1, fechams2, ....]
+    var indiceBorrar = 1;
+    //array.splice(index,n) : borra n elementos del array empezando por
+    //el del indice 'index'
+    listaCabeceras.splice(indiceBorrar,1);
+    listaListas.splice(indiceBorrar,1);
+
     //El true es para que al crear la tabla en el div sobrescriba
     //las tablas ya existente en caso de que existieran.
     //Este parametro no es relevante para /tablas
@@ -86,7 +95,9 @@ function updateTableNumRndSSE(datosSSE, tabla)
         //fecha datetime
         var fecha = dateToDatetime(fechams);
         //Tiene que ser lista de listas
-        var datos = [num, fechams, fecha];
+        //var datos = [num, fechams, fecha];
+        //No incluimos la fecha en ms
+        var datos = [num, fecha];
         //añado fila. Indice = 0, pues las listas
         //solo tienen un elemento
         addSingleRowTop(tabla,datos);

@@ -18,7 +18,7 @@
     action="{{url_for('blueUser.cambiarUmbral')}}" 
     method="POST">
         <p>Elige tu umbral: {{ username }}</p>
-        <input type="text" id="umbral" name="umbral">
+        <input type="text" id="umbral" name="umbral" required="true">
         <button type="submit" id="botonUmbral">Enviar</button>
     </form>
     <script>

@@ -1,4 +1,4 @@
-{# grafo.html #}
+{# grafoJs.html #}
 {% extends "topbar_base.html" %}
 {% block cabeza %}
 
@@ -23,10 +23,12 @@
 {% endblock %}
 
 {% block cuerpo %}
-    <title>Grafo Plot.ly</title>
-    <span>Seleccione intervalo: </span>
+    <title>Gráficas Locales (Plot.ly)</title>
+    <h2>Gráficas locales (Plot.ly)</h2>
+    <br>
+    <span>Seleccione intervalo para Gráfica Frecuencias: </span>
     <input type="text" id="textIntervalo"></input>
-    <button id="botonGrafica">Refrescar</button>
+    <button id="botonGrafica">Calcular</button>
     <div id="grafica" style="width:600px;height:250px;"></div>
     <br>
     <div id="grafica2" style="width:600px;height:250px;"></div>

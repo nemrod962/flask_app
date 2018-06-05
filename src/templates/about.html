@@ -19,41 +19,41 @@
     <p>Random_lender nos permite realizar ciertas operaciones con los números
     almacenados:</p>
     <ul>
-        <li><p>Umbral: Indicado un número como umbral, se nos indicará cuál
+        <li><p>Umbral:</p><p>Indicado un número como umbral, se nos indicará cuál
         es el último número alamacenado en las bases de datos que lohaya superado
         tanto por arriba como por abajo.</p></li>
-        <li><p>Media: Muestra la media de los números alamacenados en las bases
+        <li><p>Media:</p><p>Muestra la media de los números alamacenados en las bases
         de datos.</p></li>
-        <li><p>Grafo Beebotte: Redirige a la página de Beebotte y muestra
-        grafos con los datos almacenados allí.</p></li>
-        <li><p>Grafo: Muestra gráfica de los números aleatorios registrados.
+        <li><p>Gráficas Remotas (Beebotte):</p><p>Muestra gŕaficas obtenidas de la web de Beebotte
+        mediante su API.</p></li>
+        <li><p>Gráficas Locales (Plotly):</p><p> Muestra gráfica de los números aleatorios registrados.
         También permite mostrar gráfico de barras con las frecuencias de los
-        números por intervalos.</p></li>
+        números por intervalos. Se emplea la librería de plotly para javascript.</p></li>
     </ul>
     
     <p>Random-Lender también nos avisará cuando se haya registrado un número que
-    active el umbral del usuario (puede cambiarse en el apartado de cuenta).</p>
+    active el umbral del usuario, es decir, que sea mayor que el umbral del
+    usuario (puede cambiarse en el apartado de cuenta, opción en la barra
+    superior de la aplicación).</p>
     
     <h2>Umbrales de Usuario</h2>
 
     <p>Los umbrales funcionan de la siguiente manera:</p>
     <ul>
-        <li><span>Un umbral debe estar comprendido entre -100 y 100
-        para que sea válido.</span></li>
+        <li><p>Un umbral debe estar comprendido entre 0 y 100
+        para que sea válido.</p></li>
         <li>
-            <p>Si un umbral de usuario es mayor que 0, se notificará al 
-            usuario cuando se registre un número mayor que el umbral.</p>
-            <p>Umbral Usuario: 50</p>
-            <p>Número registrado: 40 =&gt; (40 &lt; 50) =&gt; No avisa</p>
-            <p>Número registrado: 60 =&gt; (60 &gt; 50) =&gt; Avisa</p>
-        </li>
-        <li>
-            <p>Si un umbral de usuario es menor que 0, se notificará al 
-        usuario cuando se registre un número menor que el valor
-        absoluto del umbral.</p>
-            <p>Umbral Usuario: -50</p>
-            <p>Número registrado: 40 =&gt; (40 &lt; 50) =&gt; Avisa</p>
-            <p>Número registrado: 60 =&gt; (60 &gt; 50) =&gt; No avisa</p>
+            <p>La aplicación notificará al 
+            usuario cuando se registre un número mayor que el umbral 
+            que haya especificado.</p>
+            <p>Ejemplo:
+            <br>
+            <span>Umbral Usuario: <b>50</b></span>
+            <br>
+            <span>Número registrado: 40 &#8594; 40 &lt; 50 &#8594; <b>No</b> avisa</span>
+            <br>
+            <span>Número registrado: 60 &#8594; 60 &gt; 50 &#8594; <b>Avisa</b></span>
+            </p>
         </li>
     </ul>
     </div>

@@ -249,7 +249,7 @@ class UserManager(MongoBasic):
     #Verifica si el usuario indicado existe.
     #Si el usuario indicado no existe, o la contraseña es
     #incorrecta, devolveremos -1.
-    def deleteUser(self, userId, userPass):
+    def deleteUser(self, userId, userPass, force=False):
         
         #COMPROBACIONES DE LO DATOS
         #compruebo tipos de datos
@@ -271,7 +271,9 @@ class UserManager(MongoBasic):
             #Existe usuario.
             #Ahora comprobamos contraseña
             correctPass = self.checkPassword(userId, userPass)
-            if correctPass:
+            if correctPass or force:
+                if force and not correctPass:
+                    logging.warning("Forzando borrado de cuenta!")
                 #Usuario y contraseña correctos.
                 #Procedo a borrar el usuario
                 condicion={self.campoUsername : userId}
@@ -633,13 +635,18 @@ if __name__ == "__main__":
     u.login(userr,passs)
     
     debug_str = raw_input("Borrar cuenta?[Y\N]: ")
+    debug_str2 = raw_input("Forzar?[Y\N]: ")
 
     if debug_str == "Y" or debug_str == "y":
         debug = True
     else:
         debug = False
+    if debug_str2 == "Y" or debug_str == "y":
+        forzar = True
+    else:
+        forzar = False
     if debug:
-        u.deleteUser(userr,passs)
+        u.deleteUser(userr,passs,forzar)
     
     """
     u.leer()

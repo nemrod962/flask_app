@@ -33,7 +33,10 @@ function comprobarUmbral(umb)
         umb=101
     }
     //Los valores del umbral deben estar comprendidos entre -100 y 100
-    else if(umb > 100 || umb < -100)
+    //else if(umb > 100 || umb < -100)
+    //UPDATE: Los valores del umbral deben estar comprendidos entre 0 y 100,
+    //ya no hay umbrales inferiores
+    else if(umb > 100 || umb < 0)
     {
         umb=102
     }
@@ -46,11 +49,14 @@ function mostrarComprobacionUmbral(n)
 {
     if(n==101)
     {
-        window.alert("Introduce un número válido!")
+        window.alert("Introduce un número válido!");
     }
     else if(n==102)
     {
-        window.alert("El valor debe estar comprendido entre -100 y 100")
+        //UPDATE: Los valores del umbral deben estar comprendidos entre 0 y 100,
+        //ya no hay umbrales inferiores
+        //window.alert("El valor debe estar comprendido entre -100 y 100");
+        window.alert("El valor debe estar comprendido entre 0 y 100");
     }
 }
 

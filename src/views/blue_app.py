@@ -210,6 +210,5 @@ def webRandom():
 
 #Muestra la página 'About'
 @blueApp.route('/about')
-@no_cookie_check
 def webAbout():
     return render_template("about.html")

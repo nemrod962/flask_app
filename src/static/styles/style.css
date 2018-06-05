@@ -99,6 +99,7 @@ en la presentación de la página*/
     border: solid 2px white;
     border-radius: 5px;
     padding: 10px;
+    /*
     left: 50%;
     top: 50%;
 
@@ -107,7 +108,9 @@ en la presentación de la página*/
 
     width: auto;
     margin-left: 5%;
+    */
     text-align: center;
+    margin: 5%;
 
 }
 
@@ -144,15 +147,24 @@ en la presentación de la página*/
 
 /* enlaces (<a>) */
 .cuerpo a{
-    color:red;
+    color:white;
 }
 
 .cuerpo a:visited{
-    color:red;
+    color:white;
 }
 
 .cuerpo a:hover{
     color:yellow;
+}
+
+/* Campos texto */
+input[type=text], input[type=password]{
+    color: black;
+    background-color: white;
+    padding: 5px;
+    border-radius: 10px;
+    border:5px solid #0099cc;
 }
 
 /* tablas */
