@@ -1,0 +1,31 @@
+{# media.html #}
+{% extends "topbar_base.html" %}
+{% block cabeza%}
+{# biblioteca Beebotte #}
+<script src='{{ url_for('static', filename='js/bbt.js') }}'>
+</script>
+{# dependencia de la biblioteca Beebotte #}
+<script src='{{ url_for('static', filename='js/socket.io.js') }}'>
+</script>
+
+{% endblock %}
+{% block cuerpo %}
+<title>Gráficas Beebotte</title>
+<div><h2>Gráficas Beebotte:</h2></div>
+<br>
+<div id="graficaBee">
+    {% raw %}
+    <span> This is the number: {{ NumberList.numero }} </span>
+    {% endraw %}
+</div>
+<script>
+    var canal = "NumberList"
+    var res = "numero"
+    {% raw %}
+        //$("#graficaBee").html({{ canal.res }})
+    {% endraw %}
+    $("span#linkaux").click(function(){window.open("https://beebotte.com/dash/09db3e70-df3a-11e7-bfef-6f68fef5ca14");})
+
+</script>
+
+{% endblock %}

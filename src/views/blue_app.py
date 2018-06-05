@@ -212,3 +212,9 @@ def webRandom():
 @blueApp.route('/about')
 def webAbout():
     return render_template("about.html")
+
+#Muestra la gráfica de Beebotte
+@blueApp.route('/bee')
+@no_cookie_check
+def webBeeGrafica():
+    return render_template("beebotte.html")
