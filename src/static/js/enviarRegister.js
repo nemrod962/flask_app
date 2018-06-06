@@ -80,12 +80,12 @@ function mostrarComprobacionNombre(res1)
 {
     if(res1==1)
     {
-        window.alert("El nombre de usuario debe ser de al menos 4 carácteres de longitud");
+        mostrarAlerta("El nombre de usuario debe ser de al menos 4 carácteres de longitud");
 
     }
     else if(res1==2)
     {
-        window.alert("El nombre de usuario contiene carácteres especiales")
+        mostrarAlerta("El nombre de usuario contiene carácteres especiales")
 
     }
 }
@@ -94,11 +94,11 @@ function mostrarComprobacionContrasenna(res2)
 {
     if(res2==1)
     {
-        window.alert("La contraseña debe ser de al menos 4 carácteres de longitud");
+        mostrarAlerta("La contraseña debe ser de al menos 4 carácteres de longitud");
     }
     else if(res2==2)
     {
-        window.alert('Las contraseñas NO coinciden!');
+        mostrarAlerta('Las contraseñas NO coinciden!');
     }
 }
 
@@ -111,7 +111,8 @@ function mostrarComprobacionContrasenna(res2)
 REGISTRO
 
 */
-
+//EN DESUSO.
+//Se utilizaba cuando se empleaba un botón y no un form.
 /*Comprobación específica para la página del registro (register.html).
 Comprueba todos los campos.
 Si están todos bien, llama a la función $.post() para
@@ -135,7 +136,6 @@ function comprobarRegistro(name,pass,passRep,umbral)
 
     if(res1==0 && res2==0 && res3<=100)
     {
-        console.log('Enviar Campos...')
         //Datos a enviar
         var datos='username='+name+"&"+'password='+pass+"&"+'umbral='+umbral;
         //Hago el post a la misma direccion en la que estoy
@@ -248,7 +248,7 @@ function mostrarMensajeRegistro(n)
             msg= "No hay conexion con mongoDB."
             break;
     }
-    window.alert(msg)
+    mostrarAlerta(msg)
     return msg
 }
 
@@ -329,8 +329,11 @@ function comprobarRegistroForm(selectForm)
             console.log('Enviar Campos...')
             //Datos a enviar. Los obtengo del form, aunque en principio
             //deberían ser iguales.
-            //var datos='username='+name+"&"+'password='+pass+"&"+'umbral='+umbral;
-            var datos = $(selectForm).serialize();
+            //var datos = $(selectForm).serialize();
+            //Lo hago a mano porque la variable umbral ha podido ser parseada.
+            //Si obtengo los datos directamente con serialize() el umbral no es
+            //tratado.
+            var datos='username='+name+"&"+'password='+pass+"&"+'umbral='+umbral;
             //Hago el post a la misma direccion en la que estoy.
             //Mejor la obtengo del formulario
             //var url = window.location.href;

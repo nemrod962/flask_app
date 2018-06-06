@@ -49,14 +49,14 @@ function mostrarComprobacionUmbral(n)
 {
     if(n==101)
     {
-        window.alert("Introduce un número válido!");
+        mostrarAlerta("Introduce un número como umbral.");
     }
     else if(n==102)
     {
         //UPDATE: Los valores del umbral deben estar comprendidos entre 0 y 100,
         //ya no hay umbrales inferiores
-        //window.alert("El valor debe estar comprendido entre -100 y 100");
-        window.alert("El valor debe estar comprendido entre 0 y 100");
+        //mostrarAlerta("El valor debe estar comprendido entre -100 y 100");
+        mostrarAlerta("Umbral: el valor debe estar comprendido entre 0 y 100");
     }
 }
 
@@ -170,7 +170,7 @@ function mostrarMensajeUmbral(n)
     }
     if(mostrar)
     {
-        window.alert(msg);
+        mostrarAlerta(msg);
     }
     return msg
 }

@@ -29,8 +29,8 @@ function crearTablaUmbral(elem, listasDatos, umbral)
     //Compruebo si umbral es un numero
     if(isNaN(umbral))
     {
-        window.alert("El umbral introducido: " + umbral + " NO es válido.");
-        window.alert("Cambiando a valor por defecto: 50");
+        mostrarAlerta("El umbral introducido: " + umbral + 
+        " NO es válido. Cambiando a valor por defecto: 50");
         umbral=50;
     }
 
@@ -352,7 +352,7 @@ function recalculateTableUmbral(divTabla, selectorUmbral)
     //Sino es un número mostramos mensaje.
     if(isNaN(umbral))
     {
-        window.alert("Introduce un número válido.");
+        mostrarAlerta("Introduce un número válido.");
     }
     //Si es un número. proseguimos.
     else

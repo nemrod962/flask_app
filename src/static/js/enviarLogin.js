@@ -26,7 +26,7 @@ function mostrarMensajeLogin(codigo)
 {
     if(codigo!=1)
     {
-        window.alert("Credenciales aportadas no válidas");
+        mostrarAlerta("Credenciales aportadas no válidas");
     }
 }
 

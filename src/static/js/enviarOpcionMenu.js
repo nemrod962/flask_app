@@ -138,7 +138,7 @@ function actualizarLinkUmbral(objLinkUmbral, objTextoUmbral, url_redirigir)
             url+="/"+umbral;
         }
         console.log("url:" + url);
-        //window.alert(url);
+        //mostrarAlerta(url);
         objLinkUmbral.attr("href", url);
     });
 
