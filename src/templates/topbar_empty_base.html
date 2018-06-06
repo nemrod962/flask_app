@@ -35,6 +35,50 @@ pueda acceder sin hacer login:
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/style.css') }}">
     {# Codificación de caracteres para poder poner acentos #}
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+	{# DIALOG #}
+
+    {#JQuery UI. Necesario para la correcta funcionalidad de los dialogs.#}
+    {#Scripts de jquery-ui. Incluye funcionalidad de los dialogs.#}
+    <script 
+        src='{{ url_for('static', filename='js/jquery-ui.js')}}'>
+    </script>
+    {#Hoja estilos css#}
+    <link 
+        rel="stylesheet" 
+        type= "text/css" 
+        href= "{{url_for('static',filename='styles/jquery-ui.css')}}">
+	{#Mi script para mostrar alertas#}
+    <script src= "{{ url_for('static',filename='js/mostrarAlerta.js') }}">
+    </script>
+    {#Configuración Dialog id=miDialogo#}
+	<script>
+	$( function() {
+		$("#miDialogo").dialog({
+		  autoOpen: false,
+		  modal: true,
+		  buttons: {
+			"dialogButton":{ 
+				text: "Ok",
+				id: "dialogOkBoton",
+				click: function() {
+				  $( this ).dialog( "close" );
+				}
+			}
+		  },
+		  show: {
+			effect: "blind",
+			duration: 100
+		  },
+		  hide: {
+			effect: "blind",
+			duration: 100
+		  }
+		});
+	});
+	</script>
+
+
     {#Para añadir html en la cabeza#}
     {% block cabeza_base %}{% endblock %}
 </head>
@@ -47,7 +91,13 @@ pueda acceder sin hacer login:
       {#Bloque para añadir elemento a la barra superior#}
       {%block bar_base%}{% endblock %}
     </div>
+	
+	{# Diálogo #}
+	<div id="miDialogo" title="Atención">
+		<p id="miDialogoTexto">This is an animated dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
+	</div>
 
+	{# Cuerpo #}
     <div class="cuerpo">
         {# Bloque de texto que implementaran los otros templates #}
         {% block cuerpo_base %}{% endblock %}
