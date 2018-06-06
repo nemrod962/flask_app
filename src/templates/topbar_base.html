@@ -1,54 +1,26 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    {# <meta name="viewport" content="width=device-width, initial-scale=1"> #}
-    {# Import jQuery #}
-    {# CDN #}
-    {# <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js">
-    </script>  #}
-    {# Downloaded file #}
-    <script type= "text/javascript" 
-    src="{{ url_for('static',filename='js/jquery.js') }}">
-    </script>
-    {# JQuery cookies library#}
-    {#<script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js">
-    </script>#}
-    <script src= "{{ url_for('static',filename='js/js_cookie_lib.js') }}">
-    </script>
-    {# Importo notificaciones gráficas #}
-    <script src= "{{ url_for('static',filename='js/graphicalNotification.js') }}">
-    </script>
-    {# Importo librería para evaluar los SSE y mostrar notificaciones si se
-    sobrepasa umbral #}
-    <script src= "{{ url_for('static',filename='js/evaluarUmbralSSE.js') }}">
-    </script>
-    {# Enlace al archivo de estilo #}
-    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/style.css') }}">
-    {# Codificación de caracteres para poder poner acentos #}
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+{# topbar_base.html #}
+{% extends "topbar_empty_base.html" %}
+
+{%block cabeza_base%}
     {#Para añadir html en la cabeza#}
     {% block cabeza %}{% endblock %}
-</head>
-<body>
-    
-    {# Barra superior #}
-    <div class="topnav">
-      {# <div class="titulo">Random-Lender</div> #}
-      <img src="{{ url_for('static',filename='logo_rndlender.png') }}"
-      alt = "logo"></img>
-      <a href="{{url_for('blueUser.webLogout')}}">Cerrar Sesión</a>
-      <a href="{{ url_for('blueUser.webAccount') }}">Cuenta</a>
-      <a href="{{url_for('blueApp.webMain')}}">Menú Principal</a>
-      {#<a href="{{ url_for('blueApp.webMain') }}">Home</a>#}
-      <a href="{{ url_for('blueApp.webAbout') }}">Ayuda</a>
-    </div>
+{%endblock%}
 
-    <div class="cuerpo">
+{%block bar_base%}
+    <a href="{{url_for('blueUser.webLogout')}}">Cerrar Sesión</a>
+    <a href="{{ url_for('blueUser.webAccount') }}">Cuenta</a>
+    <a href="{{url_for('blueApp.webMain')}}">Menú Principal</a>
+    {#<a href="{{ url_for('blueApp.webMain') }}">Home</a>#}
+    <a href="{{ url_for('blueApp.webAbout') }}">Ayuda</a>
+{%endblock%}
+
+{%block cuerpo_base%}
         {# Bloque de texto que implementaran los otros templates #}
         {% block cuerpo %}{% endblock %}
-    </div>
-    
-    {# SSE #}
+{%endblock%}
+
+{# SSE #}
+{%block sse_base%}
     <script>
         {# Suscribirse a los SSE #}
         var sseUrl = '{{url_for("blueSSE.webSSE")}}'
@@ -78,6 +50,4 @@
                 evtSrc.close();
         };
     </script>
-
-</body>
-</html>
+{%endblock%}

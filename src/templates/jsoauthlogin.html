@@ -1,7 +1,7 @@
 {# jsoauthlogin.html #}
 {% extends "topbar_empty_base.html" %}
 
-{% block cabeza %}
+{% block cabeza_base %}
     {#<meta name="google-signin-client_id"
     content="933060102795-0hf4m6v3cuq4ocvubaide7ouqui2l4lg.apps.googleusercontent.com">#}
     <meta name="google-signin-client_id" 
@@ -10,7 +10,7 @@
     <script type=text/javascript src="{{ url_for('static', filename='js/oauth_functions.js') }}"></script>
 {% endblock %}
 
-{% block cuerpo %}
+{% block cuerpo_base %}
     <h1>Google OAuth2 Sign in</h1>
     
     {# Load the Google Platform Library #}

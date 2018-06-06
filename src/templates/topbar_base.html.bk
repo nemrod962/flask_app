@@ -1,13 +1,4 @@
 <!DOCTYPE html>
-{# topbar_empty_base.html.
-Similar a topbar_base.html pero sin enlaces en la barra
-superior y sin abrir conexion SSE con el servidor.
-Este template base se empleará para páginas a las que se 
-pueda acceder sin hacer login:
-    > /login
-    > /register
-    > /jsoauthlogin (Google OAuth)
-#}
 <html lang="es">
 <head>
     {# <meta name="viewport" content="width=device-width, initial-scale=1"> #}
@@ -36,23 +27,57 @@ pueda acceder sin hacer login:
     {# Codificación de caracteres para poder poner acentos #}
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     {#Para añadir html en la cabeza#}
-    {% block cabeza_base %}{% endblock %}
+    {% block cabeza %}{% endblock %}
 </head>
 <body>
-    {# Barra superior solo con el logo#}
+    
+    {# Barra superior #}
     <div class="topnav">
       {# <div class="titulo">Random-Lender</div> #}
       <img src="{{ url_for('static',filename='logo_rndlender.png') }}"
       alt = "logo"></img>
-      {#Bloque para añadir elemento a la barra superior#}
-      {%block bar_base%}{% endblock %}
+      <a href="{{url_for('blueUser.webLogout')}}">Cerrar Sesión</a>
+      <a href="{{ url_for('blueUser.webAccount') }}">Cuenta</a>
+      <a href="{{url_for('blueApp.webMain')}}">Menú Principal</a>
+      {#<a href="{{ url_for('blueApp.webMain') }}">Home</a>#}
+      <a href="{{ url_for('blueApp.webAbout') }}">Ayuda</a>
     </div>
 
     <div class="cuerpo">
         {# Bloque de texto que implementaran los otros templates #}
-        {% block cuerpo_base %}{% endblock %}
+        {% block cuerpo %}{% endblock %}
     </div>
-    {#Lugar para añadir el script SSE desde topbar_base.html#}
-    {% block sse_base %}{% endblock %}
+    
+    {# SSE #}
+    <script>
+        {# Suscribirse a los SSE #}
+        var sseUrl = '{{url_for("blueSSE.webSSE")}}'
+		{#var evtSrc = new EventSource("/sse");#}
+		var evtSrc = new EventSource(sseUrl);
+		console.log("SUSCRITO! (creo)");
+
+		evtSrc.onmessage = function(e) {
+			console.log('SSE: ' + e.data);
+            {# notifyMe(); #}
+            {# parsedData será el texto a mostrar en
+            la notificación#}
+            //var parsedData = String(e.data).replace(/#/g , "\n");
+            //notifyMe(parsedData);
+
+            //Evaluo los datos del SSE recibido
+            //Si se ha escrito un numero que sobrepasa mi umbral
+            //la funcion evaluarUmbralSSE() mostrará una notificación
+            evaluarUmbralSSE(e.data)
+            //Creamos bloque para poder añadir funcionalidades
+            //en otras páginas al recibir SSE.
+            {% block SSE %}{% endblock %}
+
+		}; 
+        {# Cerrar conexión con SSE cuando se cierre la ventana#}
+        window.onbeforeunload=function(){
+                evtSrc.close();
+        };
+    </script>
+
 </body>
 </html>

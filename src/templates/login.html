@@ -1,6 +1,6 @@
 {# login.html #}
 {% extends "topbar_empty_base.html" %}
-{% block cabeza %}
+{% block cabeza_base %}
     {# Enviar mensaje con los datos al server #}
     <script 
     src="{{ url_for('static', filename='js/enviarLogin.js') }}">
@@ -13,7 +13,7 @@
     </script>
 {% endblock %}
 
-{% block cuerpo %}
+{% block cuerpo_base %}
     <h1>LOGIN</h1>
         {#En los forms, los atributos que identifican a un 
         input text es el name. Es como se identificará en el server.

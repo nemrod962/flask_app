@@ -1,6 +1,6 @@
 {# register.html #}
 {% extends "topbar_empty_base.html" %}
-{% block cabeza%}
+{% block cabeza_base%}
     {# Cargo Scripts para la comprobación de datos#}
 	{# Cargo Script para la comprobación del umbral#}
     <script 
@@ -17,7 +17,7 @@
     </script>
 
 {% endblock %}
-{% block cuerpo %}
+{% block cuerpo_base %}
     <h1>Register</h1>
     <form id="form_register" action="{{url_for('blueUser.webRegister')}}" method="POST">
         <p>Username:</p>
