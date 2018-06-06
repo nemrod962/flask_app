@@ -11,7 +11,9 @@ datos a tratar.*/
 //listaDatos = [ listaNumeros, listaFechasMS, listaFecha]
 var listaGlobalDatos = [];
 //lista global con las cabeceras a utilizar
-var listaCabeceras=["Umbral","Numero Superior","Fecha Obtención Núm. Superior","Numero Inferior","Fecha Obtención Núm. Inferior"];
+var listaCabeceras=["Umbral","Último Numero Superior",
+"Fecha Obtención Núm. Superior","Último Numero Inferior",
+"Fecha Obtención Núm. Inferior"];
 //umbral, de forma que lo tengo disponible en la funcion SSE
 var umbralGlobal;
 
@@ -287,6 +289,7 @@ function getResUmbralInferior(listasDatos, umbral)
     return listaResultado;
 }
 
+//-----------------------------------------------------------------------------
 ////SSE
 /*Funcion a llamar cuando se reciba un SSE para añadir
 fila con los datos*/
@@ -319,3 +322,73 @@ function updateTableUmbralSSE(datosSSE, divTabla)
     }
 }
 
+//-----------------------------------------------------------------------------
+/*Preparar todo para recalcular la tabla.
+    > Asigna al boton la funcion recalcular la tabla al pulsarlo.
+    > Asigna al input text la funcion isNumberKey() en el
+    evento onKeyPress() de forma que solo se puedan introducir numeros
+    en él.*/
+function prepararRecalcularTabla(divTabla, selectorUmbral, selectorBoton)
+{
+    //Asigno funcional input en el evento onKeyPress
+    soloNumeros(selectorUmbral);
+    //Asigno funcion al boton
+    asignarRecalcular(divTabla, selectorUmbral, selectorBoton);
+}
+
+//Actualización de la tabla.
+//Ahora el umbral se especificará en la propia pantalla. Se introducirá
+//en un input number y se recalculará la tabla cuando se pulse un botón al
+//lado del input text.
+function recalculateTableUmbral(divTabla, selectorUmbral)
+{
+    //Obtiene valor umbral
+    //Al ser input type=number devuelve "" si su contenido
+    //no es un ńumero. Tampoco admite numeros decimales
+    var umbral = parseFloat($(selectorUmbral).val());
+    //Sino es un número mostramos mensaje.
+    if(isNaN(umbral))
+    {
+        window.alert("Introduce un número válido.");
+    }
+    //Si es un número. proseguimos.
+    else
+    {
+        //Guardo umbral en variable global para tenerlo disponible en 
+        //la funcion SSE
+        umbralGlobal = umbral;
+        //actualizo tabla
+        var listaResultados=getResUmbral(listaGlobalDatos, umbral);
+        crearTabla(divTabla,listaCabeceras,listaResultados,true);
+    }
+}
+
+/*Asigna la función reculacular al botón indicado.*/
+function asignarRecalcular(divTabla, selectorUmbral, selectorBoton)
+{
+    $(selectorBoton).click(function()
+    {
+        recalculateTableUmbral(divTabla, selectorUmbral);
+    });
+}
+
+/*Dado el selector de un input text, solo permite intorducir numeros.*/
+function soloNumeros(selectorUmbral)
+{
+    $(selectorUmbral).keypress(function(evento)
+    {
+        return isNumberKey(evento);
+    });
+}
+
+/*Funcion para asignar al evento onKeyPress de un input tag,
+de forma que solo permita numeros*/
+function isNumberKey(evt){
+    var charCode = (evt.which) ? evt.which : event.keyCode
+    //no decimals
+    //if (charCode > 31 && (charCode < 48 || charCode > 57))
+    //decimals
+    if (charCode > 31 && (charCode != 46 &&(charCode < 48 || charCode > 57)))
+        return false;
+    return true;
+}

@@ -72,11 +72,8 @@
                             {#<span>Umbral<span>#}
                             <a 
                             id="link_umbral"
-                            href='{{url_for("blueApp.webUmbral", umb=50)}}'
+                            href='{{url_for("blueApp.webUmbral")}}'
                             >Umbrales</a>
-                        </div>
-                        <div>
-                            <input class="textoMenu" type="text" name="umbralTxt">
                         </div>
                     </li>
                     <li>
@@ -111,10 +108,5 @@
         </div<>
         </fieldset>
 
-    <script>
-        var url = '{{url_for("blueApp.webUmbral")}}';
-        actualizarLinkUmbral($("#link_umbral"), $(".textoMenu"), url);
-        
-    </script>
 {% endblock %}
 

@@ -17,8 +17,16 @@
 {% endblock %}
 {% block cuerpo %}
 	<title>Umbral</title>
-	<div><p>Umbral:  {{umbralHTML}}</p></div>
+    <br>
+	<div><h1>Umbral</h1></div>
 	<br>
+    <div>
+        <span>Introduce número para calcular el último número superior e
+        inferior registrados respecto al indicado.</span>
+        <input id="umbralTxt" type="text" required="true">
+        <button id="umbralBoton" type="button">Recalcular</button>
+    </div>
+    <br>
 	{#Se creará una tabla con el umbral en este elemento#}
 	<div id="myTableDiv">
 	</div>
@@ -34,20 +42,27 @@
 	var listaNum = '{{listaNum}}'
 	var listaDate = '{{listaDate}}'
 
-	var listaCab = ["numeros", "fechas"]
-
 	var listaDatos = [listaNum, listaDate]
 
-	var umbral = '{{umbral}}'
+	//var umbral = '{{umbral}}'
+	var umbral = 50
+
+    //Elemento html donde crearemos la tabla
+    var elemTabla = document.getElementById('myTableDiv');
 
 	console.log("***")
-	console.log('antes funcion: cab - ' + listaCab)
 	console.log('antes funcion: dat - ' + listaDatos)
 	console.log('antes funcion: umb - ' + umbral)
 
-	window.onload = crearTablaUmbral(document.getElementById('myTableDiv'),listaDatos,umbral);
-	{#window.onload =
-	crearTablaRandom(document.getElementById('myTableDiv'),listaCab,listaDatos) #}
+    {#Creo tabla con el num 50 como umbral al cargar la página#}
+	window.onload = crearTablaUmbral(elemTabla,listaDatos,umbral);
+
+    {# Preparo los elementos para que se pueda raclcular la tabla.
+    > Asigno al boton que al pulsarlo se recalcule la tabla
+    > el input text solo admitirá numeros.#}
+    var idInput = "#umbralTxt";
+    var idBoton = "#umbralBoton";
+    prepararRecalcularTabla(elemTabla,idInput,idBoton);
 	</script>
 
 {% endblock %}

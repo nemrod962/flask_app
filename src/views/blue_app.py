@@ -141,30 +141,18 @@ def webTabla():
 
 #UMBRAL_JS
 @blueApp.route("/umbral")
-@blueApp.route("/umbral/<umb>")
 #def pruebajs2(umb):
-def webUmbral(umb=50):
+def webUmbral():
     #Obtengo el manejador de la BD a 
     #utilizar según la cookie del usuario.
     DBHandler = getCookieDB(request)
     listaNum = DBHandler.listaGlobalNumero
     listaDate = DBHandler.listaGlobalFecha
     DBName = getDBSimpleName(DBHandler)
-    #Obtengo el umbral
-    try:
-        trueUmbral = float(umb)
-    except ValueError:
-        logging.info("NO SE HA INTRODUCIDO NUMERO COMO UMBRAL!")
-        #umb = "Debe introducirse un numero. Usando valor por defecto: 50."
-        trueUmbral = 50
-    logging.debug("Umbral a emplear")
-    logging.debug("str: " + str(umb))
-    logging.debug("float: " + str(trueUmbral))
     return render_template("umbral.html",\
     listaNum=listaNum,
     listaDate=listaDate, 
-    DBName=DBName,
-    umbral= umb)
+    DBName=DBName)
     #resUmbral = "<div>HOLA</div>")
 
 #Media
@@ -175,7 +163,6 @@ def webMedia():
     listaNum = DBHandler.listaGlobalNumero
     listaDate = DBHandler.listaGlobalFecha
     DBName = getDBSimpleName(DBHandler)
-    logging.debug("lista en pruebajs: " + str(listaNum))
     return render_template("media.html", listaNum=listaNum,
     listaDate=listaDate, DBName=DBName)
 
