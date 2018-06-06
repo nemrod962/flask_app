@@ -313,59 +313,18 @@ MUY IMPORTANTE.*/
 
 /* DIALOGS */
 
-.ui-dialog {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px;
-    border-radius: 10px;
-}
-
-.ui-dialog-titlebar, .ui-dialog-content {
-    background-color: white;
-    color: black;
-    border: 1px solid white;
-    border-radius: 10px;
-    padding: 5px;
-    margin: 5px;
-}
-
-.ui-dialog-titlebar {
-    background-color: #0099cc;
-	cursor: move;
-	padding: 10px;
-	font-weight: bold;
-}
-
-/*.ui-button, .ui-button:hover{*/
-.ui-button {
-    /*Tamaño automaticp*/
-    height:auto;
-    width: auto;
-    /*Borde*/
-    border: initial;
-    border-radius: 5px;
-    /*Alineacion derecha*/
-    float: right;
-    /*Márgenes*/
-    margin: initial;
-    padding: 1px;
-    padding-left: 5px;
-    padding-right: 5px;
-    /*colores*/
-    color: white;
-    background-color: #0099cc;
-}
 
 .ui-dialog-buttonpane {
   display: flex;
   align-items: center;
   justify-content: center;
+  float: center;
 }
 
 #dialogOkBoton
 {
-	height: 50px;
+	height: 40px;
 	margin: 0 auto;
 	display: block;
-	width: 290px;
+	width: 150px;
 }

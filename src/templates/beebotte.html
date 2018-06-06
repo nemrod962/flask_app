@@ -2,6 +2,7 @@
 {% extends "topbar_base.html" %}
 {% block cabeza%}
 	
+  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/jquery-ui.css') }}">
   <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/style.css') }}">
 
 {# biblioteca Beebotte #}
@@ -16,6 +17,7 @@
   $( function() {
     $( "#dialog" ).dialog({
       autoOpen: false,
+      modal: true,
       buttons: {
         "dialogButton":{ 
             text: "Ok",
