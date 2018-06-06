@@ -1,19 +1,59 @@
 {# media.html #}
 {% extends "topbar_base.html" %}
 {% block cabeza%}
+	
+  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/style.css') }}">
+
 {# biblioteca Beebotte #}
 <script src='{{ url_for('static', filename='js/bbt.js') }}'>
 </script>
 {# dependencia de la biblioteca Beebotte #}
 <script src='{{ url_for('static', filename='js/socket.io.js') }}'>
 </script>
-
+{#DIALOGS#}
+	<script src='{{ url_for('static', filename='js/jquery-ui.js') }}'></script>
+  <script>
+  $( function() {
+    $( "#dialog" ).dialog({
+      autoOpen: false,
+      buttons: {
+        "dialogButton":{ 
+            text: "Ok",
+            id: "dialogOkBoton",
+            click: function() {
+              $( this ).dialog( "close" );
+            }
+        }
+      },
+      show: {
+        effect: "blind",
+        duration: 100
+      },
+      hide: {
+        effect: "blind",
+        duration: 100
+      }
+    });
+ 
+    $( "#opener" ).on( "click", function() {
+      $( "#dialog" ).dialog( "open" );
+    });
+  } );
+  </script>
 {% endblock %}
 {% block cuerpo %}
 <title>Gráficas Beebotte</title>
 <div><h2>Gráficas Beebotte:</h2></div>
+<div id="dialog" title="Basic dialog">
+  <p>This is an animated dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
+</div>
+ 
+<button id="opener">Open Dialog</button>
 <br>
 <div id="graficaBee">
+Hola buenas dias
+</div>
+<div>
     {% raw %}
     <span> This is the number: {{ NumberList.numero }} </span>
     {% endraw %}
