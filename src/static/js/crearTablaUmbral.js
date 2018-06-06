@@ -328,12 +328,15 @@ function updateTableUmbralSSE(datosSSE, divTabla)
     > Asigna al input text la funcion isNumberKey() en el
     evento onKeyPress() de forma que solo se puedan introducir numeros
     en él.*/
-function prepararRecalcularTabla(divTabla, selectorUmbral, selectorBoton)
+function prepararRecalcularTabla(divTabla, selectorUmbral, selectorBoton,
+selectorForm)
 {
     //Asigno funcional input en el evento onKeyPress
     soloNumeros(selectorUmbral);
     //Asigno funcion al boton
-    asignarRecalcular(divTabla, selectorUmbral, selectorBoton);
+    //asignarRecalcularBoton(divTabla, selectorUmbral, selectorBoton);
+    //Asigno funcion al form
+    asignarRecalcularForm(divTabla, selectorUmbral, selectorForm);
 }
 
 //Actualización de la tabla.
@@ -364,11 +367,22 @@ function recalculateTableUmbral(divTabla, selectorUmbral)
 }
 
 /*Asigna la función reculacular al botón indicado.*/
-function asignarRecalcular(divTabla, selectorUmbral, selectorBoton)
+function asignarRecalcularBoton(divTabla, selectorUmbral, selectorBoton)
 {
     $(selectorBoton).click(function()
     {
         recalculateTableUmbral(divTabla, selectorUmbral);
+    });
+}
+
+/*Asigna la función reculcular al ahcer submit del form indicado. Alternativa 
+a asignarle esta función al botón*/
+function asignarRecalcularForm(divTabla, selectorUmbral, selectorForm)
+{
+    $(selectorForm).submit(function()
+    {
+        recalculateTableUmbral(divTabla, selectorUmbral);
+        return false;
     });
 }
 

@@ -21,10 +21,14 @@
 	<div><h1>Umbral</h1></div>
 	<br>
     <div>
-        <span>Introduce número para calcular el último número superior e
-        inferior registrados respecto al indicado.</span>
-        <input id="umbralTxt" type="text" required="true">
-        <button id="umbralBoton" type="button">Recalcular</button>
+        <p>Introduce número para calcular el último número superior e
+        inferior registrados respecto al indicado.</p>
+        {#form que por defecto no hará nada. Sobrescribiremos su
+        comportamiento.#}
+        <form id="umbralForm" action="return false;">
+            <input id="umbralTxt" type="text" required="true">
+            <button id="umbralBoton" type="submit">Recalcular</button>
+        </form>
     </div>
     <br>
 	{#Se creará una tabla con el umbral en este elemento#}
@@ -62,7 +66,8 @@
     > el input text solo admitirá numeros.#}
     var idInput = "#umbralTxt";
     var idBoton = "#umbralBoton";
-    prepararRecalcularTabla(elemTabla,idInput,idBoton);
+    var idForm = "#umbralForm";
+    prepararRecalcularTabla(elemTabla,idInput,idBoton,idForm);
 	</script>
 
 {% endblock %}
