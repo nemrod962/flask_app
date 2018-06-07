@@ -18,22 +18,22 @@
 
 {% endblock %}
 {% block cuerpo_base %}
-    <h1>Register</h1>
+    <h1>Registro</h1>
     <form id="form_register" action="{{url_for('blueUser.webRegister')}}" method="POST">
-        <p>Username:</p>
+        <p>Nombre de usuario:</p>
         <input type="text" id="user" name="username" required="true">
         <br>
-        <p>Password:</p>
+        <p>Contraseña:</p>
         <input type="password" id="pass" name="password" required="true">
         <br>
-        <p>Repeat Password:</p>
+        <p>Repita su contraseña:</p>
         <input type="password" id="passRep" name="passRep" required="true">
         <br>
-        <p>Umbral:</p>
+        <p>Umbral (número del 0 al 100):</p>
         <input type="text" id="umbral" name="umbral" required="true">
         <br>
         <br>
-        <button type="submit" id="boton_registro">Register</button>
+        <button type="submit" id="boton_registro">Registrar</button>
     </form>
     <br>
     <a href="{{url_for('blueUser.webLogin')}}">Atrás</a>

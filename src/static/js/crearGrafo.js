@@ -479,7 +479,7 @@ function getFreqLayout()
 {
     //Layout
     var myLayout = {
-        title: "Frecuencias",
+        title: "Intervalos",
         font: {
             family: 'Helvetica',
             size: 20,
@@ -501,7 +501,7 @@ function getFreqLayout()
 			}
         },
         yaxis: {
-			title: 'Cantidad',
+			title: 'Frecuencia',
 			titlefont: {
 			  family: 'Helvetica',
 			  size: 18,

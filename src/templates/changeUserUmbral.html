@@ -18,6 +18,7 @@
     action="{{url_for('blueUser.cambiarUmbral')}}" 
     method="POST">
         <p>Elige tu umbral: {{ username }}</p>
+        <p>Debe ser un número comprendido entre 0 y 100.</p>
         <input type="text" id="umbral" name="umbral" required="true">
         <button type="submit" id="botonUmbral">Enviar</button>
     </form>
