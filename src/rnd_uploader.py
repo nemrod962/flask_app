@@ -169,18 +169,15 @@ class RndUploader:
                 #este valor en las BDs.
                 if rnd > -1:
                     #escribo en Beebotte. 0 si bien. 1 si mal.
-                    #resBee = self.__BeeHand.writeRandom(rnd, self.__debug)
+                    resBee = self.__BeeHand.writeRandom(rnd, self.__debug)
                     #solo necesario para la BD local, ya que Beebotte
                     #almacena automaticamente la fecha
                     fecha = str(date_handler.getDatetimeMs())
                     #escribo en MongoDB. 0 si bien. 1 si mal.
-                    #resMongo = self.__MongoHand.writeRandom(rnd, fecha)
+                    resMongo = self.__MongoHand.writeRandom(rnd, fecha)
                     #escribo en MySQL. 0 si bien. 1 si mal.
-                    #resSQL = self.__SQLHand.writeDataDB(rnd, fecha, self.__debug)
+                    resSQL = self.__SQLHand.writeDataDB(rnd, fecha, self.__debug)
                     #---
-                    resBee=0
-                    resMongo=0
-                    resSQL=1
                     #envio SSE (notificación a los clientes con
                     #el número obtenido)
                     #FORMATO SSE (parseado mediante js en el cliente)

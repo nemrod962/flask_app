@@ -20,16 +20,17 @@
         P.ej: request.form.get('user') obtendrá el texto
         que haya en el campo de texto con name='user'.#}
         <form id="form_login" action="{{url_for('blueUser.webLogin')}}" method="POST">
-            <p>Username:</p>
+            <p>Nombre de usuario:</p>
             <input type="text" id="user" name="user" required="true">
             <br>
-            <p>Password:</p>
+            <p>Contraseña:</p>
             <input type="password" id="pass" name="pass" required="true">
             <br>
             <br>
             <button type="submit" id="botonLogin" >Login</button>
         </form>
         <br>
+        <p>¿No estás registrado?</p>
         <br>
         <a href="{{url_for('blueOAuth.jsOAuthLogin')}}">Acceder con cuenta de Google</a>
         <br>
