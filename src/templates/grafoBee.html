@@ -2,21 +2,23 @@
 {% extends "topbar_base.html" %}
 {% block cuerpo %}
 <title>Gráficas Beebotte</title>
-<div><h2>Gráficas Beebotte:</h2></div>
+<h2>Gráficas Beebotte:</h2>
 <br>
 {#Se creará una tabla con el umbral en este elemento#}
 <div id="result">
 </div>
 <span> Se te va a redirigir fuera de la web. Si quieres continuar </span>
 <a
-href="https://beebotte.com/dash/09db3e70-df3a-11e7-bfef-6f68fef5ca14?shareid=shareid_MO4DtM8x1potiMSM">Haz
+href="https://beebotte.com/dash/84a2bb80-df29-11e7-bfef-6f68fef5ca14">Haz
 click aquí</a>
 <span id="linkaux">o aquí.</span>
 <br>
 
+<iframe id="grafoBee" src="https://beebotte.com/embed/dash/84a2bb80-df29-11e7-bfef-6f68fef5ca14"></iframe>
+
 <script>
 
-$("span#linkaux").click(function(){window.open("https://beebotte.com/dash/09db3e70-df3a-11e7-bfef-6f68fef5ca14");})
+$("span#linkaux").click(function(){window.open("https://beebotte.com/dash/84a2bb80-df29-11e7-bfef-6f68fef5ca14");})
 
 </script>
 

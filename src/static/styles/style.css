@@ -95,7 +95,7 @@ insertarán su código al heredar de topbar_base.html*/
 
 /* estilo general. centra el cuerpo 
 en la presentación de la página*/
-.cuerpo{
+.cuerpo {
     border: solid 2px white;
     border-radius: 5px;
     padding: 10px;
@@ -239,6 +239,18 @@ table {
     padding: 5px;
 }
 
+/* >>>>> Gráfica Beebotte */
+/* grafoBee.html */
+
+#grafoBee {
+    border: solid 2px white;
+    border-radius: 5px;
+    padding: 5px;
+    width: 80%;
+    height: 500px;
+    margin: 5%;
+}
+
 /* >>>>> MENU PRINCIPAL*/
 /* index.html */
 
@@ -327,4 +339,11 @@ MUY IMPORTANTE.*/
 	margin: 0 auto;
 	display: block;
 	width: 150px;
+    color: white;
+    background-color: #0099cc;
+}
+
+#dialogOkBoton:hover
+{
+    background-color: #33ccff;
 }
