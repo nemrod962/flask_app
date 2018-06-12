@@ -11,10 +11,17 @@
     <script 
     src="{{ url_for('static', filename='js/respuestasServidor.js') }}">
     </script>
+	{# OAUTH #}
+	{#client id necesaria para emplear API google. Obtenida de fichero
+	de credenciales#}
+ 	<meta name="google-signin-client_id" content="{{id_api}}">
+    {# Cargo Scripts Google Oauth2 para utilizar con los botones #}
+    <script type=text/javascript src="{{ url_for('static', filename='js/oauth_functions.js') }}"></script>
+
 {% endblock %}
 
 {% block cuerpo_base %}
-    <h1>LOGIN</h1>
+    <h1>ACCESO</h1>
         {#En los forms, los atributos que identifican a un 
         input text es el name. Es como se identificará en el server.
         P.ej: request.form.get('user') obtendrá el texto
@@ -29,23 +36,21 @@
             <br>
             <button type="submit" id="botonLogin" >Login</button>
         </form>
-        <br>
-        <p>¿No estás registrado?</p>
-        <br>
-        <a href="{{url_for('blueOAuth.jsOAuthLogin')}}">Acceder con cuenta de Google</a>
-        <br>
-        <br>
+        {#<a href="{{url_for('blueOAuth.jsOAuthLogin')}}">
+		Acceder con cuenta de Google</a>#}
+		{# Custom Google Sign in Button #}
+		<div id="my-signin2"
+		onclick="validarSignIn()"></div>
+		{# Load the Google Platform Library #}
+		{#La function renderButton() está definida en oauth_functions.js. Sirve
+		para darle estilo al botón.#}
+		<script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
+        <p>
+        <span>¿No estás registrado?</span>
         <a href="{{url_for('blueUser.webRegister')}}">Registrarse</a>
+		</p>
 
         <script>
-        /*
-            $("#botonLogin").click(function()
-            {
-                var user = $("#user").val();
-                var pass = $("#pass").val();
-                enviarLogin(user,pass);
-            });
-        */
         //Unicamente recibe una cadena que se empleará como 
         //selector del form. En este caso, '#form_login'
         var selector = '#form_login';

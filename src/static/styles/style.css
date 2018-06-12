@@ -216,7 +216,14 @@ table {
 }
 
 .cuerpo span.userInfo {
-    color:red;
+    color:yellow;
+}
+
+/* >>>>> LOGIN */
+/* login.html */
+/*boton oauth*/
+#my-signin2 {
+    margin: 10px;
 }
 
 /* >>>>> ACERCA DE RANDOM-LENDER */
@@ -347,3 +354,5 @@ MUY IMPORTANTE.*/
 {
     background-color: #33ccff;
 }
+
+

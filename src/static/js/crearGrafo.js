@@ -437,6 +437,14 @@ function getScatterLayout()
 {
     //Layout
     var myLayout = {
+        //Margenes
+        margin: {
+            l: 50,
+            r: 50,
+            b: 100,
+            t: 100,
+            pad: 2
+        },
         title: "Números Registrados",
         font: {
             family: 'Helvetica',
@@ -451,11 +459,28 @@ function getScatterLayout()
 			  color: '#4CAF50'
 			},
 			//Oculto fehcas en el eje X
-			showticklabels: false,
-			showgrid: false
-			//showline: false
+			showticklabels: true,
+			tickfont: {
+			  family: 'Helvetica',
+			  size: 14,
+			  color: 'black'
+			},
+            tickangle: 20,
+            dtick: 10,
+            ticklen: 8,
+            tickwidth: 4,
+            tickcolor: '#000',
+			showgrid: true,
+            zerolinewidth: 1,
+            zerolinecolor: '#000',
+            gridwidth: 1,
+            gridcolor: '#000'
         },
         yaxis: {
+            zerolinewidth: 2,
+            zerolinecolor: '#ff0000',
+            gridwidth: 2,
+            gridcolor: '#ff0000',
 			title: 'Número',
 			titlefont: {
 			  family: 'Helvetica',
@@ -468,7 +493,7 @@ function getScatterLayout()
 			  family: 'Helvetica',
 			  size: 14,
 			  color: 'black'
-			},
+			}
   		}
     };
     return myLayout
@@ -501,6 +526,10 @@ function getFreqLayout()
 			}
         },
         yaxis: {
+            zerolinewidth: 1,
+            zerolinecolor: '#000',
+            gridwidth: 1,
+            gridcolor: '#000',
 			title: 'Frecuencia',
 			titlefont: {
 			  family: 'Helvetica',

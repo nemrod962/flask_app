@@ -10,6 +10,8 @@ from mongo_oauth import OAuthUserManager
 #a la pantalla de login si no he iniciado
 #sesion
 from blue_cookie import no_cookie_check
+#credenciales oauth (clientid)
+from blue_oauth import getClientId
 #Log
 import logging
 from log_handler import setup_log, setStreamMode
@@ -83,7 +85,9 @@ def webRegister():
 @no_cookie_check
 def webLogin():
     if request.method == 'GET':
-        return render_template("login.html")
+        #CLIENT_ID="324401899197-2cag1rbuoium6s2q96m1i0hm3fjium4g.apps.googleusercontent.com"
+        CLIENT_ID=getClientId()
+        return render_template("login.html",id_api=CLIENT_ID)
 
     elif request.method == 'POST':
         #Los convierto a string pues estrán en tipo 'unicode'
